@@ -1,9 +1,9 @@
-package com.project.locarm
+package com.project.locarm.search
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.View
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -11,11 +11,20 @@ import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.project.locarm.ApiService
+import com.project.locarm.RetrofitManager
 import com.project.locarm.databinding.ActivitySearchBinding
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import com.project.locarm.GeoCoder
+import com.project.locarm.common.GeoCoder
+import com.project.locarm.data.AddressDTO
+import com.project.locarm.room.DataBase
+import com.project.locarm.room.Favorite
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.lang.Exception
 
 class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
     lateinit var binding : ActivitySearchBinding
@@ -29,6 +38,9 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         binding = ActivitySearchBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        val database = DataBase.getInstance(application)!!
+        val dao = database.favoriteDao()
 
         adapter = AddressAdapter()
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
@@ -61,13 +73,12 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
         /**
          * 주소 선택 시
          */
-        adapter.setOnItemClickListener(object : AddressAdapter.OnItemClickListener{
+        adapter.setOnItemClickListener(object : AddressAdapter.OnItemClickListener {
             override fun onItemClicked(data: AddressDTO.Result.Juso) {
                 address = data
                 viewModel.setData(data)
                 binding.addressSlide.animateClose()
             }
-
         })
 
         /**
@@ -86,7 +97,29 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
                 putExtra("address", address.jibunAddr)
                 setResult(RESULT_OK, intent)
             }
-            finish()
+            //TODO 즐겨찾기 알람
+            AlertDialog.Builder(this)
+                .setTitle(address.name)
+                .setMessage("즐겨찾기에 추가하시겠습니까?")
+                .setPositiveButton("예") { _, _ ->
+                    Log.d("MyTag", "positive")
+                    try{
+                        CoroutineScope(Dispatchers.IO).launch {
+                            dao.insert(Favorite(
+                                name = address.name,
+                                roadAddress = address.roadAddr,
+                                jibunAddress = address.jibunAddr
+                            ))
+                        }
+                    }
+                    catch (e : Exception){ }
+                    finish()
+                }
+                .setNegativeButton("아니오") { _, _ ->
+                    finish()
+                }
+                .create()
+                .show()
         }
     }
 

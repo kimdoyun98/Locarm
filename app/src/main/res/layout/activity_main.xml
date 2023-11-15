@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".MainActivity">
+    tools:context=".main.MainActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/mypageToolbar"
@@ -39,16 +39,35 @@
         android:textColor="@color/base_textColor"
         android:gravity="center"
         />
-
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="최근 목적지"
-        android:textStyle="bold"
-        android:textSize="15dp"
-        android:textColor="@color/base_textColor"
-        />
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_weight="1"
+            android:text="즐겨찾기"
+            android:textStyle="bold"
+            android:textSize="15dp"
+            android:textColor="@color/base_textColor"
+            />
+
+        <TextView
+            android:id="@+id/allDelete"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="20dp"
+            android:gravity="center"
+            android:text="전체 삭제"
+            android:textStyle="bold"
+            android:textSize="13dp"
+            android:textColor="@color/darkgray"
+            />
+
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -57,9 +76,12 @@
         android:orientation="horizontal">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recentDestinations"
-            android:layout_height="50dp"
-            android:layout_width="match_parent" />
+            android:id="@+id/favorites"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_margin="10dp"
+            android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
     </LinearLayout>
 
     <Button

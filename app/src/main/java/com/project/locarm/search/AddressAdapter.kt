@@ -1,9 +1,10 @@
-package com.project.locarm
+package com.project.locarm.search
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.project.locarm.data.AddressDTO
 import com.project.locarm.databinding.AddressSearchItemBinding
 
 class AddressAdapter : RecyclerView.Adapter<AddressAdapter.ViewHolder>(){
@@ -29,7 +30,7 @@ class AddressAdapter : RecyclerView.Adapter<AddressAdapter.ViewHolder>(){
         init {
             binding.root.setOnClickListener(View.OnClickListener {
                 val pos : Int = adapterPosition
-                itemClickListener?.onItemClicked(addressArray[pos]);
+                itemClickListener?.onItemClicked(addressArray[pos])
             })
         }
 

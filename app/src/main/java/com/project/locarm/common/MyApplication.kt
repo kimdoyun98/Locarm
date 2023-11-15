@@ -1,4 +1,4 @@
-package com.project.locarm
+package com.project.locarm.common
 
 import android.app.Application
 

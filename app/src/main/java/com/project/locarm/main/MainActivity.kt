@@ -1,22 +1,35 @@
-package com.project.locarm
+package com.project.locarm.main
 
 import android.Manifest
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import androidx.core.content.ContextCompat
+import com.project.locarm.BackgroundLocationUpdateService
+import com.project.locarm.search.SearchActivity
+import com.project.locarm.common.MyApplication
+import com.project.locarm.data.AddressDTO
 import com.project.locarm.databinding.ActivityMainBinding
+import com.project.locarm.room.DataBase
+import com.project.locarm.room.Favorite
+import com.project.locarm.search.AddressAdapter
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding : ActivityMainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        val viewModel = FavoriteViewModel(application)
+        val database = DataBase.getInstance(application)!!
+        val dao = database.favoriteDao()
 
         checkPermission()
 
@@ -28,6 +41,43 @@ class MainActivity : AppCompatActivity() {
             startActivityForResult(Intent(this, SearchActivity::class.java), 1)
             //startActivity(Intent(this, SearchActivity::class.java))
         }
+
+        /**
+         * 즐겨찾기
+         */
+        viewModel.listAll.observe(this){
+            Log.e("favorite", it.toString())
+            val adapter = FavoritesAdapter().apply {
+                setData(it)
+            }
+            binding.favorites.adapter = adapter
+            adapter.setOnItemClickListener(object : FavoritesAdapter.OnItemClickListener {
+                override fun onItemClicked(data: Favorite) {
+                    //TODO 
+                }
+
+                override fun onDeleteClicked(data: Favorite) {
+                    try {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            dao.delete(data.id)
+                        }
+                    }
+                    catch (e: Exception){
+                    }
+                }
+            })
+        }
+
+        binding.allDelete.setOnClickListener {
+            try {
+                CoroutineScope(Dispatchers.IO).launch {
+                    dao.deleteAll()
+                }
+            }
+            catch (e: Exception){
+            }
+        }
+
 
         //TODO 실시간 위치
         binding.button.setOnClickListener {

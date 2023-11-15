@@ -11,4 +11,6 @@
     <color name="base_background">#FF000000</color>
     <color name="base_textColor">#FFFFFFFF</color>
     <color name="darkgray">#565656</color>
+    <color name="favorites_item_background">#BEBEBE</color>
+    <color name="favorites_item_text">#FF000000</color>
 </resources>

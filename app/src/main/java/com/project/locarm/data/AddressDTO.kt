@@ -1,4 +1,4 @@
-package com.project.locarm
+package com.project.locarm.data
 
 import com.google.gson.annotations.SerializedName
 
