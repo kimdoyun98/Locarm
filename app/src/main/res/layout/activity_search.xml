@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".SearchActivity">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/searchView"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_margin="10dp"
+            android:background="@drawable/search_rectangle"
+            android:ems="10"
+            android:inputType="textPersonName"
+            app:iconifiedByDefault="false"
+            app:queryHint="목적지를 입력하세요.."/>
+
+
+        <com.google.android.gms.maps.MapView
+            android:id="@+id/mapView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            />
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:layout_gravity="center"
+            android:text="등록"
+            />
+    </LinearLayout>
+
+    <SlidingDrawer
+        android:id="@+id/addressSlide"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:allowSingleTap="true"
+        android:animateOnClick="true"
+        android:bottomOffset="20dp"
+        android:content="@+id/content"
+        android:handle="@+id/handle"
+        android:orientation="vertical"
+        android:topOffset="50dp">
+
+        <LinearLayout
+            android:id="@+id/handle"
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:background="@drawable/sliding_drawer_top_rectangle"
+            android:orientation="vertical">
+
+            <Button
+                android:layout_width="50dp"
+                android:layout_height="17dp"
+                android:layout_gravity="center_horizontal"
+                android:backgroundTint="#d3d3d3" />
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/base_background"
+            android:orientation="vertical"
+            >
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/addressList"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:padding="10dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+        </LinearLayout>
+    </SlidingDrawer>
+</FrameLayout>
