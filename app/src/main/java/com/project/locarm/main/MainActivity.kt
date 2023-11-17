@@ -3,24 +3,24 @@ package com.project.locarm.main
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.project.locarm.BackgroundLocationUpdateService
-import com.project.locarm.search.SearchActivity
 import com.project.locarm.common.MyApplication
-import com.project.locarm.data.AddressDTO
 import com.project.locarm.databinding.ActivityMainBinding
 import com.project.locarm.room.DataBase
 import com.project.locarm.room.Favorite
-import com.project.locarm.search.AddressAdapter
+import com.project.locarm.search.SearchActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding : ActivityMainBinding
+    private var address : String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +39,6 @@ class MainActivity : AppCompatActivity() {
 
         binding.searchText.setOnClickListener {
             startActivityForResult(Intent(this, SearchActivity::class.java), 1)
-            //startActivity(Intent(this, SearchActivity::class.java))
         }
 
         /**
@@ -53,7 +52,10 @@ class MainActivity : AppCompatActivity() {
             binding.favorites.adapter = adapter
             adapter.setOnItemClickListener(object : FavoritesAdapter.OnItemClickListener {
                 override fun onItemClicked(data: Favorite) {
-                    //TODO 
+                    //TODO
+                    binding.destination.text = data.name
+                    address = data.jibunAddress
+                    MyApplication.prefs.setAddress("address", address!!)
                 }
 
                 override fun onDeleteClicked(data: Favorite) {
@@ -81,18 +83,21 @@ class MainActivity : AppCompatActivity() {
 
         //TODO 실시간 위치
         binding.button.setOnClickListener {
-            Log.e("alarmStatus", alarmStatus.toString())
-            if(!alarmStatus){
-                MyApplication.prefs.setBoolean("alarm", true)
-                binding.button.text = "알림 끄기"
-                startService(Intent(this, BackgroundLocationUpdateService::class.java))
+            if(address == null){
+                Toast.makeText(this, "목적지를 입력하세요", Toast.LENGTH_LONG).show()
             }
-            else {
-                MyApplication.prefs.setBoolean("alarm", false)
-                binding.button.text = "위치 알림"
-                stopService(Intent(this, BackgroundLocationUpdateService::class.java))
+            else{
+                if(!MyApplication.prefs.getBoolean("alarm", false)){
+                    MyApplication.prefs.setBoolean("alarm", true)
+                    binding.button.text = "알림 끄기"
+                    startService(Intent(this, BackgroundLocationUpdateService::class.java))
+                }
+                else {
+                    stopService(Intent(this, BackgroundLocationUpdateService::class.java))
+                    MyApplication.prefs.setBoolean("alarm", false)
+                    binding.button.text = "위치 알림"
+                }
             }
-
         }
 
 
@@ -103,7 +108,9 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == 1 && resultCode == RESULT_OK){
             if(data != null){
                 binding.destination.text = data.getStringExtra("name")
-                //data.getStringExtra("address")
+                address = data.getStringExtra("address")
+                MyApplication.prefs.setAddress("address", address!!)
+                MyApplication.prefs.setAddress("name", data.getStringExtra("name")!!)
             }
         }
     }
@@ -120,4 +127,5 @@ class MainActivity : AppCompatActivity() {
             requestPermissions(permissionArray, 1000)
         }
     }
+
 }

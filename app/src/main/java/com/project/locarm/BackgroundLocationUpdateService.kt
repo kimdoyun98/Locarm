@@ -2,6 +2,7 @@ package com.project.locarm
 
 import android.annotation.SuppressLint
 import android.app.*
+import android.app.PendingIntent.FLAG_ONE_SHOT
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender.SendIntentException
@@ -19,12 +20,17 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
+import com.project.locarm.common.GeoCoder
+import com.project.locarm.common.MyApplication
+import com.project.locarm.common.PushAlarm
 import com.project.locarm.main.MainActivity
+import java.lang.Math.*
 import java.util.concurrent.TimeUnit
+import kotlin.math.pow
 
 
-class BackgroundLocationUpdateService :
-    Service(), GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+class BackgroundLocationUpdateService : Service(),
+    GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
     /**
      * Declare in manifest
      * <service android:name=".BackgroundLocationUpdateService"/>
@@ -61,6 +67,21 @@ class BackgroundLocationUpdateService :
                 try {
                     if (!stopService) {
                         // TODO Perform your task here
+                        val location = GeoCoder.getXY(context, MyApplication.prefs.getAddress("address", "")!!)
+                        val distance = getDistance(latitude.toDouble(), longitude.toDouble(), location.latitude, location.longitude)
+
+                        /** 목적지까지 1km 이내면 알람 및 진동 **/
+                        if(distance <= 1000){
+                            PushAlarm.build(
+                                context,
+                                "목적지 인접",
+                                "목적지까지 ${distance}M 남았습니다.",
+                                MyApplication.prefs.getAddress("name", "")!!
+                            )
+                            val vibrator : Vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                            vibrator.vibrate(1000)
+                        }
+
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -90,6 +111,7 @@ class BackgroundLocationUpdateService :
         return null
     }
 
+    @SuppressLint("UnspecifiedImmutableFlag")
     private fun StartForeground() {
         val intent = Intent(context, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
@@ -97,7 +119,7 @@ class BackgroundLocationUpdateService :
             this,
             0 /* Request code */,
             intent,
-            PendingIntent.FLAG_ONE_SHOT
+            PendingIntent.FLAG_IMMUTABLE or FLAG_ONE_SHOT
         )
         val CHANNEL_ID = "channel_location"
         val CHANNEL_NAME = "channel_location"
@@ -238,5 +260,18 @@ class BackgroundLocationUpdateService :
             mLocationRequest!!,
             mLocationCallback!!, Looper.myLooper()!!
         )
+    }
+
+
+    /**
+     * 현재 위치에서 목적지까지의 거리
+     */
+    fun getDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double):Int{
+        val R = 6372.8 * 1000
+        val dLat = Math.toRadians(lat2 - lat1)
+        val dLon = Math.toRadians(lon2 - lon1)
+        val a = sin(dLat / 2).pow(2.0) + sin(dLon / 2).pow(2.0) * cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2))
+        val c = 2 * asin(sqrt(a))
+        return (R * c).toInt()
     }
 }
