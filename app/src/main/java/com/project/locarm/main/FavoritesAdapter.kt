@@ -1,15 +1,11 @@
 package com.project.locarm.main
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.project.locarm.data.AddressDTO
-import com.project.locarm.databinding.AddressSearchItemBinding
 import com.project.locarm.databinding.FavoritesItemBinding
 import com.project.locarm.room.Favorite
-import com.project.locarm.search.AddressAdapter
 
 class FavoritesAdapter : RecyclerView.Adapter<FavoritesAdapter.ViewHolder>(){
     private lateinit var binding : FavoritesItemBinding

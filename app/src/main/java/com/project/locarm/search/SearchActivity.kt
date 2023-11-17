@@ -32,17 +32,20 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var adapter: AddressAdapter
     private val retrofit2 = RetrofitManager.getRetrofitInstance().create(ApiService::class.java)
     private lateinit var address : AddressDTO.Result.Juso
-    private val viewModel = MapViewModel()
+    private lateinit var viewModel:SearchViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySearchBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val database = DataBase.getInstance(application)!!
-        val dao = database.favoriteDao()
+        viewModel = SearchViewModel(application)
 
         adapter = AddressAdapter()
+
+        /**
+         * 목적지 검색
+         */
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
             override fun onQueryTextSubmit(query: String?): Boolean {
                 retrofit2.getAddress(query)
@@ -82,13 +85,6 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
         })
 
         /**
-         * GoogleMap
-         */
-        mapView = binding.mapView
-        mapView.onCreate(savedInstanceState)
-        mapView.getMapAsync(this@SearchActivity)
-
-        /**
          * 등록
          */
         binding.button.setOnClickListener {
@@ -97,30 +93,41 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
                 putExtra("address", address.jibunAddr)
                 setResult(RESULT_OK, intent)
             }
-            //TODO 즐겨찾기 알람
-            AlertDialog.Builder(this)
-                .setTitle(address.name)
-                .setMessage("즐겨찾기에 추가하시겠습니까?")
-                .setPositiveButton("예") { _, _ ->
-                    Log.d("MyTag", "positive")
-                    try{
-                        CoroutineScope(Dispatchers.IO).launch {
-                            dao.insert(Favorite(
-                                name = address.name,
-                                roadAddress = address.roadAddr,
-                                jibunAddress = address.jibunAddr
-                            ))
+
+            /**
+             * 즐겨찾기 유무 확인 후 없으면 AlertDialog
+             */
+            viewModel.getFavorite(address.name).observe(this){
+                if(it==null){
+                    AlertDialog.Builder(this)
+                        .setTitle(address.name)
+                        .setMessage("즐겨찾기에 추가하시겠습니까?")
+                        .setPositiveButton("예") { _, _ ->
+                            viewModel.insertFavorite(
+                                Favorite(
+                                    name = address.name,
+                                    roadAddress = address.roadAddr,
+                                    jibunAddress = address.jibunAddr
+                                ))
+
+                            finish()
                         }
-                    }
-                    catch (e : Exception){ }
-                    finish()
+                        .setNegativeButton("아니오") { _, _ ->
+                            finish()
+                        }
+                        .create()
+                        .show()
                 }
-                .setNegativeButton("아니오") { _, _ ->
-                    finish()
-                }
-                .create()
-                .show()
+                else finish()
+            }
         }
+
+        /**
+         * GoogleMap
+         */
+        mapView = binding.mapView
+        mapView.onCreate(savedInstanceState)
+        mapView.getMapAsync(this@SearchActivity)
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
