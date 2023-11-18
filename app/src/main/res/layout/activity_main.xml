@@ -84,6 +84,57 @@
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        >
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:text="목적지"
+            android:textColor="@color/base_textColor"
+            android:textStyle="bold"
+            />
+
+        <TextView
+            android:id="@+id/distance_text"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="1"
+            android:textSize="17dp"
+            android:textColor="@color/base_textColor"
+            android:textStyle="bold"
+            />
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:text="KM"
+            android:textSize="17dp"
+            android:textColor="@color/base_textColor"
+            android:textStyle="bold"
+            />
+
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_weight="1"
+            android:text="인접 시 알람"
+            android:textColor="@color/base_textColor"
+            android:textStyle="bold"
+            />
+
+        <Button
+            android:id="@+id/change"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="변경"
+            />
+    </LinearLayout>
+
     <Button
         android:id="@+id/button"
         android:layout_width="match_parent"

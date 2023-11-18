@@ -30,4 +30,12 @@ class PreferenceUtil (context: Context) {
     fun setLocation(key:String, value:Double){
         prefs.edit().putFloat(key, value.toFloat()).apply()
     }
+
+    fun getAlarmDistance(key:String): Int{
+        return prefs.getInt(key, 1000)
+    }
+
+    fun setAlarmDistance(key:String, value:Int){
+        prefs.edit().putInt(key, value).apply()
+    }
 }

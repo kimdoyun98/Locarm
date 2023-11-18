@@ -24,8 +24,10 @@ import com.project.locarm.common.MyApplication
 import com.project.locarm.common.PushAlarm
 import com.project.locarm.main.MainActivity
 import java.lang.Math.*
+import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
 import kotlin.math.pow
+import kotlin.math.roundToLong
 
 
 class BackgroundLocationUpdateService : Service(),
@@ -69,12 +71,12 @@ class BackgroundLocationUpdateService : Service(),
                         val longitude2 = MyApplication.prefs.getLocation("longitude", 0.0)!!
                         val distance = getDistance(latitude.toDouble(), longitude.toDouble(), latitude2.toDouble(), longitude2.toDouble())
 
-                        /** 목적지까지 1km 이내면 알람 및 진동 **/
-                        if(distance <= 1000){
+                        /** 목적지까지 설정 값 이내면 알람 및 진동 **/
+                        if(distance <= MyApplication.prefs.getAlarmDistance("distance")){
                             PushAlarm.build(
                                 context,
                                 "목적지 인접",
-                                "목적지까지 ${distance}M 남았습니다.",
+                                "목적지까지 ${DecimalFormat("##0.0").format(distance.toDouble()/1000)}KM 남았습니다.",
                                 MyApplication.prefs.getAddress("name", "")!!
                             )
                             val vibrator : Vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator

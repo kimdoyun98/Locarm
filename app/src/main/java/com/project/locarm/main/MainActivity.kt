@@ -1,14 +1,18 @@
 package com.project.locarm.main
 
 import android.Manifest
+import android.app.Dialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.text.method.MultiTapKeyListener
 import android.util.Log
-import android.widget.Toast
+import android.view.View
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.project.locarm.BackgroundLocationUpdateService
+import com.project.locarm.R
 import com.project.locarm.common.MyApplication
 import com.project.locarm.databinding.ActivityMainBinding
 import com.project.locarm.room.DataBase
@@ -17,6 +21,7 @@ import com.project.locarm.search.SearchActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.lang.NumberFormatException
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding : ActivityMainBinding
@@ -36,6 +41,8 @@ class MainActivity : AppCompatActivity() {
         val alarmStatus : Boolean = MyApplication.prefs.getBoolean("alarm", false)
         if(alarmStatus) binding.button.text = "알림 끄기"
         else binding.button.text = "위치 알림"
+
+        binding.distanceText.text = (MyApplication.prefs.getAlarmDistance("distance")/1000).toString()
 
         binding.searchText.setOnClickListener {
             startActivityForResult(Intent(this, SearchActivity::class.java), 1)
@@ -83,6 +90,60 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        /**
+         * 알람 거리 변경
+         */
+        binding.change.setOnClickListener {
+            val dialog = Dialog(this)
+            dialog.setContentView(R.layout.alarm_distance_dialog)
+
+            dialog.show()
+            val check = dialog.findViewById<Button>(R.id.check)
+            val cancel = dialog.findViewById<Button>(R.id.cancel)
+            val radioGroup = dialog.findViewById<RadioGroup>(R.id.radioGroup)
+
+            radioGroup.setOnCheckedChangeListener { _, p1 ->
+                val anotherLayout = dialog.findViewById<LinearLayout>(R.id.another_layout)
+                when(p1){
+                    R.id.another -> anotherLayout.visibility = View.VISIBLE
+                    else -> anotherLayout.visibility = View.INVISIBLE
+                }
+            }
+
+            check.setOnClickListener {
+                lateinit var distance: String
+                try{
+                    when(radioGroup.checkedRadioButtonId){
+                        R.id.one -> {
+                            MyApplication.prefs.setAlarmDistance("distance", 1000)
+                            distance = "1"
+                        }
+                        R.id.two -> {
+                            MyApplication.prefs.setAlarmDistance("distance", 2000)
+                            distance = "2"
+                        }
+                        R.id.three -> {
+                            MyApplication.prefs.setAlarmDistance("distance", 3000)
+                            distance = "3"
+                        }
+                        else -> {
+                            distance = dialog.findViewById<EditText?>(R.id.another_text).text.toString()
+                            MyApplication.prefs.setAlarmDistance("distance", distance.toInt()*1000)
+                        }
+                    }
+                    binding.distanceText.text = distance
+                    Toast.makeText(this, "목적지로부터 ${distance}Km 이내 접근 시 알람이 울립니다.", Toast.LENGTH_LONG).show()
+                    dialog.cancel()
+                }
+                catch (e:NumberFormatException){
+                    Toast.makeText(this, "숫자를 입력해주세요.", Toast.LENGTH_LONG).show()
+                }
+            }
+
+            cancel.setOnClickListener {
+                dialog.cancel()
+            }
+        }
 
         /**
          * 알람 시작 버튼
