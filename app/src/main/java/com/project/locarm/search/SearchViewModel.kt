@@ -10,7 +10,6 @@ import com.project.locarm.room.Favorite
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.lang.Exception
 
 class SearchViewModel(application: Application) : ViewModel() {
     private var _address = MutableLiveData<AddressDTO.Result.Juso>()
