@@ -52,7 +52,6 @@ class MainActivity : AppCompatActivity() {
          * 즐겨찾기
          */
         viewModel.listAll.observe(this){
-            Log.e("favorite", it.toString())
             val adapter = FavoritesAdapter().apply {
                 setData(it)
             }
