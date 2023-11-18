@@ -23,12 +23,12 @@
             app:queryHint="목적지를 입력하세요.."/>
 
 
-        <com.google.android.gms.maps.MapView
-            android:id="@+id/mapView"
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/naverMap"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            />
+            android:name="com.naver.maps.map.MapFragment" />
 
         <Button
             android:id="@+id/button"

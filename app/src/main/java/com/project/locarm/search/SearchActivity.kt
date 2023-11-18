@@ -1,38 +1,37 @@
 package com.project.locarm.search
 
-import androidx.appcompat.app.AppCompatActivity
+import android.location.Location
 import android.os.Bundle
 import android.util.Log
+import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.MapView
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
+import com.naver.maps.geometry.LatLng
+import com.naver.maps.map.*
+import com.naver.maps.map.overlay.Marker
+import com.naver.maps.map.util.FusedLocationSource
 import com.project.locarm.ApiService
+import com.project.locarm.R
 import com.project.locarm.RetrofitManager
+import com.project.locarm.common.GeoCoder
+import com.project.locarm.common.MyApplication
+import com.project.locarm.data.AddressDTO
 import com.project.locarm.databinding.ActivitySearchBinding
+import com.project.locarm.room.Favorite
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import com.project.locarm.common.GeoCoder
-import com.project.locarm.data.AddressDTO
-import com.project.locarm.room.DataBase
-import com.project.locarm.room.Favorite
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.lang.Exception
 
 class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
     lateinit var binding : ActivitySearchBinding
-    private lateinit var mapView : MapView
     private lateinit var adapter: AddressAdapter
     private val retrofit2 = RetrofitManager.getRetrofitInstance().create(ApiService::class.java)
-    private lateinit var address : AddressDTO.Result.Juso
+    private var address : String? = null
     private lateinit var viewModel:SearchViewModel
+    private lateinit var locationSource: FusedLocationSource
+    private lateinit var location : Loc
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,7 +77,10 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
          */
         adapter.setOnItemClickListener(object : AddressAdapter.OnItemClickListener {
             override fun onItemClicked(data: AddressDTO.Result.Juso) {
-                address = data
+                val geo = GeoCoder.getXY(this@SearchActivity, data.jibunAddr)
+                address = data.name
+                location = Loc(geo.latitude, geo.longitude)
+
                 viewModel.setData(data)
                 binding.addressSlide.animateClose()
             }
@@ -89,58 +91,67 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
          */
         binding.button.setOnClickListener {
             intent.apply {
-                putExtra("name", address.name)
-                putExtra("address", address.jibunAddr)
+                putExtra("name", address)
                 setResult(RESULT_OK, intent)
             }
 
-            /**
-             * 즐겨찾기 유무 확인 후 없으면 AlertDialog
-             */
-            viewModel.getFavorite(address.name).observe(this){
-                if(it==null){
-                    AlertDialog.Builder(this)
-                        .setTitle(address.name)
-                        .setMessage("즐겨찾기에 추가하시겠습니까?")
-                        .setPositiveButton("예") { _, _ ->
-                            viewModel.insertFavorite(
-                                Favorite(
-                                    name = address.name,
-                                    roadAddress = address.roadAddr,
-                                    jibunAddress = address.jibunAddr
-                                ))
+            MyApplication.prefs.setLocation("latitude", location.latitude)
+            MyApplication.prefs.setLocation("longitude", location.longitude)
 
-                            finish()
-                        }
-                        .setNegativeButton("아니오") { _, _ ->
-                            finish()
-                        }
-                        .create()
-                        .show()
-                }
-                else finish()
+            /** 지도 좌표 설정으로 선택 시 좌표 이름 설정 **/
+            if(address == null){
+                //TODO 좌표에 이름 설정
+                val input = EditText(this)
+                AlertDialog.Builder(this)
+                    .setView(input)
+                    .setTitle("해당 좌표의 이름을 정해주세요")
+                    .setPositiveButton("확인"){ _, _ ->
+                        address = input.text.toString()
+                        favoriteAlertDialog()
+                    }
+                    .create()
+                    .show()
             }
+            else favoriteAlertDialog()
         }
 
         /**
-         * GoogleMap
+         * Naver Map
          */
-        mapView = binding.mapView
-        mapView.onCreate(savedInstanceState)
-        mapView.getMapAsync(this@SearchActivity)
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.naverMap) as MapFragment?
+            ?: MapFragment.newInstance().also {
+                supportFragmentManager.beginTransaction().add(R.id.naverMap, it).commit()
+            }
+        mapFragment.getMapAsync(this)
+        locationSource = FusedLocationSource(this, 5000)
     }
 
-    override fun onMapReady(googleMap: GoogleMap) {
-        var marker = LatLng(37.5562, 126.9724)
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker, 13f))
+    override fun onMapReady(naverMap: NaverMap) {
+        val marker = Marker()
 
+        naverMap.locationSource = locationSource
+
+        /** 지도에 직접 클릭하여 좌표 선택 시 **/
+        naverMap.setOnMapClickListener { point, coord ->
+            location = Loc(coord.latitude, coord.longitude)
+            marker.position = LatLng(coord.latitude, coord.longitude)
+            marker.map = naverMap
+            address = null
+            Log.e("onMapReady", address.toString())
+        }
+
+        /** 목적지 검색 시 해당 위치 지도 표시 **/
         viewModel.address.observe(this){
-            val data = GeoCoder.getXY(this, it.jibunAddr)
-            marker = LatLng(data.latitude, data.longitude)
-            googleMap.addMarker(MarkerOptions().position(marker).title(it.name))
-            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker, 13f))
+            val location = GeoCoder.getXY(this, it.jibunAddr)
+            val cameraUpdate = CameraUpdate.scrollTo(LatLng(location.latitude, location.longitude))
+
+            marker.position = LatLng(location.latitude, location.longitude)
+            marker.map = naverMap
+
+            naverMap.moveCamera(cameraUpdate)
         }
     }
+
 
     override fun onBackPressed() {
         super.onBackPressed()
@@ -148,28 +159,37 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
         else finish()
     }
 
-    override fun onStart() {
-        super.onStart()
-        mapView.onStart()
+    /**
+     * 즐겨찾기 유무 확인 후 없으면 AlertDialog
+     */
+    private fun favoriteAlertDialog(){
+        viewModel.getFavorite(address!!).observe(this){
+            if(it==null){
+                AlertDialog.Builder(this)
+                    .setTitle(address!!)
+                    .setMessage("즐겨찾기에 추가하시겠습니까?")
+                    .setPositiveButton("예") { _, _ ->
+                        viewModel.insertFavorite(
+                            Favorite(
+                                name = address!!,
+                                latitude = location.latitude,
+                                longitude = location.longitude
+                            ))
+
+                        finish()
+                    }
+                    .setNegativeButton("아니오") { _, _ ->
+                        finish()
+                    }
+                    .create()
+                    .show()
+            }
+            else finish()
+        }
     }
-    override fun onStop() {
-        super.onStop()
-        mapView.onStop()
-    }
-    override fun onResume() {
-        super.onResume()
-        mapView.onResume()
-    }
-    override fun onPause() {
-        super.onPause()
-        mapView.onPause()
-    }
-    override fun onLowMemory() {
-        super.onLowMemory()
-        mapView.onLowMemory()
-    }
-    override fun onDestroy() {
-        mapView.onDestroy()
-        super.onDestroy()
-    }
+
+    data class Loc(
+        val latitude:Double,
+        val longitude:Double
+        )
 }

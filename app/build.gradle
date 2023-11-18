@@ -6,7 +6,6 @@ plugins {
 
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
-def googleMapApiKey = properties.getProperty('google_maps_key')
 
 android {
     compileSdk 34
@@ -20,9 +19,12 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
+        //주소 검색 공공 API 키
         buildConfigField "String", "Address_Key", properties['address_key']
 
-        manifestPlaceholders = [googleMapApiKey:googleMapApiKey]
+        //Naver API ID & Key
+        buildConfigField "String", "Client_ID", properties['Client_ID']
+        buildConfigField "String", "Client_Secret", properties['Client_Secret']
     }
 
     buildFeatures{
@@ -54,9 +56,8 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
-    // google map
-    implementation 'com.google.android.gms:play-services-maps:18.0.2'
-    implementation 'com.google.android.gms:play-services-location:19.0.1'
+    // google
+    implementation "com.google.android.gms:play-services-location:21.0.1"
 
     // Retrofit 라이브러리
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
@@ -71,4 +72,7 @@ dependencies {
     implementation 'androidx.room:room-runtime:2.5.0'
     annotationProcessor 'androidx.room:room-compiler:2.5.0'
     kapt 'androidx.room:room-compiler:2.5.0'
+
+    //naver map
+    implementation "com.naver.maps:map-sdk:3.17.0"
 }

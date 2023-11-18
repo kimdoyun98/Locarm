@@ -66,9 +66,9 @@ class BackgroundLocationUpdateService : Service(),
             override fun run() {
                 try {
                     if (!stopService) {
-                        // TODO Perform your task here
-                        val location = GeoCoder.getXY(context, MyApplication.prefs.getAddress("address", "")!!)
-                        val distance = getDistance(latitude.toDouble(), longitude.toDouble(), location.latitude, location.longitude)
+                        val latitude2 = MyApplication.prefs.getLocation("latitude", 0.0)!!
+                        val longitude2 = MyApplication.prefs.getLocation("longitude", 0.0)!!
+                        val distance = getDistance(latitude.toDouble(), longitude.toDouble(), latitude2.toDouble(), longitude2.toDouble())
 
                         /** 목적지까지 1km 이내면 알람 및 진동 **/
                         if(distance <= 1000){
@@ -136,21 +136,22 @@ class BackgroundLocationUpdateService : Service(),
             channel.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
             notificationManager.createNotificationChannel(channel)
             builder = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
-            builder.setChannelId(CHANNEL_ID)
-            builder.setBadgeIconType(NotificationCompat.BADGE_ICON_NONE)
-        } else {
+                .setChannelId(CHANNEL_ID)
+                .setBadgeIconType(NotificationCompat.BADGE_ICON_NONE)
+        }
+        else {
             builder = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
         }
 
-        builder.setContentTitle("Your title")
-        builder.setContentText("You are now online")
-
         val notificationSound: Uri =
             RingtoneManager.getActualDefaultRingtoneUri(this, RingtoneManager.TYPE_NOTIFICATION)
-        builder.setSound(notificationSound)
-        builder.setAutoCancel(true)
-        //builder.setSmallIcon(R.drawable.ic_logo)
-        builder.setContentIntent(pendingIntent)
+        builder
+            .setContentTitle("Your title")
+            .setContentText("You are now online")
+            .setSound(notificationSound)
+            .setAutoCancel(true)
+        //  .setSmallIcon(R.drawable.ic_logo)
+            .setContentIntent(pendingIntent)
 
         val notification: Notification = builder.build()
         startForeground(101, notification)
@@ -179,13 +180,14 @@ class BackgroundLocationUpdateService : Service(),
 
     override fun onConnected(bundle: Bundle?) {
         mLocationRequest = LocationRequest()
-        mLocationRequest!!.setInterval((10 * 1000).toLong())
-        mLocationRequest!!.setFastestInterval((5 * 1000).toLong())
-        mLocationRequest!!.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+            .setInterval((10 * 1000).toLong())
+            .setFastestInterval((5 * 1000).toLong())
+            .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
 
         val builder = LocationSettingsRequest.Builder()
-        builder.addLocationRequest(mLocationRequest!!)
-        builder.setAlwaysShow(true)
+            .addLocationRequest(mLocationRequest!!)
+            .setAlwaysShow(true)
+
         mLocationSettingsRequest = builder.build()
         mSettingsClient!!
             .checkLocationSettings(mLocationSettingsRequest!!)

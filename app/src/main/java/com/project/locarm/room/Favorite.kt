@@ -8,6 +8,6 @@ data class Favorite(
     @PrimaryKey(autoGenerate = true)
     val id : Int = 0,
     val name : String,
-    val roadAddress : String,
-    val jibunAddress : String
+    val latitude : Double,
+    val longitude : Double
 )

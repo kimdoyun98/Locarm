@@ -52,10 +52,10 @@ class MainActivity : AppCompatActivity() {
             binding.favorites.adapter = adapter
             adapter.setOnItemClickListener(object : FavoritesAdapter.OnItemClickListener {
                 override fun onItemClicked(data: Favorite) {
-                    //TODO
-                    binding.destination.text = data.name
-                    address = data.jibunAddress
-                    MyApplication.prefs.setAddress("address", address!!)
+                    address = data.name
+                    binding.destination.text = address
+                    MyApplication.prefs.setLocation("latitude", data.latitude)
+                    MyApplication.prefs.setLocation("longitude", data.longitude)
                 }
 
                 override fun onDeleteClicked(data: Favorite) {
@@ -70,6 +70,9 @@ class MainActivity : AppCompatActivity() {
             })
         }
 
+        /**
+         * 즐겨찾기 전체 삭제
+         */
         binding.allDelete.setOnClickListener {
             try {
                 CoroutineScope(Dispatchers.IO).launch {
@@ -81,12 +84,16 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-        //TODO 실시간 위치
+        /**
+         * 알람 시작 버튼
+         */
         binding.button.setOnClickListener {
             if(address == null){
                 Toast.makeText(this, "목적지를 입력하세요", Toast.LENGTH_LONG).show()
             }
             else{
+                MyApplication.prefs.setAddress("name", address!!)
+
                 if(!MyApplication.prefs.getBoolean("alarm", false)){
                     MyApplication.prefs.setBoolean("alarm", true)
                     binding.button.text = "알림 끄기"
@@ -107,10 +114,8 @@ class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 1 && resultCode == RESULT_OK){
             if(data != null){
-                binding.destination.text = data.getStringExtra("name")
-                address = data.getStringExtra("address")
-                MyApplication.prefs.setAddress("address", address!!)
-                MyApplication.prefs.setAddress("name", data.getStringExtra("name")!!)
+                address = data.getStringExtra("name")
+                binding.destination.text = address
             }
         }
     }

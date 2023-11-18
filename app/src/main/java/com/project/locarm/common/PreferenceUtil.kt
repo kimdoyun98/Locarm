@@ -22,4 +22,12 @@ class PreferenceUtil (context: Context) {
     fun setAddress(key:String, value:String){
         prefs.edit().putString(key, value).apply()
     }
+
+    fun getLocation(key:String, defValue: Double): Float? {
+        return prefs.getFloat(key, defValue.toFloat())
+    }
+
+    fun setLocation(key:String, value:Double){
+        prefs.edit().putFloat(key, value.toFloat()).apply()
+    }
 }

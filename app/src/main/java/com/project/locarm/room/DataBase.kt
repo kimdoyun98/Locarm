@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
-@Database(entities = [Favorite::class], version = 1)
+@Database(entities = [Favorite::class], version = 2)
 //@TypeConverters(DayListConverter::class)
 abstract class DataBase : RoomDatabase(){
     abstract fun favoriteDao(): FavoritesDao

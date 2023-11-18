@@ -5,6 +5,8 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import com.naver.maps.map.NaverMapSdk
+import com.project.locarm.BuildConfig
 
 class MyApplication : Application() {
     val CHANNEL_ID = "CHANNEL_ID"
@@ -19,6 +21,9 @@ class MyApplication : Application() {
         prefs = PreferenceUtil(applicationContext)
         createChannel()
         super.onCreate()
+
+        NaverMapSdk.getInstance(this).client =
+            NaverMapSdk.NaverCloudPlatformClient(BuildConfig.Client_ID)
     }
 
     private fun createChannel() {
@@ -34,4 +39,6 @@ class MyApplication : Application() {
             notificationManager.createNotificationChannel(channel)
         }
     }
+
+
 }
