@@ -1,7 +1,9 @@
 package com.project.locarm.search
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -51,12 +53,15 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
                 retrofit2.getAddress(query)
                     .enqueue(object : Callback<AddressDTO>{
                         override fun onResponse(call: Call<AddressDTO>, response: Response<AddressDTO>) {
-                            Log.e("response" , response.body().toString())
                             adapter.setAddress(response.body()?.result?.juso)
 
                             binding.addressList.adapter = adapter
 
                             binding.addressSlide.animateOpen()
+
+                            //키보드 숨기기
+                            val keyboard : InputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                            keyboard.hideSoftInputFromWindow(currentFocus?.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
                         }
 
                         override fun onFailure(call: Call<AddressDTO>, t: Throwable) {
@@ -154,8 +159,8 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
 
+    @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
-        super.onBackPressed()
         if(binding.addressSlide.isOpened) binding.addressSlide.animateClose()
         else finish()
     }
