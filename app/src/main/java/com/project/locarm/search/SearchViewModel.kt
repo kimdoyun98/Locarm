@@ -13,7 +13,7 @@ import kotlinx.coroutines.*
 
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
     private val addressApi = RetrofitManager.getRetrofitInstance().create(ApiService::class.java)
-    private lateinit var coroutine : Job
+    private var coroutine : Job = Job()
 
     private var _address = MutableLiveData<AddressDTO.Result.Juso>()
     val address : LiveData<AddressDTO.Result.Juso> = _address
