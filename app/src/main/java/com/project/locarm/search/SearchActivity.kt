@@ -2,9 +2,9 @@ package com.project.locarm.search
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
@@ -15,33 +15,34 @@ import com.naver.maps.map.NaverMap
 import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.FusedLocationSource
-import com.project.locarm.ApiService
 import com.project.locarm.R
-import com.project.locarm.RetrofitManager
 import com.project.locarm.common.GeoCoder
 import com.project.locarm.common.MyApplication
 import com.project.locarm.data.AddressDTO
 import com.project.locarm.databinding.ActivitySearchBinding
 import com.project.locarm.room.Favorite
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
     lateinit var binding : ActivitySearchBinding
+    private val viewModel : SearchViewModel by viewModels()
     private lateinit var adapter: AddressAdapter
-    private val retrofit2 = RetrofitManager.getRetrofitInstance().create(ApiService::class.java)
     private var address : String? = null
-    private lateinit var viewModel:SearchViewModel
     private lateinit var locationSource: FusedLocationSource
     private lateinit var location : Loc
+    private lateinit var keyword:String
+
+    data class Loc(
+        val latitude:Double,
+        val longitude:Double
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySearchBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        viewModel = SearchViewModel(application)
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = this
 
         adapter = AddressAdapter()
 
@@ -50,25 +51,12 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
          */
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
             override fun onQueryTextSubmit(query: String?): Boolean {
-                retrofit2.getAddress(query)
-                    .enqueue(object : Callback<AddressDTO>{
-                        override fun onResponse(call: Call<AddressDTO>, response: Response<AddressDTO>) {
-                            adapter.setAddress(response.body()?.result?.juso)
-
-                            binding.addressList.adapter = adapter
-
-                            binding.addressSlide.animateOpen()
-
-                            //키보드 숨기기
-                            val keyboard : InputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-                            keyboard.hideSoftInputFromWindow(currentFocus?.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
-                        }
-
-                        override fun onFailure(call: Call<AddressDTO>, t: Throwable) {
-                            Log.e("onFailure", t.message.toString())
-                        }
-
-                    })
+                keyword = query!!
+                viewModel.searchAddress(query, 1)
+                binding.addressSlide.animateOpen()
+                //키보드 숨기기
+                val keyboard : InputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                keyboard.hideSoftInputFromWindow(currentFocus?.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
                 return true
             }
 
@@ -77,6 +65,23 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
                 return false
             }
         })
+
+        viewModel.result.observe(this){
+            viewModel.pageCheck()
+
+            adapter.setAddress(it.result.juso)
+            binding.addressList.adapter = adapter
+
+            // 페이징
+            val currentPage = it.result.common.currentPage.toInt()
+            binding.nextPage.setOnClickListener {
+                viewModel.searchAddress(keyword, currentPage+1)
+            }
+
+            binding.backPage.setOnClickListener {
+                viewModel.searchAddress(keyword, currentPage-1)
+            }
+        }
 
         /**
          * 주소 선택 시
@@ -96,29 +101,31 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
          * 등록
          */
         binding.button.setOnClickListener {
-            intent.apply {
-                putExtra("name", address)
-                setResult(RESULT_OK, intent)
-            }
+            if(!binding.addressSlide.isOpened){
+                intent.apply {
+                    putExtra("name", address)
+                    setResult(RESULT_OK, intent)
+                }
 
-            MyApplication.prefs.setLocation("latitude", location.latitude)
-            MyApplication.prefs.setLocation("longitude", location.longitude)
+                MyApplication.prefs.setLocation("latitude", location.latitude)
+                MyApplication.prefs.setLocation("longitude", location.longitude)
 
-            /** 지도 좌표 설정으로 선택 시 좌표 이름 설정 **/
-            if(address == null){
-                //TODO 좌표에 이름 설정
-                val input = EditText(this)
-                AlertDialog.Builder(this)
-                    .setView(input)
-                    .setTitle("해당 좌표의 이름을 정해주세요")
-                    .setPositiveButton("확인"){ _, _ ->
-                        address = input.text.toString()
-                        favoriteAlertDialog()
-                    }
-                    .create()
-                    .show()
+                /** 지도 좌표 설정으로 선택 시 좌표 이름 설정 **/
+                if(address == null){
+                    //TODO 좌표에 이름 설정
+                    val input = EditText(this)
+                    AlertDialog.Builder(this)
+                        .setView(input)
+                        .setTitle("해당 좌표의 이름을 정해주세요")
+                        .setPositiveButton("확인"){ _, _ ->
+                            address = input.text.toString()
+                            favoriteAlertDialog()
+                        }
+                        .create()
+                        .show()
+                }
+                else favoriteAlertDialog()
             }
-            else favoriteAlertDialog()
         }
 
         /**
@@ -143,7 +150,6 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
             marker.position = LatLng(coord.latitude, coord.longitude)
             marker.map = naverMap
             address = null
-            Log.e("onMapReady", address.toString())
         }
 
         /** 목적지 검색 시 해당 위치 지도 표시 **/
@@ -193,9 +199,4 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
             else finish()
         }
     }
-
-    data class Loc(
-        val latitude:Double,
-        val longitude:Double
-        )
 }
