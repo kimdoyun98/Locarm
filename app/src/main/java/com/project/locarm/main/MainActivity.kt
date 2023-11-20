@@ -5,45 +5,40 @@ import android.app.Dialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.text.method.MultiTapKeyListener
-import android.util.Log
 import android.view.View
 import android.widget.*
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.project.locarm.BackgroundLocationUpdateService
 import com.project.locarm.R
 import com.project.locarm.common.MyApplication
 import com.project.locarm.databinding.ActivityMainBinding
-import com.project.locarm.room.DataBase
 import com.project.locarm.room.Favorite
 import com.project.locarm.search.SearchActivity
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.lang.NumberFormatException
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding : ActivityMainBinding
     private var address : String? = null
+    val viewModel : MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val viewModel = FavoriteViewModel(application)
-        val database = DataBase.getInstance(application)!!
-        val dao = database.favoriteDao()
-
         checkPermission()
 
-        val alarmStatus : Boolean = MyApplication.prefs.getBoolean("alarm", false)
-        if(alarmStatus) binding.button.text = "알림 끄기"
-        else binding.button.text = "위치 알림"
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = this
 
+        /** 알람 거리 **/
         binding.distanceText.text = (MyApplication.prefs.getAlarmDistance("distance")/1000).toString()
 
+
+        /**
+         * 목적지 검색
+         */
         binding.searchText.setOnClickListener {
             startActivityForResult(Intent(this, SearchActivity::class.java), 1)
         }
@@ -65,28 +60,9 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 override fun onDeleteClicked(data: Favorite) {
-                    try {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            dao.delete(data.id)
-                        }
-                    }
-                    catch (e: Exception){
-                    }
+                    viewModel.delete(data.id)
                 }
             })
-        }
-
-        /**
-         * 즐겨찾기 전체 삭제
-         */
-        binding.allDelete.setOnClickListener {
-            try {
-                CoroutineScope(Dispatchers.IO).launch {
-                    dao.deleteAll()
-                }
-            }
-            catch (e: Exception){
-            }
         }
 
         /**
@@ -152,17 +128,17 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "목적지를 입력하세요", Toast.LENGTH_LONG).show()
             }
             else{
+                viewModel.alarmCheck()
+
                 MyApplication.prefs.setAddress("name", address!!)
 
-                if(!MyApplication.prefs.getBoolean("alarm", false)){
-                    MyApplication.prefs.setBoolean("alarm", true)
-                    binding.button.text = "알림 끄기"
-                    startService(Intent(this, BackgroundLocationUpdateService::class.java))
-                }
-                else {
-                    stopService(Intent(this, BackgroundLocationUpdateService::class.java))
-                    MyApplication.prefs.setBoolean("alarm", false)
-                    binding.button.text = "위치 알림"
+                viewModel.alarm.observe(this){
+                    if(it){
+                        startService(Intent(this, BackgroundLocationUpdateService::class.java))
+                    }
+                    else{
+                        stopService(Intent(this, BackgroundLocationUpdateService::class.java))
+                    }
                 }
             }
         }

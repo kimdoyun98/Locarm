@@ -29,6 +29,7 @@ android {
 
     buildFeatures{
         viewBinding true
+        dataBinding true
     }
 
     buildTypes {
@@ -75,4 +76,6 @@ dependencies {
 
     //naver map
     implementation "com.naver.maps:map-sdk:3.17.0"
+
+    implementation 'androidx.activity:activity-ktx:1.8.1'
 }
