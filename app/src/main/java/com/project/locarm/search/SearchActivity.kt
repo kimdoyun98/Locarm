@@ -102,11 +102,6 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
          */
         binding.button.setOnClickListener {
             if(!binding.addressSlide.isOpened){
-                intent.apply {
-                    putExtra("name", address)
-                    setResult(RESULT_OK, intent)
-                }
-
                 MyApplication.prefs.setLocation("latitude", location.latitude)
                 MyApplication.prefs.setLocation("longitude", location.longitude)
 
@@ -175,6 +170,11 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
      * 즐겨찾기 유무 확인 후 없으면 AlertDialog
      */
     private fun favoriteAlertDialog(){
+        intent.apply {
+            putExtra("name", address)
+            setResult(RESULT_OK, intent)
+        }
+
         viewModel.getFavorite(address!!).observe(this){
             if(it==null){
                 AlertDialog.Builder(this)

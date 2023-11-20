@@ -13,4 +13,5 @@
     <color name="darkgray">#565656</color>
     <color name="favorites_item_background">#BEBEBE</color>
     <color name="favorites_item_text">#FF000000</color>
+    <color name="button_color">#9999CC</color>
 </resources>

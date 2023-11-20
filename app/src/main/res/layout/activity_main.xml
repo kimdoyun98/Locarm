@@ -145,12 +145,13 @@
                 />
         </LinearLayout>
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/button"
             android:layout_width="match_parent"
             android:layout_height="100dp"
             android:layout_gravity="bottom"
             android:layout_margin="30dp"
+            android:background="@color/button_color"
             android:text="@{viewModel.alarm ? @string/turn_off : @string/turn_on}"
             android:textSize="30dp"/>
 

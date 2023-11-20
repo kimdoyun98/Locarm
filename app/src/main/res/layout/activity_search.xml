@@ -37,12 +37,14 @@
                 android:layout_weight="1"
                 android:name="com.naver.maps.map.MapFragment" />
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:layout_gravity="center"
+                android:background="@color/button_color"
+                android:textColor="@color/base_textColor"
                 android:text="등록"
                 />
         </LinearLayout>
@@ -93,20 +95,22 @@
                     android:padding="10dp"
                     android:gravity="center"
                     >
-                    <Button
+                    <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/backPage"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
                         android:layout_marginEnd="50dp"
-                        android:text="이전"
+                        android:background="@drawable/back"
+                        android:backgroundTint="@color/base_textColor"
                         android:visibility="@{viewModel.back ? View.VISIBLE : View.INVISIBLE}"
                         />
-                    <Button
+                    <androidx.appcompat.widget.AppCompatButton
                         android:id="@+id/nextPage"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
                         android:layout_marginStart="50dp"
-                        android:text="다음"
+                        android:background="@drawable/next"
+                        android:backgroundTint="@color/base_textColor"
                         android:visibility="@{viewModel.next ? View.VISIBLE : View.INVISIBLE}"
                         />
                 </LinearLayout>
