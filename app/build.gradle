@@ -45,6 +45,7 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    namespace 'com.project.locarm'
 }
 
 dependencies {
@@ -75,7 +76,7 @@ dependencies {
     kapt 'androidx.room:room-compiler:2.5.0'
 
     //naver map
-    implementation "com.naver.maps:map-sdk:3.17.0"
+    implementation 'com.naver.maps:map-sdk:3.21.0'
 
     implementation 'androidx.activity:activity-ktx:1.8.1'
 }
