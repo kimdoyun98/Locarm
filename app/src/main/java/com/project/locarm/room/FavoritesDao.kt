@@ -14,11 +14,11 @@ interface FavoritesDao {
     fun getFavorite(name: String): LiveData<Favorite>
 
     @Insert
-    fun insert(favorite: Favorite)
+    suspend fun insert(favorite: Favorite)
 
     @Query("Delete From favorite WHERE id = :id")
-    fun delete(id : Int)
+    suspend fun delete(id : Int)
 
     @Query("Delete From favorite")
-    fun deleteAll()
+    suspend fun deleteAll()
 }

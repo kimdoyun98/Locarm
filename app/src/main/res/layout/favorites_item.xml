@@ -1,30 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<com.google.android.material.chip.Chip xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/favoriteChip"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_marginStart="5dp"
-    android:gravity="center"
-    android:background="@drawable/favorites_background">
-
-    <TextView
-        android:id="@+id/name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:text="온양온천역"
-        android:textSize="12dp"
-        android:textColor="@color/favorites_item_text"
-        android:textStyle="bold"/>
-
-    <TextView
-        android:id="@+id/delete"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:layout_marginEnd="15dp"
-        android:background="@android:color/transparent"
-        android:text="X"
-        android:textSize="12dp"
-        android:textColor="@color/darkgray"/>
-</LinearLayout>
+    android:layout_marginEnd="5dp"
+    app:closeIcon="@drawable/close_icon"
+    app:closeIconEnabled="true" />
