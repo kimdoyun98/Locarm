@@ -1,4 +1,4 @@
-package com.project.locarm
+package com.project.locarm.data.remote
 
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
