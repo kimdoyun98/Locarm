@@ -4,8 +4,8 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.project.locarm.ApiService
-import com.project.locarm.RetrofitManager
+import com.project.locarm.data.remote.ApiService
+import com.project.locarm.data.remote.RetrofitManager
 import com.project.locarm.data.AddressDTO
 import com.project.locarm.room.DataBase
 import com.project.locarm.room.Favorite

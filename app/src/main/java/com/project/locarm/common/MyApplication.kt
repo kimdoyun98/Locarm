@@ -9,18 +9,23 @@ import com.naver.maps.map.NaverMapSdk
 import com.project.locarm.BuildConfig
 
 class MyApplication : Application() {
-    val CHANNEL_ID = "CHANNEL_ID"
-    private val CHANNEL_NAME = "CHANNEL_NAME"
-    private val CHANNEL_DESCRITION = "CHANNEL_DESCRITION"
-
     companion object {
         lateinit var prefs: PreferenceUtil
+        lateinit var instance: MyApplication
+        lateinit var serviceLocator: ServiceLocator
+
+        private val CHANNEL_ID = "CHANNEL_ID"
+        private val CHANNEL_NAME = "CHANNEL_NAME"
+        private val CHANNEL_DESCRITION = "CHANNEL_DESCRITION"
     }
 
     override fun onCreate() {
         prefs = PreferenceUtil(applicationContext)
         createChannel()
         super.onCreate()
+
+        instance = this
+        serviceLocator = ServiceLocator(this)
 
         NaverMapSdk.getInstance(this).client =
             NaverMapSdk.NaverCloudPlatformClient(BuildConfig.Client_ID)
@@ -39,6 +44,4 @@ class MyApplication : Application() {
             notificationManager.createNotificationChannel(channel)
         }
     }
-
-
 }

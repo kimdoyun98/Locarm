@@ -38,4 +38,10 @@ class PreferenceUtil (context: Context) {
     fun setAlarmDistance(key:String, value:Int){
         prefs.edit().putInt(key, value).apply()
     }
+
+    companion object{
+        const val LATITUDE = "latitude"
+        const val LONGITUDE = "longitude"
+        const val DISTANCE = "distance"
+    }
 }

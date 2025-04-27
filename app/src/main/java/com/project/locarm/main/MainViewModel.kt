@@ -1,46 +1,71 @@
 package com.project.locarm.main
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
+import androidx.lifecycle.createSavedStateHandle
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.CreationExtras
+import com.project.locarm.common.MyApplication
+import com.project.locarm.common.PreferenceUtil.Companion.DISTANCE
 import com.project.locarm.room.DataBase
 import com.project.locarm.room.Favorite
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import com.project.locarm.room.FavoritesDao
 import kotlinx.coroutines.launch
 
-class MainViewModel(application: Application) : AndroidViewModel(application) {
-    private val database = DataBase.getInstance(application)!!
-    private val dao = database.favoriteDao()
+class MainViewModel(
+    private val dao: FavoritesDao
+) : ViewModel() {
 
-    private val _alarm = MutableLiveData<Boolean>().apply { value = false }
-    val alarm : LiveData<Boolean> = _alarm
+    private val _alarmStatus = MutableLiveData<Boolean>().apply { value = false }
+    val alarmStatus: LiveData<Boolean> = _alarmStatus
 
-    val listAll : LiveData<List<Favorite>> = dao.getAll()
+    private val _distance = MutableLiveData<Int>().apply { value = MyApplication.prefs.getAlarmDistance(DISTANCE)/1000 }
+    val distance: LiveData<Int> = _distance
 
-    fun alarmCheck(){
-        if(alarm.value!!) _alarm.postValue(false)
-        else _alarm.postValue(true)
+    private val _address = MutableLiveData<String>().apply { value = "목적지" }
+    var address: LiveData<String> = _address
+
+    val favoriteList: LiveData<List<Favorite>> = dao.getAll()
+
+    fun setAddress(address: String?){
+        if(address == null) return
+        _address.value = address
     }
 
-    fun allDelete(){
-        try {
-            CoroutineScope(Dispatchers.IO).launch {
-                dao.deleteAll()
-            }
-        }
-        catch (e: Exception){
+    fun alarmCheck() {
+        _alarmStatus.value = !alarmStatus.value!!
+    }
+
+    fun allDelete() {
+        viewModelScope.launch {
+            dao.deleteAll()
         }
     }
 
-    fun delete(id:Int){
-        try {
-            CoroutineScope(Dispatchers.IO).launch {
-                dao.delete(id)
-            }
+    fun delete(id: Int) {
+        viewModelScope.launch {
+            dao.delete(id)
         }
-        catch (e: Exception){
+    }
+
+    fun refreshDistance(){
+        _distance.value = MyApplication.prefs.getAlarmDistance(DISTANCE)/1000
+    }
+
+    companion object {
+        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(
+                modelClass: Class<T>,
+                extras: CreationExtras
+            ): T {
+                return MainViewModel(
+                    MyApplication.serviceLocator.dao
+                ) as T
+            }
         }
     }
 }
