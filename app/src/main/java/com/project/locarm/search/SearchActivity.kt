@@ -9,6 +9,9 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraUpdate
@@ -22,16 +25,17 @@ import com.project.locarm.common.GeoCoder
 import com.project.locarm.common.MyApplication
 import com.project.locarm.common.PreferenceUtil.Companion.LATITUDE
 import com.project.locarm.common.PreferenceUtil.Companion.LONGITUDE
-import com.project.locarm.data.AddressDTO
+import com.project.locarm.data.room.Favorite
 import com.project.locarm.databinding.ActivitySearchBinding
 import com.project.locarm.databinding.SearchResultLayoutBinding
 import com.project.locarm.main.MainActivity.Companion.NAME
-import com.project.locarm.data.room.Favorite
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var binding: ActivitySearchBinding
     private val viewModel: SearchViewModel by viewModels { SearchViewModel.Factory }
-    private val adapter: AddressAdapter = AddressAdapter()
+    private val adapter = PagingAdapter()
     private lateinit var bottomSheetDialog: BottomSheetDialog
 
     data class Loc(
@@ -46,7 +50,6 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
 
         initBottomSheetDialog()
         searchDestination()
-        initSearchResult()
         selectAddress()
         selectDestination()
         initNaverMap()
@@ -57,7 +60,11 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 viewModel.keyword = query!!
-                viewModel.searchAddress(query, 1)
+                lifecycleScope.launch {
+                    repeatOnLifecycle(Lifecycle.State.STARTED) {
+                        viewModel.searchAddress(query).collectLatest(adapter::submitData)
+                    }
+                }
 
                 bottomSheetDialog.show()
 
@@ -75,12 +82,6 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
         })
     }
 
-    private fun initSearchResult() {
-        viewModel.result.observe(this) {
-            adapter.setAddress(it.result.juso)
-        }
-    }
-
     private fun initBottomSheetDialog() {
         bottomSheetDialog = BottomSheetDialog(this, R.style.BottomSheetTheme)
 
@@ -91,17 +92,17 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun selectAddress() {
-        adapter.setOnItemClickListener(object : AddressAdapter.OnItemClickListener {
-            override fun onItemClicked(data: AddressDTO.Result.Juso) {
-                val geo = GeoCoder.getXY(this@SearchActivity, data.jibunAddr)
-                viewModel.selectAddress = data.name
-                viewModel.location = Loc(geo.latitude, geo.longitude)
+        adapter.setOnItemClickListener { juso ->
+            if (juso == null) return@setOnItemClickListener
 
-                viewModel.setData(data)
+            val geo = GeoCoder.getXY(this@SearchActivity, juso.jibunAddr)
+            viewModel.selectAddress = juso.name
+            viewModel.location = Loc(geo.latitude, geo.longitude)
 
-                bottomSheetDialog.dismiss()
-            }
-        })
+            viewModel.setData(juso)
+
+            bottomSheetDialog.dismiss()
+        }
     }
 
     private fun selectDestination() {
