@@ -2,12 +2,14 @@ package com.project.locarm.search
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraUpdate
 import com.naver.maps.map.MapFragment
@@ -22,16 +24,19 @@ import com.project.locarm.common.PreferenceUtil.Companion.LATITUDE
 import com.project.locarm.common.PreferenceUtil.Companion.LONGITUDE
 import com.project.locarm.data.AddressDTO
 import com.project.locarm.databinding.ActivitySearchBinding
+import com.project.locarm.databinding.SearchResultLayoutBinding
 import com.project.locarm.main.MainActivity.Companion.NAME
 import com.project.locarm.room.Favorite
 
 class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
-    lateinit var binding : ActivitySearchBinding
-    private val viewModel : SearchViewModel by viewModels { SearchViewModel.Factory }
+    private lateinit var binding: ActivitySearchBinding
+    private val viewModel: SearchViewModel by viewModels { SearchViewModel.Factory }
+    private val adapter: AddressAdapter = AddressAdapter()
+    private lateinit var bottomSheetDialog: BottomSheetDialog
 
     data class Loc(
-        val latitude:Double,
-        val longitude:Double
+        val latitude: Double,
+        val longitude: Double
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,46 +44,53 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
         binding = ActivitySearchBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.viewModel = viewModel
-        binding.lifecycleOwner = this
+        initBottomSheetDialog()
+        searchDestination()
+        initSearchResult()
+        selectAddress()
+        selectDestination()
+        initNaverMap()
 
-        /**
-         * 목적지 검색
-         */
-        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+    }
+
+    private fun searchDestination() {
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 viewModel.keyword = query!!
                 viewModel.searchAddress(query, 1)
-                binding.addressSlide.animateOpen()
+
+                bottomSheetDialog.show()
+
                 //키보드 숨기기
-                val keyboard : InputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-                keyboard.hideSoftInputFromWindow(currentFocus?.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+                val keyboard: InputMethodManager =
+                    getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                keyboard.hideSoftInputFromWindow(
+                    currentFocus?.windowToken,
+                    InputMethodManager.HIDE_NOT_ALWAYS
+                )
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean = false
         })
+    }
 
-        val adapter = AddressAdapter()
-        viewModel.result.observe(this){
-            viewModel.pageCheck()
-
+    private fun initSearchResult() {
+        viewModel.result.observe(this) {
             adapter.setAddress(it.result.juso)
-            binding.addressList.adapter = adapter
-
-            val currentPage = it.result.common.currentPage.toInt()
-            binding.nextPage.setOnClickListener {
-                viewModel.searchAddress(viewModel.keyword, currentPage+1)
-            }
-
-            binding.backPage.setOnClickListener {
-                viewModel.searchAddress(viewModel.keyword, currentPage-1)
-            }
         }
+    }
 
-        /**
-         * 주소 선택 시
-         */
+    private fun initBottomSheetDialog() {
+        bottomSheetDialog = BottomSheetDialog(this, R.style.BottomSheetTheme)
+
+        val bsBinding = SearchResultLayoutBinding.inflate(LayoutInflater.from(this))
+        bsBinding.searchAddressRv.adapter = adapter
+
+        bottomSheetDialog.setContentView(bsBinding.root)
+    }
+
+    private fun selectAddress() {
         adapter.setOnItemClickListener(object : AddressAdapter.OnItemClickListener {
             override fun onItemClicked(data: AddressDTO.Result.Juso) {
                 val geo = GeoCoder.getXY(this@SearchActivity, data.jibunAddr)
@@ -86,37 +98,33 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
                 viewModel.location = Loc(geo.latitude, geo.longitude)
 
                 viewModel.setData(data)
-                binding.addressSlide.animateClose()
+
+                bottomSheetDialog.dismiss()
             }
         })
+    }
 
-        /**
-         * 등록
-         */
-        binding.button.setOnClickListener {
-            if(!binding.addressSlide.isOpened){
-                MyApplication.prefs.setLocation(LATITUDE, viewModel.location.latitude)
-                MyApplication.prefs.setLocation(LONGITUDE, viewModel.location.longitude)
+    private fun selectDestination() {
+        binding.selectDestinationBt.setOnClickListener {
+            MyApplication.prefs.setLocation(LATITUDE, viewModel.location.latitude)
+            MyApplication.prefs.setLocation(LONGITUDE, viewModel.location.longitude)
 
-                if(viewModel.selectAddress == null){
-                    val input = EditText(this)
-                    AlertDialog.Builder(this)
-                        .setView(input)
-                        .setTitle("해당 좌표의 이름을 정해주세요")
-                        .setPositiveButton("확인"){ _, _ ->
-                            viewModel.selectAddress = input.text.toString()
-                            favoriteAlertDialog()
-                        }
-                        .create()
-                        .show()
-                }
-                else favoriteAlertDialog()
-            }
+            if (viewModel.selectAddress == null) {
+                val input = EditText(this)
+                AlertDialog.Builder(this)
+                    .setView(input)
+                    .setTitle("해당 좌표의 이름을 정해주세요")
+                    .setPositiveButton("확인") { _, _ ->
+                        viewModel.selectAddress = input.text.toString()
+                        favoriteAlertDialog()
+                    }
+                    .create()
+                    .show()
+            } else favoriteAlertDialog()
         }
+    }
 
-        /**
-         * Naver Map
-         */
+    private fun initNaverMap() {
         val mapFragment = supportFragmentManager.findFragmentById(R.id.naverMap) as MapFragment?
             ?: MapFragment.newInstance().also {
                 supportFragmentManager.beginTransaction().add(R.id.naverMap, it).commit()
@@ -139,7 +147,7 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         /** 목적지 검색 시 해당 위치 지도 표시 **/
-        viewModel.address.observe(this){
+        viewModel.address.observe(this) {
             val location = GeoCoder.getXY(this, it.jibunAddr)
             val cameraUpdate = CameraUpdate.scrollTo(LatLng(location.latitude, location.longitude))
 
@@ -153,21 +161,21 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
 
     @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
-        if(binding.addressSlide.isOpened) binding.addressSlide.animateClose()
+        if (bottomSheetDialog.isShowing) bottomSheetDialog.dismiss()
         else finish()
     }
 
     /**
      * 즐겨찾기 유무 확인 후 없으면 AlertDialog
      */
-    private fun favoriteAlertDialog(){
+    private fun favoriteAlertDialog() {
         intent.apply {
             putExtra(NAME, viewModel.selectAddress)
             setResult(RESULT_OK, intent)
         }
 
-        viewModel.getFavorite(viewModel.selectAddress!!).observe(this){
-            if(it==null){
+        viewModel.getFavorite(viewModel.selectAddress!!).observe(this) {
+            if (it == null) {
                 AlertDialog.Builder(this)
                     .setTitle(viewModel.selectAddress!!)
                     .setMessage("즐겨찾기에 추가하시겠습니까?")
@@ -177,7 +185,8 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
                                 name = viewModel.selectAddress!!,
                                 latitude = viewModel.location.latitude,
                                 longitude = viewModel.location.longitude
-                            ))
+                            )
+                        )
 
                         finish()
                     }
@@ -186,8 +195,7 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
                     }
                     .create()
                     .show()
-            }
-            else finish()
+            } else finish()
         }
     }
 }

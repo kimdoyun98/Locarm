@@ -48,18 +48,6 @@ class SearchViewModel(
         }
     }
 
-    fun pageCheck() {
-        val it = result.value!!
-
-        _back.value = it.result.common.currentPage.toInt() > 1
-
-        if (it.result.common.totalCount.toInt() > it.result.common.currentPage.toInt() * it.result.common.countPerPage.toInt()) {
-            //TODO 전체 개수 > (현재 페이지 * 페이지당 개수) 보이게
-            _next.postValue(true)
-        } else _next.postValue(false)
-
-    }
-
     fun setData(data: AddressDTO.Result.Juso) {
         _address.postValue(data)
     }

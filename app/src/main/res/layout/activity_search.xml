@@ -1,120 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
-    <data>
-        <variable
-            name="viewModel"
-            type="com.project.locarm.search.SearchViewModel" />
-        <import type="android.view.View"/>
-    </data>
-    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/searchView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        tools:context=".search.SearchActivity">
+        android:layout_height="50dp"
+        android:layout_margin="10dp"
+        android:background="@drawable/search_rectangle"
+        android:ems="10"
+        android:inputType="textPersonName"
+        app:iconifiedByDefault="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:queryHint="목적지를 입력하세요.." />
 
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-            <androidx.appcompat.widget.SearchView
-                android:id="@+id/searchView"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_margin="10dp"
-                android:background="@drawable/search_rectangle"
-                android:ems="10"
-                android:inputType="textPersonName"
-                app:iconifiedByDefault="false"
-                app:queryHint="목적지를 입력하세요.."/>
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/naverMap"
+        android:name="com.naver.maps.map.MapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginVertical="10dp"
+        app:layout_constraintBottom_toTopOf="@+id/select_destination_bt"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/searchView" />
 
-
-            <androidx.fragment.app.FragmentContainerView
-                android:id="@+id/naverMap"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:name="com.naver.maps.map.MapFragment" />
-
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:layout_gravity="center"
-                android:background="@color/button_color"
-                android:textColor="@color/base_textColor"
-                android:text="등록"
-                />
-        </LinearLayout>
-
-        <SlidingDrawer
-            android:id="@+id/addressSlide"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:allowSingleTap="true"
-            android:animateOnClick="true"
-            android:bottomOffset="20dp"
-            android:content="@+id/content"
-            android:handle="@+id/handle"
-            android:orientation="vertical"
-            android:topOffset="50dp">
-
-            <LinearLayout
-                android:id="@+id/handle"
-                android:layout_width="match_parent"
-                android:layout_height="20dp"
-                android:background="@drawable/sliding_drawer_top_rectangle"
-                android:orientation="vertical">
-
-                <Button
-                    android:layout_width="50dp"
-                    android:layout_height="17dp"
-                    android:layout_gravity="center_horizontal"
-                    android:backgroundTint="#d3d3d3" />
-            </LinearLayout>
-            <LinearLayout
-                android:id="@+id/content"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/base_background"
-                android:orientation="vertical"
-                >
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/addressList"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:padding="10dp"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="10dp"
-                    android:gravity="center"
-                    >
-                    <androidx.appcompat.widget.AppCompatButton
-                        android:id="@+id/backPage"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:layout_marginEnd="50dp"
-                        android:background="@drawable/back"
-                        android:backgroundTint="@color/base_textColor"
-                        android:visibility="@{viewModel.back ? View.VISIBLE : View.INVISIBLE}"
-                        />
-                    <androidx.appcompat.widget.AppCompatButton
-                        android:id="@+id/nextPage"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:layout_marginStart="50dp"
-                        android:background="@drawable/next"
-                        android:backgroundTint="@color/base_textColor"
-                        android:visibility="@{viewModel.next ? View.VISIBLE : View.INVISIBLE}"
-                        />
-                </LinearLayout>
-            </LinearLayout>
-        </SlidingDrawer>
-    </FrameLayout>
-</layout>
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/select_destination_bt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="10dp"
+        android:background="@color/button_color"
+        android:text="등록"
+        android:textColor="@color/base_textColor"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>
