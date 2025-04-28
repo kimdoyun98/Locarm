@@ -1,4 +1,4 @@
-package com.project.locarm.room
+package com.project.locarm.data.room
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

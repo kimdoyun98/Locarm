@@ -21,7 +21,7 @@ import com.project.locarm.common.PreferenceUtil.Companion.DISTANCE
 import com.project.locarm.common.PreferenceUtil.Companion.LATITUDE
 import com.project.locarm.common.PreferenceUtil.Companion.LONGITUDE
 import com.project.locarm.databinding.ActivityMainBinding
-import com.project.locarm.room.Favorite
+import com.project.locarm.data.room.Favorite
 import com.project.locarm.search.SearchActivity
 
 class MainActivity : AppCompatActivity() {

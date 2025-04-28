@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.project.locarm.databinding.FavoritesItemBinding
-import com.project.locarm.room.Favorite
+import com.project.locarm.data.room.Favorite
 
 class FavoritesAdapter : RecyclerView.Adapter<FavoritesAdapter.ViewHolder>() {
     private var list = ArrayList<Favorite>()

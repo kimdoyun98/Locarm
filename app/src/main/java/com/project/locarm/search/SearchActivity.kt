@@ -26,7 +26,7 @@ import com.project.locarm.data.AddressDTO
 import com.project.locarm.databinding.ActivitySearchBinding
 import com.project.locarm.databinding.SearchResultLayoutBinding
 import com.project.locarm.main.MainActivity.Companion.NAME
-import com.project.locarm.room.Favorite
+import com.project.locarm.data.room.Favorite
 
 class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var binding: ActivitySearchBinding

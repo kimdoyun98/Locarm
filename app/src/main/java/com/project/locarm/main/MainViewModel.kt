@@ -10,9 +10,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.project.locarm.common.MyApplication
 import com.project.locarm.common.PreferenceUtil.Companion.DISTANCE
-import com.project.locarm.room.DataBase
-import com.project.locarm.room.Favorite
-import com.project.locarm.room.FavoritesDao
+import com.project.locarm.data.room.DataBase
+import com.project.locarm.data.room.Favorite
+import com.project.locarm.data.room.FavoritesDao
 import kotlinx.coroutines.launch
 
 class MainViewModel(

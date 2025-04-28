@@ -10,8 +10,8 @@ import com.naver.maps.map.util.FusedLocationSource
 import com.project.locarm.common.MyApplication
 import com.project.locarm.data.AddressDTO
 import com.project.locarm.data.remote.ApiService
-import com.project.locarm.room.Favorite
-import com.project.locarm.room.FavoritesDao
+import com.project.locarm.data.room.Favorite
+import com.project.locarm.data.room.FavoritesDao
 import com.project.locarm.search.SearchActivity.Loc
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
