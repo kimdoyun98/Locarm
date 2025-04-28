@@ -165,6 +165,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val NAME = "name"
+        const val NAME = "name"
     }
 }
