@@ -14,7 +14,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.project.locarm.BackgroundLocationUpdateService
+import com.project.locarm.location.BackgroundLocationUpdateService
 import com.project.locarm.R
 import com.project.locarm.common.MyApplication
 import com.project.locarm.common.PreferenceUtil.Companion.DISTANCE
@@ -35,8 +35,6 @@ class MainActivity : AppCompatActivity() {
 
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
-
-        checkPermission()
 
         binding.searchDestination.setOnClickListener {
             startActivityForResult(Intent(this, SearchActivity::class.java), 1)
@@ -76,6 +74,7 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.alarmStatus.observe(this) {
             if (it) {
+                checkPermission()
                 startService(Intent(this, BackgroundLocationUpdateService::class.java))
             } else {
                 stopService(Intent(this, BackgroundLocationUpdateService::class.java))

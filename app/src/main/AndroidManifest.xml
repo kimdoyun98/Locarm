@@ -34,9 +34,9 @@
         </activity>
 
         <service
-            android:name=".BackgroundLocationUpdateService"
+            android:name=".location.BackgroundLocationUpdateService"
             android:enabled="true"
-            android:exported="true"/>
+            android:exported="false"/>
 
     </application>
 
