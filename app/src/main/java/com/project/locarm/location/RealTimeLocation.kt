@@ -3,6 +3,7 @@ package com.project.locarm.location
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Looper
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -11,6 +12,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY
+import com.google.android.gms.tasks.Task
 import com.project.locarm.common.MyApplication
 import com.project.locarm.common.PreferenceUtil.Companion.LATITUDE
 import com.project.locarm.common.PreferenceUtil.Companion.LONGITUDE
@@ -33,24 +35,26 @@ class RealTimeLocation(
         setMinUpdateIntervalMillis(5_000L)
     }.build()
 
+    fun currentLocation(): Task<Location>? {
+        return if (checkPermission()) mFusedLocationClient.lastLocation
+        else null
+    }
+
     fun getLocation(
-        updateNotification: (Double, Double) -> Unit,
+        updateNotification: (Int, Double, Double) -> Unit,
         onVibrator: (Int) -> Unit
     ) {
         locationRequest =
             object : LocationCallback() {
                 override fun onLocationResult(locationResult: LocationResult) {
-                    for (location in locationResult.locations) {
-                        location?.let {
-                            val distance = getDistance(
-                                it.latitude,
-                                it.longitude
-                            )
+                    val lastLocation = locationResult.lastLocation!!
+                    val distance = getDistance(
+                        lastLocation.latitude,
+                        lastLocation.longitude
+                    )
 
-                            updateNotification(it.latitude, it.longitude)
-                            onVibrator(distance)
-                        }
-                    }
+                    updateNotification(distance, lastLocation.latitude, lastLocation.longitude)
+                    onVibrator(distance)
                 }
             }
 
@@ -70,7 +74,7 @@ class RealTimeLocation(
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    private fun getDistance(lat1: Double, lon1: Double): Int {
+    fun getDistance(lat1: Double, lon1: Double): Int {
         val lat2 = MyApplication.prefs.getLocation(LATITUDE, 0.0)!!.toDouble()
         val lon2 = MyApplication.prefs.getLocation(LONGITUDE, 0.0)!!.toDouble()
 
@@ -86,7 +90,7 @@ class RealTimeLocation(
         return (r * c).toInt()
     }
 
-    fun onDestroy(){
+    fun onDestroy() {
         mFusedLocationClient.removeLocationUpdates(locationRequest!!)
     }
 }
