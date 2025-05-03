@@ -4,13 +4,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
-import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.project.locarm.common.MyApplication
 import com.project.locarm.common.PreferenceUtil.Companion.DISTANCE
-import com.project.locarm.data.room.DataBase
+import com.project.locarm.data.SelectDestination
 import com.project.locarm.data.room.Favorite
 import com.project.locarm.data.room.FavoritesDao
 import kotlinx.coroutines.launch
@@ -22,17 +20,18 @@ class MainViewModel(
     private val _alarmStatus = MutableLiveData<Boolean>().apply { value = false }
     val alarmStatus: LiveData<Boolean> = _alarmStatus
 
-    private val _distance = MutableLiveData<Int>().apply { value = MyApplication.prefs.getAlarmDistance(DISTANCE)/1000 }
+    private val _distance = MutableLiveData<Int>().apply {
+        value = MyApplication.prefs.getAlarmDistance(DISTANCE) / 1000
+    }
     val distance: LiveData<Int> = _distance
 
-    private val _address = MutableLiveData<String>().apply { value = "목적지" }
-    var address: LiveData<String> = _address
+    private val _destination = MutableLiveData<SelectDestination?>().apply { value = null }
+    val destination: LiveData<SelectDestination?> = _destination
 
     val favoriteList: LiveData<List<Favorite>> = dao.getAll()
 
-    fun setAddress(address: String?){
-        if(address == null) return
-        _address.value = address
+    fun setDestination(destination: SelectDestination) {
+        _destination.value = destination
     }
 
     fun alarmCheck() {
@@ -51,8 +50,8 @@ class MainViewModel(
         }
     }
 
-    fun refreshDistance(){
-        _distance.value = MyApplication.prefs.getAlarmDistance(DISTANCE)/1000
+    fun refreshDistance() {
+        _distance.value = MyApplication.prefs.getAlarmDistance(DISTANCE) / 1000
     }
 
     companion object {

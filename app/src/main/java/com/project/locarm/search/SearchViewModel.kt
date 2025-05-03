@@ -9,10 +9,11 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import com.naver.maps.map.util.FusedLocationSource
 import com.project.locarm.common.MyApplication
 import com.project.locarm.data.AddressDTO
+import com.project.locarm.data.Loc
+import com.project.locarm.data.SelectDestination
 import com.project.locarm.data.repository.AddressRepository
 import com.project.locarm.data.room.Favorite
 import com.project.locarm.data.room.FavoritesDao
-import com.project.locarm.search.SearchActivity.Loc
 import kotlinx.coroutines.launch
 
 class SearchViewModel(
@@ -22,7 +23,7 @@ class SearchViewModel(
     private var _address = MutableLiveData<AddressDTO.Result.Juso>()
     val address: LiveData<AddressDTO.Result.Juso> = _address
 
-    var selectAddress: String? = null
+    var selectDestination: SelectDestination? = null
 
     lateinit var locationSource: FusedLocationSource
     lateinit var location: Loc
@@ -30,7 +31,7 @@ class SearchViewModel(
 
     fun searchAddress(keyword: String) = addressRepository.getSearchResultStream(keyword)
 
-    fun setData(data: AddressDTO.Result.Juso) {
+    fun setAddressJuso(data: AddressDTO.Result.Juso) {
         _address.postValue(data)
     }
 

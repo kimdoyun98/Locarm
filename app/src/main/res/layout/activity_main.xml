@@ -100,7 +100,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
                 android:layout_marginEnd="10dp"
-                android:text="@{viewModel.address}"
+                android:text="@{viewModel.destination.name}"
                 android:textColor="@color/base_textColor"
                 android:textStyle="bold" />
 

@@ -13,9 +13,7 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY
 import com.google.android.gms.tasks.Task
-import com.project.locarm.common.MyApplication
-import com.project.locarm.common.PreferenceUtil.Companion.LATITUDE
-import com.project.locarm.common.PreferenceUtil.Companion.LONGITUDE
+import com.project.locarm.data.SelectDestination
 import kotlin.math.asin
 import kotlin.math.cos
 import kotlin.math.pow
@@ -41,16 +39,19 @@ class RealTimeLocation(
     }
 
     fun getLocation(
+        destination: SelectDestination,
         updateNotification: (Int, Double, Double) -> Unit,
         onVibrator: (Int) -> Unit
     ) {
+
         locationRequest =
             object : LocationCallback() {
                 override fun onLocationResult(locationResult: LocationResult) {
                     val lastLocation = locationResult.lastLocation!!
                     val distance = getDistance(
                         lastLocation.latitude,
-                        lastLocation.longitude
+                        lastLocation.longitude,
+                        destination
                     )
 
                     updateNotification(distance, lastLocation.latitude, lastLocation.longitude)
@@ -74,17 +75,15 @@ class RealTimeLocation(
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    fun getDistance(lat1: Double, lon1: Double): Int {
-        val lat2 = MyApplication.prefs.getLocation(LATITUDE, 0.0)!!.toDouble()
-        val lon2 = MyApplication.prefs.getLocation(LONGITUDE, 0.0)!!.toDouble()
+    fun getDistance(lat1: Double, lon1: Double, destination: SelectDestination): Int {
 
         val r = 6372.8 * 1000
-        val dLat = Math.toRadians(lat2 - lat1)
-        val dLon = Math.toRadians(lon2 - lon1)
+        val dLat = Math.toRadians(destination.latitude - lat1)
+        val dLon = Math.toRadians(destination.longitude - lon1)
         val a = sin(dLat / 2).pow(2.0) +
                 sin(dLon / 2).pow(2.0) *
                 cos(Math.toRadians(lat1)) *
-                cos(Math.toRadians(lat2))
+                cos(Math.toRadians(destination.latitude))
 
         val c = 2 * asin(sqrt(a))
         return (r * c).toInt()

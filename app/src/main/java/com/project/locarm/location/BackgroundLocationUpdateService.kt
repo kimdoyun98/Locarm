@@ -5,12 +5,11 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.app.PendingIntent.FLAG_ONE_SHOT
 import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.os.Handler
+import android.os.Build
 import android.os.IBinder
 import android.os.Vibrator
 import android.util.Log
@@ -20,24 +19,20 @@ import com.project.locarm.R
 import com.project.locarm.common.MyApplication
 import com.project.locarm.common.PreferenceUtil.Companion.DISTANCE
 import com.project.locarm.common.PushAlarm
+import com.project.locarm.data.Loc
+import com.project.locarm.data.SelectDestination
 import com.project.locarm.main.MainActivity
 import com.project.locarm.main.MainActivity.Companion.NAME
-import com.project.locarm.search.SearchActivity
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.project.locarm.main.MainActivity.Companion.SELECT
 import java.text.DecimalFormat
-import java.util.concurrent.TimeUnit
-
 
 class BackgroundLocationUpdateService : Service() {
     private lateinit var context: Context
     private lateinit var realTimeLocation: RealTimeLocation
     private lateinit var notificationManager: NotificationManager
-    private var startLocation: SearchActivity.Loc? = null
-    private var testCount = 0
+    private var startLocation: Loc? = null
     private var stopService = false
+    private var destination: SelectDestination? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -45,7 +40,7 @@ class BackgroundLocationUpdateService : Service() {
         realTimeLocation = RealTimeLocation(this)
 
         realTimeLocation.currentLocation()?.addOnSuccessListener {
-            startLocation = SearchActivity.Loc(
+            startLocation = Loc(
                 latitude = it.latitude,
                 longitude = it.longitude
             )
@@ -53,9 +48,16 @@ class BackgroundLocationUpdateService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        destination = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent?.getParcelableExtra(SELECT, SelectDestination::class.java)
+        } else {
+            intent?.getParcelableExtra(SELECT)
+        }
+
         startForeground()
 
         realTimeLocation.getLocation(
+            destination!!,
             { distance, latitude, longitude -> updateNotification(distance, latitude, longitude) },
             { distance -> vibrateWithAlarm(distance) }
         )
@@ -122,7 +124,11 @@ class BackgroundLocationUpdateService : Service() {
             NotificationCompat.Builder(applicationContext, CHANNEL_ID)
 
         val totalDistance = if (startLocation != null) {
-            realTimeLocation.getDistance(startLocation!!.latitude, startLocation!!.longitude)
+            realTimeLocation.getDistance(
+                lat1 = startLocation!!.latitude,
+                lon1 = startLocation!!.longitude,
+                destination = destination!!
+            )
         } else {
             1000
         }
@@ -144,7 +150,6 @@ class BackgroundLocationUpdateService : Service() {
 
                 setTextViewText(R.id.test_latitude, "$testLatitude")
                 setTextViewText(R.id.test_longitude, "$testLongitude")
-                setTextViewText(R.id.test, "${testCount++}")
             }
 
         builder

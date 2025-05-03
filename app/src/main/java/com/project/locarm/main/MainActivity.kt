@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Dialog
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -11,14 +12,14 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.RadioGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.project.locarm.R
 import com.project.locarm.common.MyApplication
 import com.project.locarm.common.PreferenceUtil.Companion.DISTANCE
-import com.project.locarm.common.PreferenceUtil.Companion.LATITUDE
-import com.project.locarm.common.PreferenceUtil.Companion.LONGITUDE
+import com.project.locarm.data.SelectDestination
 import com.project.locarm.data.room.Favorite
 import com.project.locarm.databinding.ActivityMainBinding
 import com.project.locarm.location.BackgroundLocationUpdateService
@@ -27,6 +28,18 @@ import com.project.locarm.search.SearchActivity
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val viewModel: MainViewModel by viewModels { MainViewModel.Factory }
+    private val searchDestinationResult =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val selectDestination = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    result.data!!.getParcelableExtra(SELECT, SelectDestination::class.java)
+                } else {
+                    result.data!!.getParcelableExtra(SELECT)
+                }
+
+                viewModel.setDestination(selectDestination!!)
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,19 +58,19 @@ class MainActivity : AppCompatActivity() {
 
     private fun alarmButtonClick() {
         binding.alarmButton.setOnClickListener {
-            if (viewModel.address.value == DESTINATION) {
+            if (viewModel.destination.value == null) {
                 Toast.makeText(this, "목적지를 입력하세요", Toast.LENGTH_LONG).show()
                 return@setOnClickListener
             }
 
             viewModel.alarmCheck()
-            MyApplication.prefs.setAddress(NAME, viewModel.address.value!!)
         }
     }
 
     private fun searchDestination() {
         binding.searchDestination.setOnClickListener {
-            startActivityForResult(Intent(this, SearchActivity::class.java), 1)
+            val intent = Intent(this, SearchActivity::class.java)
+            searchDestinationResult.launch(intent)
         }
     }
 
@@ -75,9 +88,13 @@ class MainActivity : AppCompatActivity() {
 
             adapter.setOnItemClickListener(object : FavoritesAdapter.OnItemClickListener {
                 override fun onItemClicked(data: Favorite) {
-                    viewModel.setAddress(data.name)
-                    MyApplication.prefs.setLocation(LATITUDE, data.latitude)
-                    MyApplication.prefs.setLocation(LONGITUDE, data.longitude)
+                    viewModel.setDestination(
+                        SelectDestination(
+                            data.name,
+                            data.latitude,
+                            data.longitude
+                        )
+                    )
                 }
 
                 override fun onDeleteClicked(data: Favorite) {
@@ -92,7 +109,9 @@ class MainActivity : AppCompatActivity() {
             if (it) {
                 checkPermission()
 
-                val intent = Intent(this, BackgroundLocationUpdateService::class.java)
+                val intent = Intent(this, BackgroundLocationUpdateService::class.java).apply {
+                    putExtra(SELECT, viewModel.destination.value)
+                }
                 startService(intent)
             } else {
                 stopService(Intent(this, BackgroundLocationUpdateService::class.java))
@@ -158,15 +177,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 1 && resultCode == RESULT_OK) {
-            if (data != null) {
-                viewModel.setAddress(data.getStringExtra(NAME))
-            }
-        }
-    }
-
     private fun checkPermission() {
         val permissionArray =
             arrayOf(
@@ -182,7 +192,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val DESTINATION = "목적지"
         const val NAME = "name"
+        const val SELECT = "select"
     }
 }

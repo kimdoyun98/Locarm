@@ -22,13 +22,12 @@ import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.FusedLocationSource
 import com.project.locarm.R
 import com.project.locarm.common.GeoCoder
-import com.project.locarm.common.MyApplication
-import com.project.locarm.common.PreferenceUtil.Companion.LATITUDE
-import com.project.locarm.common.PreferenceUtil.Companion.LONGITUDE
+import com.project.locarm.data.Loc
+import com.project.locarm.data.SelectDestination
 import com.project.locarm.data.room.Favorite
 import com.project.locarm.databinding.ActivitySearchBinding
 import com.project.locarm.databinding.SearchResultLayoutBinding
-import com.project.locarm.main.MainActivity.Companion.NAME
+import com.project.locarm.main.MainActivity.Companion.SELECT
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -37,11 +36,6 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
     private val viewModel: SearchViewModel by viewModels { SearchViewModel.Factory }
     private val adapter = PagingAdapter()
     private lateinit var bottomSheetDialog: BottomSheetDialog
-
-    data class Loc(
-        val latitude: Double,
-        val longitude: Double
-    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,18 +62,23 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
 
                 bottomSheetDialog.show()
 
-                //키보드 숨기기
-                val keyboard: InputMethodManager =
-                    getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-                keyboard.hideSoftInputFromWindow(
-                    currentFocus?.windowToken,
-                    InputMethodManager.HIDE_NOT_ALWAYS
-                )
+                hideKeyBoard()
+
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean = false
         })
+    }
+
+    private fun hideKeyBoard() {
+        val keyboard: InputMethodManager =
+            getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+
+        keyboard.hideSoftInputFromWindow(
+            currentFocus?.windowToken,
+            InputMethodManager.HIDE_NOT_ALWAYS
+        )
     }
 
     private fun initBottomSheetDialog() {
@@ -96,10 +95,16 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
             if (juso == null) return@setOnItemClickListener
 
             val geo = GeoCoder.getXY(this@SearchActivity, juso.jibunAddr)
-            viewModel.selectAddress = juso.name
             viewModel.location = Loc(geo.latitude, geo.longitude)
 
-            viewModel.setData(juso)
+            //TODO Test
+            viewModel.selectDestination = SelectDestination(
+                name = juso.name,
+                latitude = geo.latitude,
+                longitude = geo.longitude
+            )
+
+            viewModel.setAddressJuso(juso)
 
             bottomSheetDialog.dismiss()
         }
@@ -107,16 +112,21 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun selectDestination() {
         binding.selectDestinationBt.setOnClickListener {
-            MyApplication.prefs.setLocation(LATITUDE, viewModel.location.latitude)
-            MyApplication.prefs.setLocation(LONGITUDE, viewModel.location.longitude)
-
-            if (viewModel.selectAddress == null) {
+            if (viewModel.selectDestination == null) {
                 val input = EditText(this)
                 AlertDialog.Builder(this)
                     .setView(input)
                     .setTitle("해당 좌표의 이름을 정해주세요")
                     .setPositiveButton("확인") { _, _ ->
-                        viewModel.selectAddress = input.text.toString()
+                        //viewModel.selectAddress = input.text.toString()
+
+                        //TODO TEST
+                        viewModel.selectDestination = SelectDestination(
+                            name = input.text.toString(),
+                            latitude = viewModel.location.latitude,
+                            longitude = viewModel.location.longitude
+                        )
+
                         favoriteAlertDialog()
                     }
                     .create()
@@ -139,15 +149,18 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
 
         naverMap.locationSource = viewModel.locationSource
 
-        /** 지도에 직접 클릭하여 좌표 선택 시 **/
+        // 지도에 직접 클릭하여 좌표 선택 시
         naverMap.setOnMapClickListener { point, coord ->
             viewModel.location = Loc(coord.latitude, coord.longitude)
             marker.position = LatLng(coord.latitude, coord.longitude)
             marker.map = naverMap
-            viewModel.selectAddress = null
+            //viewModel.selectAddress = null
+
+            //TODO Test
+            viewModel.selectDestination = null
         }
 
-        /** 목적지 검색 시 해당 위치 지도 표시 **/
+        // 목적지 검색 시 해당 위치 지도 표시
         viewModel.address.observe(this) {
             val location = GeoCoder.getXY(this, it.jibunAddr)
             val cameraUpdate = CameraUpdate.scrollTo(LatLng(location.latitude, location.longitude))
@@ -166,37 +179,38 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
         else finish()
     }
 
-    /**
-     * 즐겨찾기 유무 확인 후 없으면 AlertDialog
-     */
+    // 즐겨찾기 유무 확인 후 없으면 AlertDialog
     private fun favoriteAlertDialog() {
+        val selectDestination = viewModel.selectDestination!!
+
         intent.apply {
-            putExtra(NAME, viewModel.selectAddress)
+            //putExtra(NAME, viewModel.selectAddress)
+            putExtra(SELECT, selectDestination)
             setResult(RESULT_OK, intent)
         }
 
-        viewModel.getFavorite(viewModel.selectAddress!!).observe(this) {
-            if (it == null) {
-                AlertDialog.Builder(this)
-                    .setTitle(viewModel.selectAddress!!)
-                    .setMessage("즐겨찾기에 추가하시겠습니까?")
-                    .setPositiveButton("예") { _, _ ->
-                        viewModel.insertFavorite(
-                            Favorite(
-                                name = viewModel.selectAddress!!,
-                                latitude = viewModel.location.latitude,
-                                longitude = viewModel.location.longitude
-                            )
-                        )
+        viewModel.getFavorite(selectDestination.name).observe(this) {
+            if (it != null) finish()
 
-                        finish()
-                    }
-                    .setNegativeButton("아니오") { _, _ ->
-                        finish()
-                    }
-                    .create()
-                    .show()
-            } else finish()
+            AlertDialog.Builder(this)
+                .setTitle(selectDestination.name)
+                .setMessage("즐겨찾기에 추가하시겠습니까?")
+                .setPositiveButton("예") { _, _ ->
+                    viewModel.insertFavorite(
+                        Favorite(
+                            name = selectDestination.name,
+                            latitude = selectDestination.latitude,
+                            longitude = selectDestination.longitude
+                        )
+                    )
+
+                    finish()
+                }
+                .setNegativeButton("아니오") { _, _ ->
+                    finish()
+                }
+                .create()
+                .show()
         }
     }
 }
