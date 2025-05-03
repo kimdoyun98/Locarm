@@ -3,11 +3,14 @@ package com.project.locarm.main
 import android.Manifest
 import android.app.ActivityManager
 import android.app.Dialog
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -43,6 +46,20 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+    private val serviceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            val binder = service as BackgroundLocationUpdateService.LocationServiceBind
+
+            if (viewModel.destination.value == null) {
+                viewModel.setDestination(binder.getDestination())
+            }
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -62,6 +79,9 @@ class MainActivity : AppCompatActivity() {
         if (viewModel.serviceState.value == ServiceState.Idle) {
             viewModel.setServiceState(
                 if (checkRunService()) {
+                    val serviceIntent = Intent(this, BackgroundLocationUpdateService::class.java)
+                    bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
+
                     getServiceState(true)
                 } else {
                     getServiceState(false)
@@ -109,6 +129,7 @@ class MainActivity : AppCompatActivity() {
             ServiceState.RunService(
                 onClick = {
                     stopService(serviceIntent)
+                    unbindService(serviceConnection)
                 }
             )
         } else {
@@ -118,6 +139,7 @@ class MainActivity : AppCompatActivity() {
                         putExtra(SELECT, viewModel.destination.value)
                     }
                     startService(serviceIntent)
+                    bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
                 }
             )
         }

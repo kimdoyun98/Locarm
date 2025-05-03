@@ -34,7 +34,7 @@ class MainViewModel(
 
     val favoriteList: LiveData<List<Favorite>> = dao.getAll()
 
-    fun setDestination(destination: SelectDestination) {
+    fun setDestination(destination: SelectDestination?) {
         _destination.value = destination
     }
 

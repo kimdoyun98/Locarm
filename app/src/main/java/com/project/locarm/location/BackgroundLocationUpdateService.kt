@@ -9,6 +9,7 @@ import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.os.Vibrator
@@ -27,12 +28,19 @@ import com.project.locarm.main.MainActivity.Companion.SELECT
 import java.text.DecimalFormat
 
 class BackgroundLocationUpdateService : Service() {
+    private val mBinder: IBinder = LocationServiceBind()
     private lateinit var context: Context
     private lateinit var realTimeLocation: RealTimeLocation
     private lateinit var notificationManager: NotificationManager
     private var startLocation: Loc? = null
     private var stopService = false
     private var destination: SelectDestination? = null
+
+    inner class LocationServiceBind: Binder(){
+        fun getService() = this@BackgroundLocationUpdateService
+
+        fun getDestination(): SelectDestination? = destination
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -164,8 +172,8 @@ class BackgroundLocationUpdateService : Service() {
         return builder.build()
     }
 
-    override fun onBind(p0: Intent?): IBinder? {
-        return null
+    override fun onBind(p0: Intent?): IBinder {
+        return mBinder
     }
 
     override fun onDestroy() {
