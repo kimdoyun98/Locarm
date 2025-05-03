@@ -14,19 +14,19 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.project.locarm.location.BackgroundLocationUpdateService
 import com.project.locarm.R
 import com.project.locarm.common.MyApplication
 import com.project.locarm.common.PreferenceUtil.Companion.DISTANCE
 import com.project.locarm.common.PreferenceUtil.Companion.LATITUDE
 import com.project.locarm.common.PreferenceUtil.Companion.LONGITUDE
-import com.project.locarm.databinding.ActivityMainBinding
 import com.project.locarm.data.room.Favorite
+import com.project.locarm.databinding.ActivityMainBinding
+import com.project.locarm.location.BackgroundLocationUpdateService
 import com.project.locarm.search.SearchActivity
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    val viewModel: MainViewModel by viewModels { MainViewModel.Factory }
+    private val viewModel: MainViewModel by viewModels { MainViewModel.Factory }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,10 +36,38 @@ class MainActivity : AppCompatActivity() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
 
+        searchDestination()
+        initFavorites()
+        alarmDistanceChange()
+        alarmButtonClick()
+        locationService()
+    }
+
+    private fun alarmButtonClick() {
+        binding.alarmButton.setOnClickListener {
+            if (viewModel.address.value == DESTINATION) {
+                Toast.makeText(this, "목적지를 입력하세요", Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
+
+            viewModel.alarmCheck()
+            MyApplication.prefs.setAddress(NAME, viewModel.address.value!!)
+        }
+    }
+
+    private fun searchDestination() {
         binding.searchDestination.setOnClickListener {
             startActivityForResult(Intent(this, SearchActivity::class.java), 1)
         }
+    }
 
+    private fun alarmDistanceChange() {
+        binding.change.setOnClickListener {
+            changeDistanceDialog()
+        }
+    }
+
+    private fun initFavorites() {
         val adapter = FavoritesAdapter()
         binding.favorites.adapter = adapter
         viewModel.favoriteList.observe(this) {
@@ -57,32 +85,22 @@ class MainActivity : AppCompatActivity() {
                 }
             })
         }
+    }
 
-        binding.change.setOnClickListener {
-            changeDistanceDialog()
-        }
-
-        binding.alarmButton.setOnClickListener {
-            if (viewModel.address.value == "목적지") {
-                Toast.makeText(this, "목적지를 입력하세요", Toast.LENGTH_LONG).show()
-                return@setOnClickListener
-            }
-
-            viewModel.alarmCheck()
-            MyApplication.prefs.setAddress(NAME, viewModel.address.value!!)
-        }
-
+    private fun locationService() {
         viewModel.alarmStatus.observe(this) {
             if (it) {
                 checkPermission()
-                startService(Intent(this, BackgroundLocationUpdateService::class.java))
+
+                val intent = Intent(this, BackgroundLocationUpdateService::class.java)
+                startService(intent)
             } else {
                 stopService(Intent(this, BackgroundLocationUpdateService::class.java))
             }
         }
     }
 
-    private fun changeDistanceDialog(){
+    private fun changeDistanceDialog() {
         val dialog = Dialog(this)
         dialog.setContentView(R.layout.alarm_distance_dialog)
         dialog.show()
@@ -164,6 +182,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
+        private const val DESTINATION = "목적지"
         const val NAME = "name"
     }
 }
