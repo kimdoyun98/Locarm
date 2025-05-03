@@ -146,8 +146,8 @@
             android:layout_gravity="bottom"
             android:layout_margin="30dp"
             android:background="@color/button_color"
-            android:text="@{viewModel.alarmStatus ? @string/turn_off : @string/turn_on}"
             android:textSize="30sp"
+            alarmText="@{viewModel.serviceState}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />

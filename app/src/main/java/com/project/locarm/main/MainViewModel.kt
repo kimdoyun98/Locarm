@@ -17,8 +17,12 @@ class MainViewModel(
     private val dao: FavoritesDao
 ) : ViewModel() {
 
-    private val _alarmStatus = MutableLiveData<Boolean>().apply { value = false }
-    val alarmStatus: LiveData<Boolean> = _alarmStatus
+    private val _serviceState = MutableLiveData<ServiceState>().apply { value = ServiceState.Idle }
+    val serviceState: LiveData<ServiceState> = _serviceState
+
+    fun setServiceState(serviceState: ServiceState) {
+        _serviceState.value = serviceState
+    }
 
     private val _distance = MutableLiveData<Int>().apply {
         value = MyApplication.prefs.getAlarmDistance(DISTANCE) / 1000
@@ -32,10 +36,6 @@ class MainViewModel(
 
     fun setDestination(destination: SelectDestination) {
         _destination.value = destination
-    }
-
-    fun alarmCheck() {
-        _alarmStatus.value = !alarmStatus.value!!
     }
 
     fun allDelete() {

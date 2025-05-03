@@ -1,7 +1,9 @@
 package com.project.locarm.main
 
 import android.Manifest
+import android.app.ActivityManager
 import android.app.Dialog
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -52,19 +54,83 @@ class MainActivity : AppCompatActivity() {
         searchDestination()
         initFavorites()
         alarmDistanceChange()
+        checkRunningService()
         alarmButtonClick()
-        locationService()
+    }
+
+    private fun checkRunningService() {
+        if (viewModel.serviceState.value == ServiceState.Idle) {
+            viewModel.setServiceState(
+                if (checkRunService()) {
+                    getServiceState(true)
+                } else {
+                    getServiceState(false)
+                }
+            )
+        }
     }
 
     private fun alarmButtonClick() {
         binding.alarmButton.setOnClickListener {
+            checkPermission()
+
             if (viewModel.destination.value == null) {
                 Toast.makeText(this, "목적지를 입력하세요", Toast.LENGTH_LONG).show()
                 return@setOnClickListener
             }
 
-            viewModel.alarmCheck()
+            when (val serviceState = viewModel.serviceState.value!!) {
+                is ServiceState.Idle -> {
+                    checkRunService()
+                }
+
+                is ServiceState.RunService -> {
+                    serviceState.onClick()
+
+                    viewModel.setServiceState(
+                        getServiceState(false)
+                    )
+                }
+
+                is ServiceState.StopService -> {
+                    serviceState.onClick()
+
+                    viewModel.setServiceState(
+                        getServiceState(true)
+                    )
+                }
+            }
         }
+    }
+
+    private fun getServiceState(run: Boolean): ServiceState {
+        val serviceIntent = Intent(this, BackgroundLocationUpdateService::class.java)
+        return if (run) {
+            ServiceState.RunService(
+                onClick = {
+                    stopService(serviceIntent)
+                }
+            )
+        } else {
+            ServiceState.StopService(
+                onClick = {
+                    serviceIntent.apply {
+                        putExtra(SELECT, viewModel.destination.value)
+                    }
+                    startService(serviceIntent)
+                }
+            )
+        }
+    }
+
+    private fun checkRunService(): Boolean {
+        val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        manager.getRunningServices(Integer.MAX_VALUE).forEach {
+            if (SERVICE_NAME == it.service.className) {
+                return true
+            }
+        }
+        return false
     }
 
     private fun searchDestination() {
@@ -101,21 +167,6 @@ class MainActivity : AppCompatActivity() {
                     viewModel.delete(data.id)
                 }
             })
-        }
-    }
-
-    private fun locationService() {
-        viewModel.alarmStatus.observe(this) {
-            if (it) {
-                checkPermission()
-
-                val intent = Intent(this, BackgroundLocationUpdateService::class.java).apply {
-                    putExtra(SELECT, viewModel.destination.value)
-                }
-                startService(intent)
-            } else {
-                stopService(Intent(this, BackgroundLocationUpdateService::class.java))
-            }
         }
     }
 
@@ -192,6 +243,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
+        private const val SERVICE_NAME =
+            "com.project.locarm.location.BackgroundLocationUpdateService"
         const val NAME = "name"
         const val SELECT = "select"
     }
