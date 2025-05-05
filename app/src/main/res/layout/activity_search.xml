@@ -17,7 +17,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:queryHint="목적지를 입력하세요.." />
+        app:queryHint="@string/searchActivity_input_destination" />
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/naverMap"
@@ -37,7 +37,7 @@
         android:layout_gravity="center"
         android:layout_margin="10dp"
         android:background="@color/button_color"
-        android:text="등록"
+        android:text="@string/searchActivity_register"
         android:textColor="@color/base_textColor"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

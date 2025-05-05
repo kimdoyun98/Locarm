@@ -14,6 +14,15 @@
     <string name="mainActivity_nearby_alarm">인접 시 알람</string>
     <string name="mainActivity_change">변경</string>
 
+    <!--  SearchActivity  -->
+    <string name="searchActivity_register">등록</string>
+    <string name="searchActivity_input_destination">목적지를 입력하세요</string>
+    <string name="searchActivity_dialog_input_destination_name">해당 좌표의 이름을 정해주세요,</string>
+    <string name="searchActivity_dialog_done">확인</string>
+    <string name="searchActivity_dialog_add_favorites_message">즐겨찾기에 추가하시겠습니까?</string>
+    <string name="searchActivity_dialog_post_button">예</string>
+    <string name="searchActivity_dialog_negative_button">아니오</string>
+
     <!--    BackgroundLocationUpdateService    -->
     <string name="backgroundLocationUpdate_destination_nearby">목적지 인접</string>
     <string name="backgroundLocationUpdate_location_info">위치 정보</string>

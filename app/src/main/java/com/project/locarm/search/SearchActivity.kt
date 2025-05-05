@@ -97,7 +97,6 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
             val geo = GeoCoder.getXY(this@SearchActivity, juso.jibunAddr)
             viewModel.location = Loc(geo.latitude, geo.longitude)
 
-            //TODO Test
             viewModel.selectDestination = SelectDestination(
                 name = juso.name,
                 latitude = geo.latitude,
@@ -116,11 +115,8 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
                 val input = EditText(this)
                 AlertDialog.Builder(this)
                     .setView(input)
-                    .setTitle("해당 좌표의 이름을 정해주세요")
-                    .setPositiveButton("확인") { _, _ ->
-                        //viewModel.selectAddress = input.text.toString()
-
-                        //TODO TEST
+                    .setTitle(getString(R.string.searchActivity_dialog_input_destination_name))
+                    .setPositiveButton(getString(R.string.searchActivity_dialog_done)) { _, _ ->
                         viewModel.selectDestination = SelectDestination(
                             name = input.text.toString(),
                             latitude = viewModel.location.latitude,
@@ -154,9 +150,7 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
             viewModel.location = Loc(coord.latitude, coord.longitude)
             marker.position = LatLng(coord.latitude, coord.longitude)
             marker.map = naverMap
-            //viewModel.selectAddress = null
 
-            //TODO Test
             viewModel.selectDestination = null
         }
 
@@ -179,12 +173,10 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
         else finish()
     }
 
-    // 즐겨찾기 유무 확인 후 없으면 AlertDialog
     private fun favoriteAlertDialog() {
         val selectDestination = viewModel.selectDestination!!
 
         intent.apply {
-            //putExtra(NAME, viewModel.selectAddress)
             putExtra(SELECT, selectDestination)
             setResult(RESULT_OK, intent)
         }
@@ -194,8 +186,8 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
 
             AlertDialog.Builder(this)
                 .setTitle(selectDestination.name)
-                .setMessage("즐겨찾기에 추가하시겠습니까?")
-                .setPositiveButton("예") { _, _ ->
+                .setMessage(getString(R.string.searchActivity_dialog_add_favorites_message))
+                .setPositiveButton(getString(R.string.searchActivity_dialog_post_button)) { _, _ ->
                     viewModel.insertFavorite(
                         Favorite(
                             name = selectDestination.name,
@@ -206,7 +198,7 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
 
                     finish()
                 }
-                .setNegativeButton("아니오") { _, _ ->
+                .setNegativeButton(getString(R.string.searchActivity_dialog_negative_button)) { _, _ ->
                     finish()
                 }
                 .create()
