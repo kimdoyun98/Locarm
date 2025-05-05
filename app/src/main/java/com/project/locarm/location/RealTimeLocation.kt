@@ -40,7 +40,7 @@ class RealTimeLocation(
 
     fun getLocation(
         destination: SelectDestination,
-        updateNotification: (Int, Double, Double) -> Unit,
+        updateNotification: (Int) -> Unit,
         onVibrator: (Int) -> Unit
     ) {
 
@@ -54,7 +54,7 @@ class RealTimeLocation(
                         destination
                     )
 
-                    updateNotification(distance, lastLocation.latitude, lastLocation.longitude)
+                    updateNotification(distance)
                     onVibrator(distance)
                 }
             }

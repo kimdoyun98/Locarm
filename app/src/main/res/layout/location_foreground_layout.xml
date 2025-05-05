@@ -38,23 +38,4 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/test_latitude"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="20dp"
-            tools:text="latitude"/>
-
-        <TextView
-            android:id="@+id/test_longitude"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:text="longitude"/>
-    </LinearLayout>
-
 </LinearLayout>

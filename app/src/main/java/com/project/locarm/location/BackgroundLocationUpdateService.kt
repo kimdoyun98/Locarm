@@ -1,6 +1,5 @@
 package com.project.locarm.location
 
-import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -13,7 +12,6 @@ import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.os.Vibrator
-import android.util.Log
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import com.project.locarm.R
@@ -23,7 +21,6 @@ import com.project.locarm.common.PushAlarm
 import com.project.locarm.data.Loc
 import com.project.locarm.data.SelectDestination
 import com.project.locarm.main.MainActivity
-import com.project.locarm.main.MainActivity.Companion.NAME
 import com.project.locarm.main.MainActivity.Companion.SELECT
 import java.text.DecimalFormat
 
@@ -33,10 +30,10 @@ class BackgroundLocationUpdateService : Service() {
     private lateinit var realTimeLocation: RealTimeLocation
     private lateinit var notificationManager: NotificationManager
     private var startLocation: Loc? = null
-    private var stopService = false
     private var destination: SelectDestination? = null
+    private val alarmDistance = MyApplication.prefs.getAlarmDistance(DISTANCE)
 
-    inner class LocationServiceBind: Binder(){
+    inner class LocationServiceBind : Binder() {
         fun getService() = this@BackgroundLocationUpdateService
 
         fun getDestination(): SelectDestination? = destination
@@ -56,30 +53,38 @@ class BackgroundLocationUpdateService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        destination = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            intent?.getParcelableExtra(SELECT, SelectDestination::class.java)
-        } else {
-            intent?.getParcelableExtra(SELECT)
+        when (intent?.action) {
+            DELETE -> {
+                stopService(intent)
+            }
+
+            else -> {
+                destination = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    intent?.getParcelableExtra(SELECT, SelectDestination::class.java)
+                } else {
+                    intent?.getParcelableExtra(SELECT)
+                }
+
+                startForeground()
+
+                realTimeLocation.getLocation(
+                    destination!!,
+                    { distance -> updateNotification(distance) },
+                    { distance -> vibrateWithAlarm(distance) }
+                )
+            }
         }
-
-        startForeground()
-
-        realTimeLocation.getLocation(
-            destination!!,
-            { distance, latitude, longitude -> updateNotification(distance, latitude, longitude) },
-            { distance -> vibrateWithAlarm(distance) }
-        )
 
         return START_STICKY
     }
 
     private fun vibrateWithAlarm(distance: Int) {
-        if (distance > MyApplication.prefs.getAlarmDistance(DISTANCE)) return
+        if (distance > alarmDistance) return
         PushAlarm.build(
             context,
             "목적지 인접",
             "목적지까지 ${DecimalFormat("##0.0").format(distance.toKm())}KM 남았습니다.",
-            MyApplication.prefs.getAddress(NAME, "")!!
+            destination!!.name
         )
         val vibrator: Vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         vibrator.vibrate(1000)
@@ -87,7 +92,6 @@ class BackgroundLocationUpdateService : Service() {
 
     private fun Int.toKm(): Double = this.toDouble() / 1000
 
-    @SuppressLint("UnspecifiedImmutableFlag")
     private fun startForeground() {
         createNotificationChannel()
         startForeground(101, getNotification())
@@ -100,34 +104,21 @@ class BackgroundLocationUpdateService : Service() {
             CHANNEL_ID,
             CHANNEL_NAME,
             NotificationManager.IMPORTANCE_LOW
-        )
-        channel.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
-        channel.enableVibration(false)
+        ).apply {
+            lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+            enableVibration(false)
+        }
+
         notificationManager.createNotificationChannel(channel)
     }
 
-    private fun updateNotification(distance: Int, latitude: Double, longitude: Double) {
-        notificationManager.notify(101, getNotification(distance, latitude, longitude))
+    private fun updateNotification(distance: Int) {
+        notificationManager.notify(101, getNotification(distance))
     }
 
     private fun getNotification(
-        distance: Int = MyApplication.prefs.getAlarmDistance(DISTANCE),
-        testLatitude: Double = 0.0,
-        testLongitude: Double = 0.0
+        distance: Int = MyApplication.prefs.getAlarmDistance(DISTANCE)
     ): Notification {
-        val intent = Intent(context, MainActivity::class.java).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-            action = Intent.ACTION_MAIN
-            addCategory(Intent.CATEGORY_LAUNCHER)
-        }
-
-        val pendingIntent = PendingIntent.getActivity(
-            this,
-            0 /* Request code */,
-            intent,
-            PendingIntent.FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT
-        )
-
         val builder: NotificationCompat.Builder =
             NotificationCompat.Builder(applicationContext, CHANNEL_ID)
 
@@ -140,7 +131,7 @@ class BackgroundLocationUpdateService : Service() {
         } else {
             1000
         }
-        Log.e("TotalDistance", totalDistance.toString())
+
         val foreGroundLayout =
             RemoteViews(packageName, R.layout.location_foreground_layout).apply {
                 setTextViewText(R.id.distance_tv, DecimalFormat("##0.0").format(distance.toKm()))
@@ -153,18 +144,17 @@ class BackgroundLocationUpdateService : Service() {
 
                 setTextViewText(
                     R.id.destination_guide_tv,
-                    "${MyApplication.prefs.getAddress(NAME, "목적지")}까지 남은 거리"
+                    "${destination?.name}까지 남은 거리"
                 )
-
-                setTextViewText(R.id.test_latitude, "$testLatitude")
-                setTextViewText(R.id.test_longitude, "$testLongitude")
             }
 
         builder
             .setStyle(NotificationCompat.DecoratedCustomViewStyle())
             .setCustomContentView(foreGroundLayout)
-            .setContentIntent(pendingIntent)
+            .setContentIntent(notificationClickPendingIntent())
+            .setDeleteIntent(notificationDeletePendingIntent())
             .setContentTitle("위치 정보")
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setOngoing(true)
             .setSmallIcon(R.drawable.ic_launcher_background)
@@ -172,20 +162,47 @@ class BackgroundLocationUpdateService : Service() {
         return builder.build()
     }
 
+    private fun notificationClickPendingIntent(): PendingIntent {
+        val intent = Intent(context, MainActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            action = Intent.ACTION_MAIN
+            addCategory(Intent.CATEGORY_LAUNCHER)
+        }
+
+        return PendingIntent.getActivity(
+            this,
+            0 /* Request code */,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT
+        )
+    }
+
+    private fun notificationDeletePendingIntent(): PendingIntent {
+        val deleteIntent = Intent(context, BackgroundLocationUpdateService::class.java).apply {
+            action = DELETE
+        }
+        return PendingIntent.getService(
+            this,
+            0,
+            deleteIntent,
+            PendingIntent.FLAG_IMMUTABLE or FLAG_UPDATE_CURRENT
+        )
+    }
+
     override fun onBind(p0: Intent?): IBinder {
         return mBinder
     }
 
     override fun onDestroy() {
-        Log.e(TAG, "Service Stopped")
         realTimeLocation.onDestroy()
-        stopService = true
         super.onDestroy()
     }
 
     companion object {
-        private const val CHANNEL_ID = "channel_location"
-        private const val CHANNEL_NAME = "channel_location"
+        private const val CHANNEL_ID = "BackgroundLocationUpdateService"
+        private const val CHANNEL_NAME = "BackgroundLocationUpdateService"
         private const val TAG = "BackgroundLocationUpdateService"
+
+        private const val DELETE = "delete"
     }
 }
