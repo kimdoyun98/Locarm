@@ -12,12 +12,12 @@ import com.project.locarm.data.AddressDTO
 import com.project.locarm.data.Loc
 import com.project.locarm.data.SelectDestination
 import com.project.locarm.data.repository.AddressRepository
+import com.project.locarm.data.repository.FavoritesRepository
 import com.project.locarm.data.room.Favorite
-import com.project.locarm.data.room.FavoritesDao
 import kotlinx.coroutines.launch
 
 class SearchViewModel(
-    private val dao: FavoritesDao,
+    private val favoritesRepository: FavoritesRepository,
     private val addressRepository: AddressRepository
 ) : ViewModel() {
     private var _address = MutableLiveData<AddressDTO.Result.Juso>()
@@ -36,12 +36,12 @@ class SearchViewModel(
     }
 
     fun getFavorite(name: String): LiveData<Favorite> {
-        return dao.getFavorite(name)
+        return favoritesRepository.getFavorite(name)
     }
 
     fun insertFavorite(favorite: Favorite) {
         viewModelScope.launch {
-            dao.insert(favorite)
+            favoritesRepository.insertFavorite(favorite)
         }
     }
 
@@ -53,7 +53,7 @@ class SearchViewModel(
                 extras: CreationExtras
             ): T {
                 return SearchViewModel(
-                    MyApplication.serviceLocator.dao,
+                    MyApplication.serviceLocator.favoritesRepository,
                     MyApplication.serviceLocator.addressRepository
                 ) as T
             }

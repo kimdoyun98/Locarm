@@ -9,12 +9,12 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import com.project.locarm.common.MyApplication
 import com.project.locarm.common.PreferenceUtil.Companion.DISTANCE
 import com.project.locarm.data.SelectDestination
+import com.project.locarm.data.repository.FavoritesRepository
 import com.project.locarm.data.room.Favorite
-import com.project.locarm.data.room.FavoritesDao
 import kotlinx.coroutines.launch
 
 class MainViewModel(
-    private val dao: FavoritesDao
+    private val favoritesRepository: FavoritesRepository
 ) : ViewModel() {
 
     private val _serviceState = MutableLiveData<ServiceState>().apply { value = ServiceState.Idle }
@@ -32,7 +32,7 @@ class MainViewModel(
     private val _destination = MutableLiveData<SelectDestination?>().apply { value = null }
     val destination: LiveData<SelectDestination?> = _destination
 
-    val favoriteList: LiveData<List<Favorite>> = dao.getAll()
+    val favoriteList: LiveData<List<Favorite>> = favoritesRepository.getAllFavorites()
 
     fun setDestination(destination: SelectDestination?) {
         _destination.value = destination
@@ -40,13 +40,13 @@ class MainViewModel(
 
     fun allDelete() {
         viewModelScope.launch {
-            dao.deleteAll()
+            favoritesRepository.deleteAllFavorites()
         }
     }
 
     fun delete(id: Int) {
         viewModelScope.launch {
-            dao.delete(id)
+            favoritesRepository.deleteFavorite(id)
         }
     }
 
@@ -62,7 +62,7 @@ class MainViewModel(
                 extras: CreationExtras
             ): T {
                 return MainViewModel(
-                    MyApplication.serviceLocator.dao
+                    MyApplication.serviceLocator.favoritesRepository
                 ) as T
             }
         }
