@@ -22,6 +22,16 @@
     <string name="searchActivity_dialog_add_favorites_message">즐겨찾기에 추가하시겠습니까?</string>
     <string name="searchActivity_dialog_post_button">예</string>
     <string name="searchActivity_dialog_negative_button">아니오</string>
+    <string name="searchActivity_dialog_first_km">1km</string>
+    <string name="searchActivity_dialog_second_km">2km</string>
+    <string name="searchActivity_dialog_third_km">3km</string>
+    <string name="searchActivity_dialog_input_self">직접 입력하기</string>
+    <string name="searchActivity_dialog_edittext_hint">입력란</string>
+    <string name="searchActivity_dialog_km">Km</string>
+    <string name="searchActivity_dialog_cancel">취소</string>
+
+
+    <string name="search_item_top_of_search_address_result">검색 결과 최상단</string>
 
     <!--    BackgroundLocationUpdateService    -->
     <string name="backgroundLocationUpdate_destination_nearby">목적지 인접</string>

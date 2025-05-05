@@ -14,25 +14,25 @@
             android:id="@+id/one"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="1Km" />
+            android:text="@string/searchActivity_dialog_first_km" />
 
         <RadioButton
             android:id="@+id/two"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="2Km" />
+            android:text="@string/searchActivity_dialog_second_km" />
 
         <RadioButton
             android:id="@+id/three"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="3km" />
+            android:text="@string/searchActivity_dialog_third_km" />
 
         <RadioButton
             android:id="@+id/another"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="직접 입력하기"
+            android:text="@string/searchActivity_dialog_input_self"
             />
     </RadioGroup>
     <LinearLayout
@@ -46,11 +46,13 @@
             android:id="@+id/another_text"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            />
+            android:autofillHints="@string/searchActivity_dialog_edittext_hint"
+            android:inputType="number"
+            android:hint="@string/searchActivity_dialog_edittext_hint"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Km"
+            android:text="@string/searchActivity_dialog_km"
             android:textColor="@color/base_textColor"
             />
     </LinearLayout>
@@ -66,7 +68,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:layout_weight="1"
-            android:text="취소" />
+            android:text="@string/searchActivity_dialog_cancel" />
 
         <Button
             android:id="@+id/check"
@@ -74,7 +76,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:layout_weight="1"
-            android:text="확인" />
+            android:text="@string/searchActivity_dialog_done" />
     </LinearLayout>
 
 </LinearLayout>
