@@ -82,8 +82,11 @@ class BackgroundLocationUpdateService : Service() {
         if (distance > alarmDistance) return
         PushAlarm.build(
             context,
-            "목적지 인접",
-            "목적지까지 ${DecimalFormat("##0.0").format(distance.toKm())}KM 남았습니다.",
+            getString(R.string.backgroundLocationUpdate_destination_nearby),
+            getString(
+                R.string.backgroundLocationUpdate_pushAlarm_content,
+                DecimalFormat(KM_FORMAT_PATTERN).format(distance.toKm())
+            ),
             destination!!.name
         )
         val vibrator: Vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
@@ -134,7 +137,10 @@ class BackgroundLocationUpdateService : Service() {
 
         val foreGroundLayout =
             RemoteViews(packageName, R.layout.location_foreground_layout).apply {
-                setTextViewText(R.id.distance_tv, DecimalFormat("##0.0").format(distance.toKm()))
+                setTextViewText(
+                    R.id.distance_tv,
+                    DecimalFormat(KM_FORMAT_PATTERN).format(distance.toKm())
+                )
                 setProgressBar(
                     R.id.distance_progress_bar,
                     totalDistance,
@@ -144,7 +150,10 @@ class BackgroundLocationUpdateService : Service() {
 
                 setTextViewText(
                     R.id.destination_guide_tv,
-                    "${destination?.name}까지 남은 거리"
+                    getString(
+                        R.string.backgroundLocationUpdate_remaining_distance,
+                        destination?.name
+                    )
                 )
             }
 
@@ -153,7 +162,7 @@ class BackgroundLocationUpdateService : Service() {
             .setCustomContentView(foreGroundLayout)
             .setContentIntent(notificationClickPendingIntent())
             .setDeleteIntent(notificationDeletePendingIntent())
-            .setContentTitle("위치 정보")
+            .setContentTitle(getString(R.string.backgroundLocationUpdate_location_info))
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setOngoing(true)
@@ -204,5 +213,6 @@ class BackgroundLocationUpdateService : Service() {
         private const val TAG = "BackgroundLocationUpdateService"
 
         private const val DELETE = "delete"
+        private const val KM_FORMAT_PATTERN = "##0.0"
     }
 }
