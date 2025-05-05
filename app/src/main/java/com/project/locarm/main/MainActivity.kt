@@ -95,7 +95,11 @@ class MainActivity : AppCompatActivity() {
             checkPermission()
 
             if (viewModel.destination.value == null) {
-                Toast.makeText(this, "목적지를 입력하세요", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    this,
+                    getString(R.string.mainActivity_input_destination_toast_message),
+                    Toast.LENGTH_LONG
+                ).show()
                 return@setOnClickListener
             }
 
@@ -213,21 +217,21 @@ class MainActivity : AppCompatActivity() {
             try {
                 when (radioGroup.checkedRadioButtonId) {
                     R.id.one -> {
-                        MyApplication.prefs.setAlarmDistance(DISTANCE, 1000)
+                        MyApplication.prefs.setAlarmDistance(DISTANCE, ONE_KM)
                     }
 
                     R.id.two -> {
-                        MyApplication.prefs.setAlarmDistance(DISTANCE, 2000)
+                        MyApplication.prefs.setAlarmDistance(DISTANCE, TWO_KM)
                     }
 
                     R.id.three -> {
-                        MyApplication.prefs.setAlarmDistance(DISTANCE, 3000)
+                        MyApplication.prefs.setAlarmDistance(DISTANCE, THREE_KM)
                     }
 
                     else -> {
                         val distance =
                             dialog.findViewById<EditText?>(R.id.another_text).text.toString()
-                        MyApplication.prefs.setAlarmDistance(DISTANCE, distance.toInt() * 1000)
+                        MyApplication.prefs.setAlarmDistance(DISTANCE, distance.toInt() * ONE_KM)
                     }
                 }
 
@@ -235,13 +239,20 @@ class MainActivity : AppCompatActivity() {
 
                 Toast.makeText(
                     this,
-                    "목적지로부터 ${viewModel.distance.value}Km 이내 접근 시 알람이 울립니다.",
+                    getString(
+                        R.string.mainActivity_change_alarm_distance_toast_message,
+                        viewModel.distance.value
+                    ),
                     Toast.LENGTH_LONG
                 ).show()
 
                 dialog.cancel()
             } catch (e: NumberFormatException) {
-                Toast.makeText(this, "숫자를 입력해주세요.", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    this,
+                    getString(R.string.mainActivity_input_number_toast_message),
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
 
@@ -267,6 +278,10 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private const val SERVICE_NAME =
             "com.project.locarm.location.BackgroundLocationUpdateService"
+        private const val ONE_KM = 1000
+        private const val TWO_KM = 2000
+        private const val THREE_KM = 3000
+
         const val NAME = "name"
         const val SELECT = "select"
     }

@@ -35,7 +35,7 @@
             android:background="@drawable/search_rectangle"
             android:gravity="center_vertical"
             android:paddingHorizontal="40dp"
-            android:text="위치를 입력하세요..."
+            android:text="@string/mainActivity_input_location"
             android:textSize="20sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -50,7 +50,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_weight="1"
-            android:text="즐겨찾기"
+            android:text="@string/mainActivity_favorites"
             android:textColor="@color/base_textColor"
             android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@+id/allDelete"
@@ -66,7 +66,7 @@
             android:layout_marginEnd="8dp"
             android:gravity="center"
             android:onClick="@{()->viewModel.allDelete()}"
-            android:text="전체 삭제"
+            android:text="@string/mainActivity_delete_all"
             android:textColor="@color/darkgray"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
@@ -117,7 +117,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="10dp"
-                android:text="KM"
+                android:text="@string/km"
                 android:textColor="@color/base_textColor"
                 android:textSize="17sp"
                 android:textStyle="bold" />
@@ -126,7 +126,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="인접 시 알람"
+                android:text="@string/mainActivity_nearby_alarm"
                 android:textColor="@color/base_textColor"
                 android:textStyle="bold" />
 
@@ -135,7 +135,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
-                android:text="변경"
+                android:text="@string/mainActivity_change"
                 android:textColor="@color/darkgray" />
         </LinearLayout>
 

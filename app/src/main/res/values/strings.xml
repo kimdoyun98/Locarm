@@ -2,7 +2,18 @@
     <string name="app_name">Locarm</string>
     <string name="turn_off">알람 끄기</string>
     <string name="turn_on">위치 알림</string>
-    
+    <string name="km">KM</string>
+
+    <!--  MainActivity  -->
+    <string name="mainActivity_input_destination_toast_message">목적지를 입력하세요</string>
+    <string name="mainActivity_change_alarm_distance_toast_message">목적지로부터 %dKm 이내 접근 시 알람이 울립니다.</string>
+    <string name="mainActivity_input_number_toast_message">숫자를 입력해주세요.</string>
+    <string name="mainActivity_input_location">위치를 입력하세요.</string>
+    <string name="mainActivity_favorites">즐겨찾기</string>
+    <string name="mainActivity_delete_all">전체 삭제</string>
+    <string name="mainActivity_nearby_alarm">인접 시 알람</string>
+    <string name="mainActivity_change">변경</string>
+
     <!--    BackgroundLocationUpdateService    -->
     <string name="backgroundLocationUpdate_destination_nearby">목적지 인접</string>
     <string name="backgroundLocationUpdate_location_info">위치 정보</string>
