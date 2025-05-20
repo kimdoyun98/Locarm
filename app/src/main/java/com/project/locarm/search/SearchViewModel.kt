@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.naver.maps.map.util.FusedLocationSource
 import com.project.locarm.common.MyApplication
-import com.project.locarm.data.AddressDTO
+import com.project.locarm.data.Juso
 import com.project.locarm.data.Loc
 import com.project.locarm.data.SelectDestination
 import com.project.locarm.data.repository.AddressRepository
@@ -20,8 +20,8 @@ class SearchViewModel(
     private val favoritesRepository: FavoritesRepository,
     private val addressRepository: AddressRepository
 ) : ViewModel() {
-    private var _address = MutableLiveData<AddressDTO.Result.Juso>()
-    val address: LiveData<AddressDTO.Result.Juso> = _address
+    private var _address = MutableLiveData<Juso>()
+    val address: LiveData<Juso> = _address
 
     var selectDestination: SelectDestination? = null
 
@@ -31,7 +31,7 @@ class SearchViewModel(
 
     fun searchAddress(keyword: String) = addressRepository.getSearchResultStream(keyword)
 
-    fun setAddressJuso(data: AddressDTO.Result.Juso) {
+    fun setAddressJuso(data: Juso) {
         _address.postValue(data)
     }
 

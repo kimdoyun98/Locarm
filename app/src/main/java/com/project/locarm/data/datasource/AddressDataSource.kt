@@ -2,7 +2,7 @@ package com.project.locarm.data.datasource
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.project.locarm.data.AddressDTO
+import com.project.locarm.data.Juso
 import com.project.locarm.data.remote.ApiService
 import retrofit2.HttpException
 import java.io.IOException
@@ -10,9 +10,9 @@ import java.io.IOException
 class AddressDataSource(
     private val service: ApiService,
     private val query: String
-) : PagingSource<Int, AddressDTO.Result.Juso>() {
+) : PagingSource<Int, Juso>() {
 
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, AddressDTO.Result.Juso> {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Juso> {
         val position = params.key ?: ADDRESS_STARTING_PAGE
 
         return try {
@@ -31,7 +31,7 @@ class AddressDataSource(
         }
     }
 
-    override fun getRefreshKey(state: PagingState<Int, AddressDTO.Result.Juso>): Int? {
+    override fun getRefreshKey(state: PagingState<Int, Juso>): Int? {
         return state.anchorPosition?.let { anchorPosition ->
             state.closestPageToPosition(anchorPosition)?.prevKey?.plus(1)
                 ?: state.closestPageToPosition(anchorPosition)?.nextKey?.minus(1)

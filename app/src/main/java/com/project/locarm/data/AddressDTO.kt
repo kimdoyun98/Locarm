@@ -1,24 +1,28 @@
 package com.project.locarm.data
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class AddressDTO(
-    @SerializedName("results") val result : Result
-){
-    data class Result(
-        @SerializedName("juso") val juso : ArrayList<Juso>,
-        @SerializedName("common") val common : ResultCommon
-    ){
-        data class Juso(
-            @SerializedName("jibunAddr") val jibunAddr : String,
-            @SerializedName("roadAddr") val roadAddr : String,
-            @SerializedName("bdNm") val name: String
-        )
+    @SerialName("results")
+    val result: Result
+)
 
-        data class ResultCommon(
-            @SerializedName("countPerPage") val countPerPage : String,
-            @SerializedName("totalCount") val totalCount : String,
-            @SerializedName("currentPage") val currentPage: String
-        )
-    }
-}
+@Serializable
+data class Result(
+    @SerialName("juso")
+    val juso: List<Juso>,
+)
+
+@Serializable
+data class Juso(
+    @SerialName("jibunAddr")
+    val jibunAddr: String,
+
+    @SerialName("roadAddr")
+    val roadAddr: String,
+
+    @SerialName("bdNm")
+    val name: String
+)

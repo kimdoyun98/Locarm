@@ -8,8 +8,9 @@ import retrofit2.http.Query
 
 interface ApiService {
     @GET("addrLinkApi.do?&countPerPage=10&resultType=json")
-    suspend fun getAddress(@Query("keyword") keyword: String?,
-                   @Query("currentPage") page: Int,
-                   @Query("confmKey") confmkey: String = BuildConfig.Address_Key
+    suspend fun getAddress(
+        @Query("keyword") keyword: String?,
+        @Query("currentPage") page: Int,
+        @Query("confmKey") confmkey: String = BuildConfig.Address_Key
     ): Response<AddressDTO>
 }

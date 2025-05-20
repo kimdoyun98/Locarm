@@ -1,13 +1,19 @@
 package com.project.locarm.data.remote
 
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitManager {
+    private val contentType = "application/json".toMediaType()
+    private const val URL = "https://business.juso.go.kr/addrlink/"
+    private val json = Json { ignoreUnknownKeys = true }
+
     fun getRetrofitInstance(): Retrofit {
         return Retrofit.Builder()
-            .addConverterFactory(GsonConverterFactory.create())
-            .baseUrl("https://business.juso.go.kr/addrlink/")
+            .addConverterFactory(json.asConverterFactory(contentType))
+            .baseUrl(URL)
             .build()
     }
 }

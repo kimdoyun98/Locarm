@@ -5,13 +5,13 @@ import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.project.locarm.data.AddressDTO
+import com.project.locarm.data.Juso
 import com.project.locarm.databinding.AddressSearchItemBinding
 
-class PagingAdapter : PagingDataAdapter<AddressDTO.Result.Juso, PagingAdapter.ViewHolder>(addressDiffUtil) {
+class PagingAdapter : PagingDataAdapter<Juso, PagingAdapter.ViewHolder>(addressDiffUtil) {
 
     fun interface OnAddressSelectListener {
-        fun onItemClicked(juso: AddressDTO.Result.Juso?)
+        fun onItemClicked(juso: Juso?)
     }
 
     private var itemClickListener: OnAddressSelectListener? = null
@@ -30,7 +30,7 @@ class PagingAdapter : PagingDataAdapter<AddressDTO.Result.Juso, PagingAdapter.Vi
             }
         }
 
-        fun bind(juso: AddressDTO.Result.Juso) {
+        fun bind(juso: Juso) {
             binding.address.text = juso.name
             binding.address2.text = juso.jibunAddr
         }
@@ -51,13 +51,13 @@ class PagingAdapter : PagingDataAdapter<AddressDTO.Result.Juso, PagingAdapter.Vi
     }
 
     companion object {
-        private val addressDiffUtil = object : DiffUtil.ItemCallback<AddressDTO.Result.Juso>() {
+        private val addressDiffUtil = object : DiffUtil.ItemCallback<Juso>() {
             override fun areItemsTheSame(
-                oldItem: AddressDTO.Result.Juso, newItem: AddressDTO.Result.Juso
+                oldItem: Juso, newItem: Juso
             ): Boolean = oldItem.jibunAddr == newItem.jibunAddr
 
             override fun areContentsTheSame(
-                oldItem: AddressDTO.Result.Juso, newItem: AddressDTO.Result.Juso
+                oldItem: Juso, newItem: Juso
             ): Boolean = oldItem == newItem
         }
     }
