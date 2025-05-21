@@ -27,11 +27,10 @@ class RealTimeLocation(
         LocationServices.getFusedLocationProviderClient(context)
     private var locationRequest: LocationCallback? = null
 
-    private val mLocationRequestHighAccuracy = LocationRequest.Builder(5_000L).apply {
-        setPriority(PRIORITY_HIGH_ACCURACY)
-        setIntervalMillis(5_000L)
-        setMinUpdateIntervalMillis(5_000L)
-    }.build()
+    private val mLocationRequestHighAccuracy =
+        LocationRequest.Builder(PRIORITY_HIGH_ACCURACY, 5_000L).apply {
+            setMinUpdateIntervalMillis(5_000L)
+        }.build()
 
     fun currentLocation(): Task<Location>? {
         return if (checkPermission()) mFusedLocationClient.lastLocation
