@@ -75,7 +75,7 @@ class BackgroundLocationUpdateService : Service() {
             }
         }
 
-        return START_STICKY
+        return START_REDELIVER_INTENT
     }
 
     private fun vibrateWithAlarm(distance: Int) {
@@ -167,6 +167,7 @@ class BackgroundLocationUpdateService : Service() {
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setOngoing(true)
             .setSmallIcon(R.drawable.ic_launcher_background)
+
 
         return builder.build()
     }
