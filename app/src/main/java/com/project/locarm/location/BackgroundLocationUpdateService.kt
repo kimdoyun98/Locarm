@@ -167,6 +167,7 @@ class BackgroundLocationUpdateService : Service() {
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setOngoing(true)
             .setSmallIcon(R.drawable.ic_launcher_background)
+            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
 
 
         return builder.build()
