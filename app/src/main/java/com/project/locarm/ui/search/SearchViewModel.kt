@@ -14,6 +14,7 @@ import com.project.locarm.data.model.SelectDestination
 import com.project.locarm.data.repository.AddressRepository
 import com.project.locarm.data.repository.FavoritesRepository
 import com.project.locarm.data.room.Favorite
+import com.project.locarm.di.RepositoryFactory
 import kotlinx.coroutines.launch
 
 class SearchViewModel(
@@ -53,8 +54,8 @@ class SearchViewModel(
                 extras: CreationExtras
             ): T {
                 return SearchViewModel(
-                    MyApplication.serviceLocator.favoritesRepository,
-                    MyApplication.serviceLocator.addressRepository
+                    RepositoryFactory.createFavoritesRepository(),
+                    RepositoryFactory.createAddressRepository()
                 ) as T
             }
         }

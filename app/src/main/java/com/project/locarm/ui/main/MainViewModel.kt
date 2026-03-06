@@ -11,6 +11,7 @@ import com.project.locarm.common.PreferenceUtil.Companion.DISTANCE
 import com.project.locarm.data.model.SelectDestination
 import com.project.locarm.data.repository.FavoritesRepository
 import com.project.locarm.data.room.Favorite
+import com.project.locarm.di.RepositoryFactory
 import kotlinx.coroutines.launch
 
 class MainViewModel(
@@ -62,7 +63,7 @@ class MainViewModel(
                 extras: CreationExtras
             ): T {
                 return MainViewModel(
-                    MyApplication.serviceLocator.favoritesRepository
+                    RepositoryFactory.createFavoritesRepository()
                 ) as T
             }
         }
