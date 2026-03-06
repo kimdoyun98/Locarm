@@ -1,4 +1,4 @@
-package com.project.locarm.data
+package com.project.locarm.data.model
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

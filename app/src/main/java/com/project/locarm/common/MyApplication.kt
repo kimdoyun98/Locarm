@@ -3,6 +3,7 @@ package com.project.locarm.common
 import android.app.Application
 import com.naver.maps.map.NaverMapSdk
 import com.project.locarm.BuildConfig
+import com.project.locarm.di.ServiceLocator
 
 class MyApplication : Application() {
     companion object {

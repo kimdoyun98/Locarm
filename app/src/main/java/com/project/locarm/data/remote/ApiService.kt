@@ -1,7 +1,7 @@
 package com.project.locarm.data.remote
 
 import com.project.locarm.BuildConfig
-import com.project.locarm.data.AddressDTO
+import com.project.locarm.data.model.AddressDTO
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query

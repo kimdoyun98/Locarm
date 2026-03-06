@@ -1,4 +1,4 @@
-package com.project.locarm.search
+package com.project.locarm.ui.search
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -21,13 +21,14 @@ import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.FusedLocationSource
 import com.project.locarm.R
-import com.project.locarm.common.GeoCoder
-import com.project.locarm.data.Loc
-import com.project.locarm.data.SelectDestination
+import com.project.locarm.location.GeoCoder
+import com.project.locarm.data.model.Loc
+import com.project.locarm.data.model.SelectDestination
 import com.project.locarm.data.room.Favorite
 import com.project.locarm.databinding.ActivitySearchBinding
 import com.project.locarm.databinding.SearchResultLayoutBinding
-import com.project.locarm.main.MainActivity.Companion.SELECT
+import com.project.locarm.ui.main.MainActivity.Companion.SELECT
+import com.project.locarm.ui.search.adapter.PagingAdapter
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 

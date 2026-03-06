@@ -7,13 +7,13 @@
 
         <variable
             name="viewModel"
-            type="com.project.locarm.main.MainViewModel" />
+            type="com.project.locarm.ui.main.MainViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".main.MainActivity">
+        tools:context=".ui.main.MainActivity">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/mypageToolbar"

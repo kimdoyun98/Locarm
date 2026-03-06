@@ -1,4 +1,4 @@
-package com.project.locarm.search
+package com.project.locarm.ui.search
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -8,9 +8,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.naver.maps.map.util.FusedLocationSource
 import com.project.locarm.common.MyApplication
-import com.project.locarm.data.Juso
-import com.project.locarm.data.Loc
-import com.project.locarm.data.SelectDestination
+import com.project.locarm.data.model.Juso
+import com.project.locarm.data.model.Loc
+import com.project.locarm.data.model.SelectDestination
 import com.project.locarm.data.repository.AddressRepository
 import com.project.locarm.data.repository.FavoritesRepository
 import com.project.locarm.data.room.Favorite

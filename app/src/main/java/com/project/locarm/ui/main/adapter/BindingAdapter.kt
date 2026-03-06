@@ -1,9 +1,10 @@
-package com.project.locarm.main
+package com.project.locarm.ui.main.adapter
 
 import androidx.appcompat.widget.AppCompatButton
 import androidx.databinding.BindingAdapter
 import com.project.locarm.R
 import com.project.locarm.common.MyApplication
+import com.project.locarm.ui.main.ServiceState
 
 object BindingAdapter {
 

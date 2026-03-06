@@ -1,11 +1,11 @@
-package com.project.locarm.search
+package com.project.locarm.ui.search.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.project.locarm.data.Juso
+import com.project.locarm.data.model.Juso
 import com.project.locarm.databinding.AddressSearchItemBinding
 
 class PagingAdapter : PagingDataAdapter<Juso, PagingAdapter.ViewHolder>(addressDiffUtil) {

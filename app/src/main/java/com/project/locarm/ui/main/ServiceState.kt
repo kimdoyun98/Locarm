@@ -1,4 +1,4 @@
-package com.project.locarm.main
+package com.project.locarm.ui.main
 
 sealed interface ServiceState {
     data object Idle: ServiceState

@@ -1,4 +1,4 @@
-package com.project.locarm.main
+package com.project.locarm.ui.main
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.project.locarm.common.MyApplication
 import com.project.locarm.common.PreferenceUtil.Companion.DISTANCE
-import com.project.locarm.data.SelectDestination
+import com.project.locarm.data.model.SelectDestination
 import com.project.locarm.data.repository.FavoritesRepository
 import com.project.locarm.data.room.Favorite
 import kotlinx.coroutines.launch

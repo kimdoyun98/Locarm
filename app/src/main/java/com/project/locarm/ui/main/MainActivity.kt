@@ -1,10 +1,9 @@
-package com.project.locarm.main
+package com.project.locarm.ui.main
 
 import android.Manifest
 import android.app.ActivityManager
 import android.app.Dialog
 import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
@@ -24,11 +23,12 @@ import androidx.core.content.ContextCompat
 import com.project.locarm.R
 import com.project.locarm.common.MyApplication
 import com.project.locarm.common.PreferenceUtil.Companion.DISTANCE
-import com.project.locarm.data.SelectDestination
+import com.project.locarm.data.model.SelectDestination
 import com.project.locarm.data.room.Favorite
 import com.project.locarm.databinding.ActivityMainBinding
 import com.project.locarm.location.BackgroundLocationUpdateService
-import com.project.locarm.search.SearchActivity
+import com.project.locarm.ui.main.adapter.FavoritesAdapter
+import com.project.locarm.ui.search.SearchActivity
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -80,7 +80,7 @@ class MainActivity : AppCompatActivity() {
             viewModel.setServiceState(
                 if (checkRunService()) {
                     val serviceIntent = Intent(this, BackgroundLocationUpdateService::class.java)
-                    bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
+                    bindService(serviceIntent, serviceConnection, BIND_AUTO_CREATE)
 
                     getServiceState(true)
                 } else {
@@ -143,14 +143,14 @@ class MainActivity : AppCompatActivity() {
                         putExtra(SELECT, viewModel.destination.value)
                     }
                     startService(serviceIntent)
-                    bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
+                    bindService(serviceIntent, serviceConnection, BIND_AUTO_CREATE)
                 }
             )
         }
     }
 
     private fun checkRunService(): Boolean {
-        val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        val manager = getSystemService(ACTIVITY_SERVICE) as ActivityManager
         manager.getRunningServices(Integer.MAX_VALUE).forEach {
             if (SERVICE_NAME == it.service.className) {
                 return true

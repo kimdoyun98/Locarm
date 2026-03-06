@@ -1,9 +1,9 @@
-package com.project.locarm.common
+package com.project.locarm.location
 
 import android.content.Context
 import android.location.Geocoder
 import android.location.Location
-import java.util.*
+import java.util.Locale
 
 object GeoCoder{
     fun getXY(context: Context, address:String): Location {

@@ -1,4 +1,4 @@
-package com.project.locarm.main
+package com.project.locarm.ui.main.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -14,7 +14,7 @@ class FavoritesAdapter : RecyclerView.Adapter<FavoritesAdapter.ViewHolder>() {
         fun onDeleteClicked(data: Favorite)
     }
 
-    private var itemClickListener: FavoritesAdapter.OnItemClickListener? = null
+    private var itemClickListener: OnItemClickListener? = null
 
     inner class ViewHolder(
         private val binding: FavoritesItemBinding
@@ -34,11 +34,11 @@ class FavoritesAdapter : RecyclerView.Adapter<FavoritesAdapter.ViewHolder>() {
         }
     }
 
-    fun setOnItemClickListener(listener: FavoritesAdapter.OnItemClickListener?) {
+    fun setOnItemClickListener(listener: OnItemClickListener?) {
         itemClickListener = listener
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FavoritesAdapter.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
             FavoritesItemBinding.inflate(
                 LayoutInflater.from(parent.context),

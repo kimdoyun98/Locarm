@@ -2,7 +2,7 @@ package com.project.locarm.data.datasource
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.project.locarm.data.Juso
+import com.project.locarm.data.model.Juso
 import com.project.locarm.data.remote.ApiService
 import retrofit2.HttpException
 import java.io.IOException

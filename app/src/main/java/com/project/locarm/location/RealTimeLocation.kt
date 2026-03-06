@@ -13,7 +13,7 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY
 import com.google.android.gms.tasks.Task
-import com.project.locarm.data.SelectDestination
+import com.project.locarm.data.model.SelectDestination
 import kotlin.math.asin
 import kotlin.math.cos
 import kotlin.math.pow

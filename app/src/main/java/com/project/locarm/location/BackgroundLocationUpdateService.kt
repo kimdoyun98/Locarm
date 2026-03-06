@@ -18,10 +18,10 @@ import com.project.locarm.R
 import com.project.locarm.common.MyApplication
 import com.project.locarm.common.PreferenceUtil.Companion.DISTANCE
 import com.project.locarm.common.PushAlarm
-import com.project.locarm.data.Loc
-import com.project.locarm.data.SelectDestination
-import com.project.locarm.main.MainActivity
-import com.project.locarm.main.MainActivity.Companion.SELECT
+import com.project.locarm.data.model.Loc
+import com.project.locarm.data.model.SelectDestination
+import com.project.locarm.ui.main.MainActivity
+import com.project.locarm.ui.main.MainActivity.Companion.SELECT
 import java.text.DecimalFormat
 
 class BackgroundLocationUpdateService : Service() {

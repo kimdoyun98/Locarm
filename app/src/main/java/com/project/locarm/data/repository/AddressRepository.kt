@@ -3,7 +3,7 @@ package com.project.locarm.data.repository
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import com.project.locarm.data.Juso
+import com.project.locarm.data.model.Juso
 import com.project.locarm.data.datasource.AddressDataSource
 import com.project.locarm.data.remote.ApiService
 import kotlinx.coroutines.flow.Flow
