@@ -4,7 +4,7 @@ import android.content.Context
 import com.project.locarm.common.PreferenceUtil
 
 object PreferenceManager {
-    lateinit var preference: PreferenceUtil
+    private lateinit var preference: PreferenceUtil
 
     fun init(context: Context) {
         preference = PreferenceUtil(context)
