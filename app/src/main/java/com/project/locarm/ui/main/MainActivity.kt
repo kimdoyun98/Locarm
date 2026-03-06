@@ -26,6 +26,7 @@ import com.project.locarm.common.PreferenceUtil.Companion.DISTANCE
 import com.project.locarm.data.model.SelectDestination
 import com.project.locarm.data.room.Favorite
 import com.project.locarm.databinding.ActivityMainBinding
+import com.project.locarm.di.PreferenceManager
 import com.project.locarm.location.BackgroundLocationUpdateService
 import com.project.locarm.ui.main.adapter.FavoritesAdapter
 import com.project.locarm.ui.search.SearchActivity
@@ -33,6 +34,7 @@ import com.project.locarm.ui.search.SearchActivity
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val viewModel: MainViewModel by viewModels { MainViewModel.Factory }
+    private val pref = PreferenceManager.get()
     private val searchDestinationResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
@@ -217,21 +219,21 @@ class MainActivity : AppCompatActivity() {
             try {
                 when (radioGroup.checkedRadioButtonId) {
                     R.id.one -> {
-                        MyApplication.prefs.setAlarmDistance(DISTANCE, ONE_KM)
+                        pref.setAlarmDistance(DISTANCE, ONE_KM)
                     }
 
                     R.id.two -> {
-                        MyApplication.prefs.setAlarmDistance(DISTANCE, TWO_KM)
+                        pref.setAlarmDistance(DISTANCE, TWO_KM)
                     }
 
                     R.id.three -> {
-                        MyApplication.prefs.setAlarmDistance(DISTANCE, THREE_KM)
+                        pref.setAlarmDistance(DISTANCE, THREE_KM)
                     }
 
                     else -> {
                         val distance =
                             dialog.findViewById<EditText?>(R.id.another_text).text.toString()
-                        MyApplication.prefs.setAlarmDistance(DISTANCE, distance.toInt() * ONE_KM)
+                        pref.setAlarmDistance(DISTANCE, distance.toInt() * ONE_KM)
                     }
                 }
 

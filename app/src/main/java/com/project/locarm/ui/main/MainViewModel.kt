@@ -6,16 +6,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
-import com.project.locarm.common.MyApplication
+import com.project.locarm.common.PreferenceUtil
 import com.project.locarm.common.PreferenceUtil.Companion.DISTANCE
 import com.project.locarm.data.model.SelectDestination
 import com.project.locarm.data.repository.FavoritesRepository
 import com.project.locarm.data.room.Favorite
+import com.project.locarm.di.PreferenceManager
 import com.project.locarm.di.RepositoryFactory
 import kotlinx.coroutines.launch
 
 class MainViewModel(
-    private val favoritesRepository: FavoritesRepository
+    private val favoritesRepository: FavoritesRepository,
+    private val preference: PreferenceUtil,
 ) : ViewModel() {
 
     private val _serviceState = MutableLiveData<ServiceState>().apply { value = ServiceState.Idle }
@@ -26,7 +28,7 @@ class MainViewModel(
     }
 
     private val _distance = MutableLiveData<Int>().apply {
-        value = MyApplication.prefs.getAlarmDistance(DISTANCE) / 1000
+        value = preference.getAlarmDistance(DISTANCE) / 1000
     }
     val distance: LiveData<Int> = _distance
 
@@ -52,7 +54,7 @@ class MainViewModel(
     }
 
     fun refreshDistance() {
-        _distance.value = MyApplication.prefs.getAlarmDistance(DISTANCE) / 1000
+        _distance.value = preference.getAlarmDistance(DISTANCE) / 1000
     }
 
     companion object {
@@ -63,7 +65,8 @@ class MainViewModel(
                 extras: CreationExtras
             ): T {
                 return MainViewModel(
-                    RepositoryFactory.createFavoritesRepository()
+                    RepositoryFactory.createFavoritesRepository(),
+                    PreferenceManager.get(),
                 ) as T
             }
         }

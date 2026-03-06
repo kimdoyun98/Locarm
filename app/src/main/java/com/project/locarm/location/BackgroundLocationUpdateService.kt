@@ -15,23 +15,24 @@ import android.os.Vibrator
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import com.project.locarm.R
-import com.project.locarm.common.MyApplication
 import com.project.locarm.common.PreferenceUtil.Companion.DISTANCE
 import com.project.locarm.common.PushAlarm
 import com.project.locarm.data.model.Loc
 import com.project.locarm.data.model.SelectDestination
+import com.project.locarm.di.PreferenceManager
 import com.project.locarm.ui.main.MainActivity
 import com.project.locarm.ui.main.MainActivity.Companion.SELECT
 import java.text.DecimalFormat
 
 class BackgroundLocationUpdateService : Service() {
+    private val pref = PreferenceManager.get()
     private val mBinder: IBinder = LocationServiceBind()
     private lateinit var context: Context
     private lateinit var realTimeLocation: RealTimeLocation
     private lateinit var notificationManager: NotificationManager
     private var startLocation: Loc? = null
     private var destination: SelectDestination? = null
-    private val alarmDistance = MyApplication.prefs.getAlarmDistance(DISTANCE)
+    private val alarmDistance = pref.getAlarmDistance(DISTANCE)
 
     inner class LocationServiceBind : Binder() {
         fun getService() = this@BackgroundLocationUpdateService
@@ -120,7 +121,7 @@ class BackgroundLocationUpdateService : Service() {
     }
 
     private fun getNotification(
-        distance: Int = MyApplication.prefs.getAlarmDistance(DISTANCE)
+        distance: Int = pref.getAlarmDistance(DISTANCE)
     ): Notification {
         val builder: NotificationCompat.Builder =
             NotificationCompat.Builder(applicationContext, CHANNEL_ID)
