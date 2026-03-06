@@ -1,5 +1,6 @@
 package com.project.locarm.location
 
+import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -8,11 +9,14 @@ import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.os.Vibrator
 import android.widget.RemoteViews
+import androidx.annotation.RequiresPermission
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import com.project.locarm.R
 import com.project.locarm.common.PreferenceUtil.Companion.DISTANCE
@@ -21,8 +25,11 @@ import com.project.locarm.data.model.Loc
 import com.project.locarm.data.model.SelectDestination
 import com.project.locarm.di.PreferenceManager
 import com.project.locarm.ui.main.MainActivity
+import com.project.locarm.ui.main.MainActivity.Companion.DISTANCE_REMAINING
 import com.project.locarm.ui.main.MainActivity.Companion.SELECT
-import java.text.DecimalFormat
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class BackgroundLocationUpdateService : Service() {
     private val pref = PreferenceManager.get()
@@ -33,11 +40,15 @@ class BackgroundLocationUpdateService : Service() {
     private var startLocation: Loc? = null
     private var destination: SelectDestination? = null
     private val alarmDistance = pref.getAlarmDistance(DISTANCE)
+    private val _distanceRemaining = MutableStateFlow(0)
+    private val distanceRemaining = _distanceRemaining.asStateFlow()
 
     inner class LocationServiceBind : Binder() {
         fun getService() = this@BackgroundLocationUpdateService
 
         fun getDestination(): SelectDestination? = destination
+
+        fun getDistanceRemaining(): StateFlow<Int> = distanceRemaining
     }
 
     override fun onCreate() {
@@ -66,12 +77,26 @@ class BackgroundLocationUpdateService : Service() {
                     intent?.getParcelableExtra(SELECT)
                 }
 
+                _distanceRemaining.value = intent?.getIntExtra(DISTANCE_REMAINING, 0)!!
+
                 startForeground()
 
                 realTimeLocation.getLocation(
                     destination!!,
-                    { distance -> updateNotification(distance) },
-                    { distance -> vibrateWithAlarm(distance) }
+                    { distance ->
+                        _distanceRemaining.value = distance
+                        updateNotification(distance)
+                    },
+                    { distance ->
+                        if (ActivityCompat.checkSelfPermission(
+                                this,
+                                Manifest.permission.POST_NOTIFICATIONS
+                            ) != PackageManager.PERMISSION_GRANTED ||
+                            Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU
+                        ) {
+                            vibrateWithAlarm(distance)
+                        }
+                    }
                 )
             }
         }
@@ -79,6 +104,7 @@ class BackgroundLocationUpdateService : Service() {
         return START_REDELIVER_INTENT
     }
 
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     private fun vibrateWithAlarm(distance: Int) {
         if (distance > alarmDistance) return
         PushAlarm.build(
@@ -86,15 +112,13 @@ class BackgroundLocationUpdateService : Service() {
             getString(R.string.backgroundLocationUpdate_destination_nearby),
             getString(
                 R.string.backgroundLocationUpdate_pushAlarm_content,
-                DecimalFormat(KM_FORMAT_PATTERN).format(distance.toKm())
+                GeoCoder.getDistanceKmToString(distance)
             ),
             destination!!.name
         )
         val vibrator: Vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         vibrator.vibrate(1000)
     }
-
-    private fun Int.toKm(): Double = this.toDouble() / 1000
 
     private fun startForeground() {
         createNotificationChannel()
@@ -140,7 +164,7 @@ class BackgroundLocationUpdateService : Service() {
             RemoteViews(packageName, R.layout.location_foreground_layout).apply {
                 setTextViewText(
                     R.id.distance_tv,
-                    DecimalFormat(KM_FORMAT_PATTERN).format(distance.toKm())
+                    GeoCoder.getDistanceKmToString(distance)
                 )
                 setProgressBar(
                     R.id.distance_progress_bar,
@@ -216,6 +240,5 @@ class BackgroundLocationUpdateService : Service() {
         private const val TAG = "BackgroundLocationUpdateService"
 
         private const val DELETE = "delete"
-        private const val KM_FORMAT_PATTERN = "##0.0"
     }
 }
