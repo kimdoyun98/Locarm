@@ -44,6 +44,7 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
         binding = ActivitySearchBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        initToolbarNavigationButton()
         initBottomSheetDialog()
         searchDestination()
         selectAddress()
@@ -182,6 +183,12 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
             }
             .create()
             .show()
+    }
+
+    private fun initToolbarNavigationButton() {
+        binding.searchToolbar.setNavigationOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
+        }
     }
 
     private fun initBottomSheetDialog() {
