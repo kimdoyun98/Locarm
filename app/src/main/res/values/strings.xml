@@ -13,6 +13,23 @@
     <string name="mainActivity_delete_all">전체 삭제</string>
     <string name="mainActivity_nearby_alarm">인접 시 알람</string>
     <string name="mainActivity_change">변경</string>
+    <string name="favorite_icon_description">즐겨찾기 아이콘</string>
+    <string name="favorite_navigate_icon_description">즐겨찾기 이동</string>
+    <string name="location_icon_description">위치 아이콘</string>
+    <string name="alarm_range_distance_icon_description">알람 범위 아이콘</string>
+    <string name="select_destination">목적지를 선택하세요</string>
+    <string name="select_destination_description">검색창을 터치하여 \n목적지를 검색하거나 지도에서 선택하세요</string>
+    <string name="search_destination">목적지 검색하기</string>
+    <string name="navigation_icon_description">네비게이션 아이콘</string>
+    <string name="remaining_distance">남은 거리</string>
+    <string name="remaining_distance_value">%1$s Km</string>
+    <string name="tracking_location">실시간 위치 추적 중</string>
+    <string name="tracking_running_icon_description">추적 중 아이콘</string>
+    <string name="alarm_range_distance_setting">알림 반경 설정</string>
+    <string name="one_km">1km</string>
+    <string name="distance_control">← 거리 조절 →</string>
+    <string name="five_km">5km</string>
+    <string name="current_alarm_distance_chip">%1$d km</string>
 
     <!--  SearchActivity  -->
     <string name="searchActivity_register">등록</string>
@@ -38,4 +55,6 @@
     <string name="backgroundLocationUpdate_location_info">위치 정보</string>
     <string name="backgroundLocationUpdate_remaining_distance">%1$s까지 남은 거리</string>
     <string name="backgroundLocationUpdate_pushAlarm_content">목적지까지 %1$sKM 남았습니다.</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
