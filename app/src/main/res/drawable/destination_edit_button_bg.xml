@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?><!-- res/drawable/bg_shadow.xml -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 그림자 -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#10000000" /> <!-- 연한 그림자 색 -->
+            <corners android:radius="8dp" />
+        </shape>
+    </item>
+    <!-- 콘텐츠 배경 (약간씩 줄여서 그림자 표현) -->
+    <item
+        android:bottom="2dp"
+        android:left="2dp"
+        android:right="2dp"
+        android:top="2dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/white" />
+            <corners android:radius="8dp" />
+            <stroke
+                android:width="1dp"
+                android:color="@color/light_blue" />
+        </shape>
+    </item>
+</layer-list>

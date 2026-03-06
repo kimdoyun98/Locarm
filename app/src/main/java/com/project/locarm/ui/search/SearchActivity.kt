@@ -44,6 +44,9 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
         binding = ActivitySearchBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.lifecycleOwner = this
+        binding.viewModel = viewModel
+
         initToolbarNavigationButton()
         initBottomSheetDialog()
         searchDestination()
