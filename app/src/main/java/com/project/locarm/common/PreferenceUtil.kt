@@ -2,24 +2,25 @@ package com.project.locarm.common
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.core.content.edit
 
-class PreferenceUtil (context: Context) {
+class PreferenceUtil(context: Context) {
     private val prefs: SharedPreferences =
         context.getSharedPreferences("prefs_name", Context.MODE_PRIVATE)
 
-    fun getAddress(key:String, defValue: String): String? {
+    fun getAddress(key: String, defValue: String): String? {
         return prefs.getString(key, defValue)
     }
 
-    fun getAlarmDistance(key:String): Int{
-        return prefs.getInt(key, 1000)
+    fun getAlarmDistance(key: String): Int {
+        return prefs.getInt(key, 1)
     }
 
-    fun setAlarmDistance(key:String, value:Int){
-        prefs.edit().putInt(key, value).apply()
+    fun setAlarmDistance(key: String, value: Int) {
+        prefs.edit { putInt(key, value) }
     }
 
-    companion object{
+    companion object {
         const val DISTANCE = "distance"
     }
 }

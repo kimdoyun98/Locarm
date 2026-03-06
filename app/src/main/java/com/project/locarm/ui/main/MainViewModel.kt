@@ -9,52 +9,77 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import com.project.locarm.common.PreferenceUtil
 import com.project.locarm.common.PreferenceUtil.Companion.DISTANCE
 import com.project.locarm.data.model.SelectDestination
-import com.project.locarm.data.repository.FavoritesRepository
-import com.project.locarm.data.room.Favorite
 import com.project.locarm.di.PreferenceManager
-import com.project.locarm.di.RepositoryFactory
-import kotlinx.coroutines.launch
+import com.project.locarm.location.GeoCoder
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 
 class MainViewModel(
-    private val favoritesRepository: FavoritesRepository,
     private val preference: PreferenceUtil,
 ) : ViewModel() {
 
     private val _serviceState = MutableLiveData<ServiceState>().apply { value = ServiceState.Idle }
     val serviceState: LiveData<ServiceState> = _serviceState
 
-    fun setServiceState(serviceState: ServiceState) {
-        _serviceState.value = serviceState
-    }
+    private val _changeAlarmDistance = MutableStateFlow<Float?>(null)
 
-    private val _distance = MutableLiveData<Int>().apply {
-        value = preference.getAlarmDistance(DISTANCE) / 1000
-    }
-    val distance: LiveData<Int> = _distance
+    @OptIn(FlowPreview::class)
+    val alarmRangeDistance = _changeAlarmDistance
+        .filterNotNull()
+        .debounce(300L)
+        .map { it.toInt() }
+        .onEach {
+            preference.setAlarmDistance(DISTANCE, it)
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(500L),
+            initialValue = preference.getAlarmDistance(DISTANCE)
+        )
 
     private val _destination = MutableLiveData<SelectDestination?>().apply { value = null }
     val destination: LiveData<SelectDestination?> = _destination
 
-    val favoriteList: LiveData<List<Favorite>> = favoritesRepository.getAllFavorites()
+    /**
+     * private var _distanceRemaining = MutableLiveData<String>("")
+     * val distanceRemaining: LiveData<String> = _distanceRemaining
+     */
+    private val _distanceRemaining = MutableStateFlow<Int>(0)
+    val distanceRemaining = _distanceRemaining
+        .map {
+            GeoCoder.getDistanceKmToString(it)
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(500L),
+            initialValue = "0"
+        )
+
+    val updateAlarmRangeDistance = { value: Float -> _changeAlarmDistance.value = value }
+
+    fun getDistanceRemainingInteger() = _distanceRemaining.value
 
     fun setDestination(destination: SelectDestination?) {
         _destination.value = destination
     }
 
-    fun allDelete() {
-        viewModelScope.launch {
-            favoritesRepository.deleteAllFavorites()
-        }
+    fun setServiceState(serviceState: ServiceState) {
+        _serviceState.value = serviceState
     }
 
-    fun delete(id: Int) {
-        viewModelScope.launch {
-            favoritesRepository.deleteFavorite(id)
-        }
+    fun setDistanceRemaining(getDistance: (SelectDestination) -> Int) {
+        _distanceRemaining.value = getDistance(destination.value!!)
     }
 
-    fun refreshDistance() {
-        _distance.value = preference.getAlarmDistance(DISTANCE) / 1000
+    fun updateDistanceRemaining(distance: Int) {
+
+        _distanceRemaining.value = distance
     }
 
     companion object {
@@ -65,7 +90,6 @@ class MainViewModel(
                 extras: CreationExtras
             ): T {
                 return MainViewModel(
-                    RepositoryFactory.createFavoritesRepository(),
                     PreferenceManager.get(),
                 ) as T
             }

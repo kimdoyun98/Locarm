@@ -2,7 +2,6 @@ package com.project.locarm.ui.main
 
 import android.Manifest
 import android.app.ActivityManager
-import android.app.Dialog
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
@@ -10,31 +9,24 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
-import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.RadioGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.project.locarm.R
-import com.project.locarm.common.MyApplication
-import com.project.locarm.common.PreferenceUtil.Companion.DISTANCE
 import com.project.locarm.data.model.SelectDestination
-import com.project.locarm.data.room.Favorite
 import com.project.locarm.databinding.ActivityMainBinding
-import com.project.locarm.di.PreferenceManager
 import com.project.locarm.location.BackgroundLocationUpdateService
-import com.project.locarm.ui.main.adapter.FavoritesAdapter
+import com.project.locarm.ui.main.destination.SelectedDestinationFragment
+import com.project.locarm.ui.main.destination.UnSelectedDestinationFragment
 import com.project.locarm.ui.search.SearchActivity
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val viewModel: MainViewModel by viewModels { MainViewModel.Factory }
-    private val pref = PreferenceManager.get()
     private val searchDestinationResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
@@ -55,11 +47,15 @@ class MainActivity : AppCompatActivity() {
             if (viewModel.destination.value == null) {
                 viewModel.setDestination(binder.getDestination())
             }
+
+            lifecycleScope.launch {
+                binder.getDistanceRemaining().collect {
+                    viewModel.updateDistanceRemaining(it)
+                }
+            }
         }
 
-        override fun onServiceDisconnected(name: ComponentName?) {
-
-        }
+        override fun onServiceDisconnected(name: ComponentName?) {}
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,10 +67,28 @@ class MainActivity : AppCompatActivity() {
         binding.lifecycleOwner = this
 
         searchDestination()
-        initFavorites()
-        alarmDistanceChange()
+        destinationFragment()
         checkRunningService()
         alarmButtonClick()
+    }
+
+    private fun destinationFragment() {
+        val unSelectedDestinationFragment = UnSelectedDestinationFragment()
+        val selectedDestinationFragment = SelectedDestinationFragment()
+
+        viewModel.destination.observe(this) {
+            val transaction = supportFragmentManager.beginTransaction()
+            when (it) {
+                null -> {
+                    transaction.replace(R.id.destination_fragment, unSelectedDestinationFragment)
+                }
+
+                else -> {
+                    transaction.replace(R.id.destination_fragment, selectedDestinationFragment)
+                }
+            }
+            transaction.commit()
+        }
     }
 
     private fun checkRunningService() {
@@ -143,6 +157,7 @@ class MainActivity : AppCompatActivity() {
                 onClick = {
                     serviceIntent.apply {
                         putExtra(SELECT, viewModel.destination.value)
+                        putExtra(DISTANCE_REMAINING, viewModel.getDistanceRemainingInteger())
                     }
                     startService(serviceIntent)
                     bindService(serviceIntent, serviceConnection, BIND_AUTO_CREATE)
@@ -163,112 +178,29 @@ class MainActivity : AppCompatActivity() {
 
     private fun searchDestination() {
         binding.searchDestination.setOnClickListener {
-            val intent = Intent(this, SearchActivity::class.java)
-            searchDestinationResult.launch(intent)
+            navigateToSearchDestination()
         }
     }
 
-    private fun alarmDistanceChange() {
-        binding.change.setOnClickListener {
-            changeDistanceDialog()
-        }
-    }
-
-    private fun initFavorites() {
-        val adapter = FavoritesAdapter()
-        binding.favorites.adapter = adapter
-        viewModel.favoriteList.observe(this) {
-            adapter.setData(it)
-
-            adapter.setOnItemClickListener(object : FavoritesAdapter.OnItemClickListener {
-                override fun onItemClicked(data: Favorite) {
-                    viewModel.setDestination(
-                        SelectDestination(
-                            data.name,
-                            data.latitude,
-                            data.longitude
-                        )
-                    )
-                }
-
-                override fun onDeleteClicked(data: Favorite) {
-                    viewModel.delete(data.id)
-                }
-            })
-        }
-    }
-
-    private fun changeDistanceDialog() {
-        val dialog = Dialog(this)
-        dialog.setContentView(R.layout.alarm_distance_dialog)
-        dialog.show()
-
-        val check = dialog.findViewById<Button>(R.id.check)
-        val cancel = dialog.findViewById<Button>(R.id.cancel)
-        val radioGroup = dialog.findViewById<RadioGroup>(R.id.radioGroup)
-
-        radioGroup.setOnCheckedChangeListener { _, p1 ->
-            val anotherLayout = dialog.findViewById<LinearLayout>(R.id.another_layout)
-            when (p1) {
-                R.id.another -> anotherLayout.visibility = View.VISIBLE
-                else -> anotherLayout.visibility = View.INVISIBLE
-            }
-        }
-
-        check.setOnClickListener {
-            try {
-                when (radioGroup.checkedRadioButtonId) {
-                    R.id.one -> {
-                        pref.setAlarmDistance(DISTANCE, ONE_KM)
-                    }
-
-                    R.id.two -> {
-                        pref.setAlarmDistance(DISTANCE, TWO_KM)
-                    }
-
-                    R.id.three -> {
-                        pref.setAlarmDistance(DISTANCE, THREE_KM)
-                    }
-
-                    else -> {
-                        val distance =
-                            dialog.findViewById<EditText?>(R.id.another_text).text.toString()
-                        pref.setAlarmDistance(DISTANCE, distance.toInt() * ONE_KM)
-                    }
-                }
-
-                viewModel.refreshDistance()
-
-                Toast.makeText(
-                    this,
-                    getString(
-                        R.string.mainActivity_change_alarm_distance_toast_message,
-                        viewModel.distance.value
-                    ),
-                    Toast.LENGTH_LONG
-                ).show()
-
-                dialog.cancel()
-            } catch (e: NumberFormatException) {
-                Toast.makeText(
-                    this,
-                    getString(R.string.mainActivity_input_number_toast_message),
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        }
-
-        cancel.setOnClickListener {
-            dialog.cancel()
-        }
+    fun navigateToSearchDestination() {
+        val intent = Intent(this, SearchActivity::class.java)
+        searchDestinationResult.launch(intent)
     }
 
     private fun checkPermission() {
         val permissionArray =
-            arrayOf(
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                arrayOf(
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.POST_NOTIFICATIONS,
+                )
+            } else {
+                arrayOf(
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                )
+            }
 
         if (permissionArray.all
             { ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED }
@@ -280,11 +212,7 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private const val SERVICE_NAME =
             "com.project.locarm.location.BackgroundLocationUpdateService"
-        private const val ONE_KM = 1000
-        private const val TWO_KM = 2000
-        private const val THREE_KM = 3000
-
-        const val NAME = "name"
         const val SELECT = "select"
+        const val DISTANCE_REMAINING = "DistanceRemaining"
     }
 }

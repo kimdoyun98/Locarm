@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Locarm</string>
-    <string name="turn_off">알람 끄기</string>
-    <string name="turn_on">위치 알림</string>
+    <string name="turn_off">추적 종료</string>
+    <string name="turn_on">추적 시작</string>
     <string name="km">KM</string>
 
     <!--  MainActivity  -->

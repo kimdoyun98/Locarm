@@ -37,120 +37,42 @@
             android:paddingHorizontal="40dp"
             android:text="@string/mainActivity_input_location"
             android:textSize="20sp"
+            app:isEnabled="@{viewModel.serviceState}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/mypageToolbar" />
 
-
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="wrap_content"
+        <include
+            android:id="@+id/favorite_layout"
+            layout="@layout/favorite_layout"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_weight="1"
-            android:text="@string/mainActivity_favorites"
-            android:textColor="@color/base_textColor"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@+id/allDelete"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/searchDestination" />
-
-        <TextView
-            android:id="@+id/allDelete"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:gravity="center"
-            android:onClick="@{()->viewModel.allDelete()}"
-            android:text="@string/mainActivity_delete_all"
-            android:textColor="@color/darkgray"
-            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/searchDestination" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/searchDestination" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/favorites"
-            android:layout_width="match_parent"
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/destination_fragment"
+            android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginHorizontal="10dp"
-            android:layout_marginVertical="20dp"
-            android:orientation="horizontal"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintBottom_toTopOf="@+id/linearLayout"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView" />
-
-        <LinearLayout
-            android:id="@+id/linearLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="10dp"
             app:layout_constraintBottom_toTopOf="@+id/alarmButton"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="10dp"
-                android:text="@{viewModel.destination.name}"
-                android:textColor="@color/base_textColor"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/distance_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@{viewModel.distance.toString()}"
-                android:textColor="@color/base_textColor"
-                android:textSize="17sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="10dp"
-                android:text="@string/km"
-                android:textColor="@color/base_textColor"
-                android:textSize="17sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/mainActivity_nearby_alarm"
-                android:textColor="@color/base_textColor"
-                android:textStyle="bold" />
-
-            <Button
-                android:id="@+id/change"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:text="@string/mainActivity_change"
-                android:textColor="@color/darkgray" />
-        </LinearLayout>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/favorite_layout" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/alarmButton"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="80dp"
             android:layout_gravity="bottom"
-            android:layout_margin="30dp"
-            android:background="@color/button_color"
+            android:layout_margin="16dp"
+            android:textColor="@color/white"
             android:textSize="30sp"
-            alarmText="@{viewModel.serviceState}"
+            app:backgroundTint="@null"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:state="@{viewModel.serviceState}" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
