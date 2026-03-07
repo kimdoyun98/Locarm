@@ -23,6 +23,7 @@ import com.project.locarm.common.PreferenceUtil.Companion.DISTANCE
 import com.project.locarm.common.PushAlarm
 import com.project.locarm.data.model.Loc
 import com.project.locarm.data.model.SelectDestination
+import com.project.locarm.di.LocationFactory
 import com.project.locarm.di.PreferenceManager
 import com.project.locarm.ui.main.MainActivity
 import com.project.locarm.ui.main.MainActivity.Companion.DISTANCE_REMAINING
@@ -54,7 +55,7 @@ class BackgroundLocationUpdateService : Service() {
     override fun onCreate() {
         super.onCreate()
         context = this
-        realTimeLocation = RealTimeLocation(this)
+        realTimeLocation = LocationFactory.createRealTimeLocation()
 
         realTimeLocation.currentLocation()?.addOnSuccessListener {
             startLocation = Loc(

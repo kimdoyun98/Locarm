@@ -6,16 +6,15 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.project.locarm.common.MyApplication
 import com.project.locarm.databinding.FragmentSelectedDestinationBinding
-import com.project.locarm.location.RealTimeLocation
+import com.project.locarm.di.LocationFactory
 import com.project.locarm.ui.main.MainViewModel
 
 class SelectedDestinationFragment : Fragment() {
     private var _binding: FragmentSelectedDestinationBinding? = null
     private val binding get() = _binding!!
     private val viewModel: MainViewModel by activityViewModels()
-    private val realTimeLocation = RealTimeLocation(MyApplication.instance)
+    private val realTimeLocation = LocationFactory.createRealTimeLocation()
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

@@ -9,8 +9,8 @@ import com.project.locarm.R
 import com.project.locarm.common.MyApplication
 import com.project.locarm.data.model.SelectDestination
 import com.project.locarm.data.room.Favorite
+import com.project.locarm.di.LocationFactory
 import com.project.locarm.location.GeoCoder
-import com.project.locarm.location.RealTimeLocation
 import com.project.locarm.ui.favorite.util.FavoriteLongClickState
 
 object BindingAdapter {
@@ -30,7 +30,7 @@ object BindingAdapter {
     fun calculateDistance(view: TextView, favorite: Favorite?) {
         if (favorite == null) return
 
-        val realTimeLocation = RealTimeLocation(view.context) //TODO 성능 저하 문제
+        val realTimeLocation = LocationFactory.createRealTimeLocation()
 
         realTimeLocation.currentLocation()?.addOnSuccessListener {
             view.text = MyApplication.instance.getString(
