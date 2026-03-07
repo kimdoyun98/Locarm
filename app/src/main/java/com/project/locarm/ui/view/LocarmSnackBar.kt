@@ -72,7 +72,7 @@ class LocarmSnackBar(
         if (time != INDEFINITE) {
             binding.root.postDelayed({
                 // 아직 부모 뷰에 붙어있는지 확인 후 제거 (중복 제거 방지)
-                if (binding.root.parent != null) {
+                if (_binding != null) {
                     onDisMissAnimation()
                 }
             }, time)
