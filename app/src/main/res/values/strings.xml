@@ -46,6 +46,7 @@
     <string name="searchActivity_dialog_edittext_hint">입력란</string>
     <string name="searchActivity_dialog_km">Km</string>
     <string name="searchActivity_dialog_cancel">취소</string>
+    <string name="searchActivity_snack_bar_add">추가</string>
 
     <!--  Favorite  -->
     <string name="delete">삭제</string>

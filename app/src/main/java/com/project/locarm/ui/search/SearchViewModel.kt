@@ -11,6 +11,7 @@ import com.project.locarm.data.model.SelectDestination
 import com.project.locarm.data.repository.AddressRepository
 import com.project.locarm.data.repository.FavoritesRepository
 import com.project.locarm.data.room.Favorite
+import com.project.locarm.data.room.asEntity
 import com.project.locarm.di.RepositoryFactory
 import com.project.locarm.ui.search.util.SelectDestinationState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -45,16 +46,17 @@ class SearchViewModel(
         )
     }
 
-
     fun searchAddress(keyword: String) = addressRepository.getSearchResultStream(keyword)
 
     fun getFavorite(name: String): Favorite? {
         return favoritesRepository.getFavorite(name).value
     }
 
-    fun insertFavorite(favorite: Favorite) {
+    fun insertFavorite(selectDestination: SelectDestination) {
         viewModelScope.launch {
-            favoritesRepository.insertFavorite(favorite)
+            favoritesRepository.insertFavorite(
+                selectDestination.asEntity()
+            )
         }
     }
 

@@ -22,13 +22,13 @@ import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.FusedLocationSource
 import com.project.locarm.R
 import com.project.locarm.data.model.SelectDestination
-import com.project.locarm.data.room.Favorite
 import com.project.locarm.databinding.ActivitySearchBinding
 import com.project.locarm.databinding.SearchResultLayoutBinding
 import com.project.locarm.location.GeoCoder
 import com.project.locarm.ui.main.MainActivity.Companion.SELECT
 import com.project.locarm.ui.search.adapter.PagingAdapter
 import com.project.locarm.ui.search.util.SelectDestinationState
+import com.project.locarm.ui.view.LocarmSnackBar
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -130,6 +130,7 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
                 is SelectDestinationState.Idle -> Unit
 
                 is SelectDestinationState.SelectOnMap -> {
+                    //TODO UI 변경
                     val input = EditText(this)
                     AlertDialog.Builder(this)
                         .setView(input)
@@ -167,24 +168,26 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
             return
         }
 
-        AlertDialog.Builder(this)
-            .setTitle(selectDestination.name)
-            .setMessage(getString(R.string.searchActivity_dialog_add_favorites_message))
-            .setPositiveButton(getString(R.string.searchActivity_dialog_post_button)) { _, _ ->
-                viewModel.insertFavorite(
-                    Favorite(
-                        name = selectDestination.name,
-                        latitude = selectDestination.latitude,
-                        longitude = selectDestination.longitude
-                    )
-                )
+        showSnackBar(selectDestination)
+    }
 
+    private fun showSnackBar(selectDestination: SelectDestination) {
+        val snackBar =
+            LocarmSnackBar.make(
+                this,
+                getString(R.string.searchActivity_dialog_add_favorites_message),
+                LocarmSnackBar.SHORT
+            )
+
+        snackBar
+            .setAction(getString(R.string.searchActivity_dialog_post_button)) {
+                viewModel.insertFavorite(selectDestination)
                 finish()
             }
-            .setNegativeButton(getString(R.string.searchActivity_dialog_negative_button)) { _, _ ->
+            .setNegativeAction(getString(R.string.searchActivity_dialog_negative_button)) {
                 finish()
             }
-            .create()
+            .setDisMissAction { finish() }
             .show()
     }
 
