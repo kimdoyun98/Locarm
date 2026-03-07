@@ -1,14 +1,15 @@
 package com.project.locarm.ui.search
 
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.core.graphics.drawable.toDrawable
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -23,6 +24,7 @@ import com.naver.maps.map.util.FusedLocationSource
 import com.project.locarm.R
 import com.project.locarm.data.model.SelectDestination
 import com.project.locarm.databinding.ActivitySearchBinding
+import com.project.locarm.databinding.DestinationTitleInputLayoutBinding
 import com.project.locarm.databinding.SearchResultLayoutBinding
 import com.project.locarm.location.GeoCoder
 import com.project.locarm.ui.main.MainActivity.Companion.SELECT
@@ -130,22 +132,27 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
                 is SelectDestinationState.Idle -> Unit
 
                 is SelectDestinationState.SelectOnMap -> {
-                    //TODO UI 변경
-                    val input = EditText(this)
-                    AlertDialog.Builder(this)
-                        .setView(input)
-                        .setTitle(getString(R.string.searchActivity_dialog_input_destination_name))
-                        .setPositiveButton(getString(R.string.searchActivity_dialog_done)) { _, _ ->
-                            favoriteAlertDialog(
-                                SelectDestination(
-                                    name = input.text.toString(),
-                                    latitude = state.location.latitude,
-                                    longitude = state.location.longitude
-                                )
-                            )
-                        }
+                    val dialogBinding =
+                        DestinationTitleInputLayoutBinding.inflate(LayoutInflater.from(this))
+
+                    val dialog = AlertDialog.Builder(this)
+                        .setView(dialogBinding.root)
                         .create()
-                        .show()
+
+                    dialogBinding.editButton.setOnClickListener {
+                        favoriteAlertDialog(
+                            SelectDestination(
+                                name = dialogBinding.destinationEditText.text.toString(),
+                                latitude = state.location.latitude,
+                                longitude = state.location.longitude
+                            )
+                        )
+
+                        dialog.dismiss()
+                    }
+
+                    dialog.window?.setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
+                    dialog.show()
                 }
 
                 is SelectDestinationState.SelectSearchResult -> {

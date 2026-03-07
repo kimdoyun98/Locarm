@@ -34,7 +34,7 @@
     <!--  SearchActivity  -->
     <string name="searchActivity_register">등록</string>
     <string name="searchActivity_input_destination">목적지를 입력하세요</string>
-    <string name="searchActivity_dialog_input_destination_name">해당 좌표의 이름을 정해주세요,</string>
+    <string name="searchActivity_dialog_input_destination_name">목적지 이름 지정</string>
     <string name="searchActivity_dialog_done">확인</string>
     <string name="searchActivity_dialog_add_favorites_message">즐겨찾기에 추가하시겠습니까?</string>
     <string name="searchActivity_dialog_post_button">예</string>
@@ -47,6 +47,7 @@
     <string name="searchActivity_dialog_km">Km</string>
     <string name="searchActivity_dialog_cancel">취소</string>
     <string name="searchActivity_snack_bar_add">추가</string>
+    <string name="edit">등록</string>
 
     <!--  Favorite  -->
     <string name="delete">삭제</string>
