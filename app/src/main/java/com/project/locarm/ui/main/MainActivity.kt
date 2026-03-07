@@ -19,6 +19,7 @@ import com.project.locarm.R
 import com.project.locarm.data.model.SelectDestination
 import com.project.locarm.databinding.ActivityMainBinding
 import com.project.locarm.location.BackgroundLocationUpdateService
+import com.project.locarm.ui.favorite.FavoriteActivity
 import com.project.locarm.ui.main.destination.SelectedDestinationFragment
 import com.project.locarm.ui.main.destination.UnSelectedDestinationFragment
 import com.project.locarm.ui.search.SearchActivity
@@ -65,6 +66,11 @@ class MainActivity : AppCompatActivity() {
 
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
+
+        binding.favoriteLayout.root.setOnClickListener {
+            val intent = Intent(this, FavoriteActivity::class.java)
+            searchDestinationResult.launch(intent)
+        }
 
         searchDestination()
         destinationFragment()
