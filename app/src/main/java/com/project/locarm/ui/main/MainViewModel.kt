@@ -73,8 +73,8 @@ class MainViewModel(
         _serviceState.value = serviceState
     }
 
-    fun setDistanceRemaining(getDistance: (SelectDestination) -> Int) {
-        _distanceRemaining.value = getDistance(destination.value!!)
+    fun setDistanceRemaining(distance : Int) {
+        _distanceRemaining.value = distance
     }
 
     fun updateDistanceRemaining(distance: Int) {

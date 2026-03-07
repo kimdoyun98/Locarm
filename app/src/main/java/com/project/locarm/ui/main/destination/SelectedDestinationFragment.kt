@@ -24,13 +24,21 @@ class SelectedDestinationFragment : Fragment() {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
 
-        realTimeLocation.currentLocation()?.addOnSuccessListener {
-            viewModel.setDistanceRemaining { selectDestination ->
-                realTimeLocation.getDistance(
-                    it.latitude,
-                    it.longitude,
-                    selectDestination
-                )
+        setDistanceOfDestination()
+    }
+
+    private fun setDistanceOfDestination() {
+        viewModel.destination.observe(viewLifecycleOwner) { destination ->
+            if (destination != null) {
+                realTimeLocation.currentLocation()?.addOnSuccessListener {
+                    viewModel.setDistanceRemaining(
+                        realTimeLocation.getDistance(
+                            it.latitude,
+                            it.longitude,
+                            destination
+                        )
+                    )
+                }
             }
         }
     }
