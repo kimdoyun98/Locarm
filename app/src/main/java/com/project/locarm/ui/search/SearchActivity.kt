@@ -140,7 +140,7 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
                         .create()
 
                     dialogBinding.editButton.setOnClickListener {
-                        favoriteAlertDialog(
+                        notifyFavorite(
                             SelectDestination(
                                 name = dialogBinding.destinationEditText.text.toString(),
                                 latitude = state.location.latitude,
@@ -156,13 +156,13 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
 
                 is SelectDestinationState.SelectSearchResult -> {
-                    favoriteAlertDialog(state.result)
+                    notifyFavorite(state.result)
                 }
             }
         }
     }
 
-    private fun favoriteAlertDialog(
+    private fun notifyFavorite(
         selectDestination: SelectDestination
     ) {
         intent.apply {
