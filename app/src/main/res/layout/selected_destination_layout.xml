@@ -13,17 +13,17 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/selected_destination_bg"
+        android:background="@drawable/bg_selected_destination"
         android:padding="20dp">
 
         <ImageView
             android:id="@+id/imageView3"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:background="@drawable/location_gradient_bg"
+            android:background="@drawable/bg_location_gradient"
             android:contentDescription="@string/location_icon_description"
             android:padding="12dp"
-            android:src="@drawable/location_on_ic"
+            android:src="@drawable/ic_location_on"
             app:backgroundTint="@null"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"

@@ -5,14 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="80dp"
     android:layout_margin="16dp"
-    android:background="@drawable/custom_snack_bar_bg">
+    android:background="@drawable/bg_custom_snack_bar">
 
     <ImageView
         android:id="@+id/imageView5"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_marginStart="30dp"
-        android:background="@drawable/info_icon_bg"
+        android:background="@drawable/bg_info_icon"
         android:contentDescription="@string/notification_info_icon_description"
         android:padding="4dp"
         android:src="@drawable/ic_info"

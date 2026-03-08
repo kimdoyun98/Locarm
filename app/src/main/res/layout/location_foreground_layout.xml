@@ -39,6 +39,6 @@
         android:layout_width="match_parent"
         android:layout_height="10dp"
         android:indeterminate="false"
-        android:progressDrawable="@drawable/notification_progress_bg" />
+        android:progressDrawable="@drawable/bg_notification_progress" />
 
 </LinearLayout>

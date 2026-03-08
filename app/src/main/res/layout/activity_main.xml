@@ -32,7 +32,7 @@
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:layout_margin="10dp"
-            android:background="@drawable/search_rectangle"
+            android:background="@drawable/bg_search_rectangle"
             android:gravity="center_vertical"
             android:paddingHorizontal="40dp"
             android:text="@string/mainActivity_input_location"

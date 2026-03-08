@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="60dp"
     android:layout_margin="16dp"
-    android:background="@drawable/custom_snack_bar_bg">
+    android:background="@drawable/bg_custom_snack_bar">
 
     <TextView
         android:id="@+id/snackBar_content"

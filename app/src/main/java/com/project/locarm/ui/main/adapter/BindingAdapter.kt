@@ -29,12 +29,12 @@ object BindingAdapter {
 
             is ServiceState.RunService -> {
                 view.text = MyApplication.instance.getString(R.string.turn_off)
-                view.background = getDrawable(view.context, R.drawable.off_round_bg)
+                view.background = getDrawable(view.context, R.drawable.bg_off_round)
             }
 
             is ServiceState.StopService -> {
                 view.text = MyApplication.instance.getString(R.string.turn_on)
-                view.background = getDrawable(view.context, R.drawable.run_round_bg)
+                view.background = getDrawable(view.context, R.drawable.bg_run_round)
             }
         }
     }
@@ -46,11 +46,11 @@ object BindingAdapter {
             is ServiceState.Idle -> Unit
 
             is ServiceState.RunService -> {
-                view.background = getDrawable(view.context, R.drawable.tracking_bg)
+                view.background = getDrawable(view.context, R.drawable.bg_tracking)
             }
 
             is ServiceState.StopService -> {
-                view.background = getDrawable(view.context, R.drawable.stop_tracking_bg)
+                view.background = getDrawable(view.context, R.drawable.bg_stop_tracking)
             }
         }
     }

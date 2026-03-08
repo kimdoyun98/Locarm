@@ -4,17 +4,17 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="16dp"
-    android:background="@drawable/destination_input_dialog_bg">
+    android:background="@drawable/bg_destination_input_dialog">
 
     <ImageView
         android:id="@+id/location_icon"
         android:layout_width="45dp"
         android:layout_height="45dp"
         android:layout_marginTop="28dp"
-        android:background="@drawable/location_icon_bg"
+        android:background="@drawable/bg_location_icon"
         android:contentDescription="@string/location_icon_description"
         android:padding="12dp"
-        android:src="@drawable/location_on_ic"
+        android:src="@drawable/ic_location_on"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.086"
         app:layout_constraintStart_toStartOf="parent"
@@ -39,7 +39,7 @@
         android:layout_height="46dp"
         android:layout_margin="16dp"
         android:autofillHints="@string/searchActivity_dialog_input_destination_name"
-        android:background="@drawable/destination_input_dialog_edit_text_bg"
+        android:background="@drawable/bg_destination_input_dialog_edit_text"
         android:hint="@string/searchActivity_dialog_input_destination_name"
         android:inputType="textNoSuggestions|textVisiblePassword"
         android:padding="16dp"
@@ -55,7 +55,7 @@
         android:layout_height="46dp"
         android:layout_gravity="bottom"
         android:layout_margin="16dp"
-        android:background="@drawable/destination_input_dialog_button_bg"
+        android:background="@drawable/bg_destination_input_dialog_button"
         android:text="@string/edit"
         android:textColor="@color/white"
         android:textSize="18sp"
