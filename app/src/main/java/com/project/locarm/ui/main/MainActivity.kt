@@ -9,7 +9,6 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -23,6 +22,7 @@ import com.project.locarm.ui.favorite.FavoriteActivity
 import com.project.locarm.ui.main.destination.SelectedDestinationFragment
 import com.project.locarm.ui.main.destination.UnSelectedDestinationFragment
 import com.project.locarm.ui.search.SearchActivity
+import com.project.locarm.ui.view.TopStackingNotification
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -75,7 +75,8 @@ class MainActivity : AppCompatActivity() {
         searchDestination()
         destinationFragment()
         checkRunningService()
-        alarmButtonClick()
+        trackingButtonClick()
+        trackingButtonClickAction()
     }
 
     private fun destinationFragment() {
@@ -112,38 +113,43 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun alarmButtonClick() {
+    private fun trackingButtonClick() {
         binding.alarmButton.setOnClickListener {
-            checkPermission()
+            viewModel.onClickTrackingButton()
+        }
+    }
 
-            if (viewModel.destination.value == null) {
-                Toast.makeText(
-                    this,
-                    getString(R.string.mainActivity_input_destination_toast_message),
-                    Toast.LENGTH_LONG
-                ).show()
-                return@setOnClickListener
-            }
+    private fun trackingButtonClickAction() {
+        lifecycleScope.launch {
+            viewModel.trackingButtonClick.collect {
+                checkPermission()
 
-            when (val serviceState = viewModel.serviceState.value!!) {
-                is ServiceState.Idle -> {
-                    checkRunService()
+                if (viewModel.destination.value == null) {
+                    showTopNotification(getString(R.string.mainActivity_input_destination_toast_message))
+
+                    return@collect
                 }
 
-                is ServiceState.RunService -> {
-                    serviceState.onClick()
+                when (val serviceState = viewModel.serviceState.value!!) {
+                    is ServiceState.Idle -> {
+                        checkRunService()
+                    }
 
-                    viewModel.setServiceState(
-                        getServiceState(false)
-                    )
-                }
+                    is ServiceState.RunService -> {
+                        serviceState.onClick()
 
-                is ServiceState.StopService -> {
-                    serviceState.onClick()
+                        viewModel.setServiceState(
+                            getServiceState(false)
+                        )
+                    }
 
-                    viewModel.setServiceState(
-                        getServiceState(true)
-                    )
+                    is ServiceState.StopService -> {
+                        serviceState.onClick()
+
+                        viewModel.setServiceState(
+                            getServiceState(true)
+                        )
+                    }
                 }
             }
         }
@@ -191,6 +197,10 @@ class MainActivity : AppCompatActivity() {
     fun navigateToSearchDestination() {
         val intent = Intent(this, SearchActivity::class.java)
         searchDestinationResult.launch(intent)
+    }
+
+    private fun showTopNotification(message: String) {
+        TopStackingNotification.make(this, message).show()
     }
 
     private fun checkPermission() {

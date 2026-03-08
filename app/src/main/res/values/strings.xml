@@ -4,6 +4,7 @@
     <string name="turn_on">추적 시작</string>
     <string name="km">km</string>
     <string name="spacer_km"> km</string>
+    <string name="notification_info_icon_description">알림 아이콘</string>
 
     <!--  MainActivity  -->
     <string name="mainActivity_input_destination_toast_message">목적지를 입력하세요</string>
