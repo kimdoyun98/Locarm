@@ -2,7 +2,8 @@
     <string name="app_name">Locarm</string>
     <string name="turn_off">추적 종료</string>
     <string name="turn_on">추적 시작</string>
-    <string name="km">KM</string>
+    <string name="km">km</string>
+    <string name="spacer_km"> km</string>
 
     <!--  MainActivity  -->
     <string name="mainActivity_input_destination_toast_message">목적지를 입력하세요</string>

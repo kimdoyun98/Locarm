@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 1. 하단 레이어: 배경 (기존 배경 파일 참조) -->
+    <item android:drawable="@drawable/location_icon_bg" />
+
+    <!-- 2. 상단 레이어: 아이콘 (기존 아이콘 파일 참조) -->
+    <item
+        android:drawable="@drawable/blue_location_on_ic"
+        android:top="8dp"
+        android:bottom="8dp"
+        android:left="8dp"
+        android:right="8dp" /> <!-- 아이콘이 배경에 너무 꽉 차지 않게 여백(Padding) 조절 -->
+
+</layer-list>

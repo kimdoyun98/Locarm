@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingVertical="10dp"
-    android:paddingHorizontal="20dp">
+    android:paddingHorizontal="20dp"
+    android:paddingVertical="10dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -18,24 +17,28 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            tools:text="목적지까지 남은 거리"/>
+            tools:text="목적지까지 남은 거리" />
 
         <TextView
             android:id="@+id/distance_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="5"/>
+            tools:text="5" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/km"/>
+            android:text="@string/spacer_km" />
     </LinearLayout>
 
 
     <ProgressBar
-        style="?android:attr/progressBarStyleHorizontal"
         android:id="@+id/distance_progress_bar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_marginVertical="8dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="10dp"
+        android:indeterminate="false"
+        android:progressDrawable="@drawable/notification_progress_bg" />
 
 </LinearLayout>
