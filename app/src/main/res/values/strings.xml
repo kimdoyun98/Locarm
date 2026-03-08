@@ -32,6 +32,13 @@
     <string name="distance_control">← 거리 조절 →</string>
     <string name="five_km">5km</string>
     <string name="current_alarm_distance_chip">%1$d km</string>
+    <string name="permission_request">권한 요청</string>
+    <string name="setting">설정</string>
+    <string name="all_permission_denied">위치와 알림 권한이 없으면 앱 사용이 제한됩니다</string>
+    <string name="location_permission_denied">위치 권한이 없으면 앱 사용이 제한됩니다.</string>
+    <string name="never_location_permission_granted">위치 권한이 없습니다. (설정 > 앱 > 권한)</string>
+    <string name="notification_permission_denied">알림 권한이 없으면 알림 기능이 제한됩니다</string>
+    <string name="never_notification_permission_granted">알림 기능이 제한됩니다 (설정 > 앱 > 권한)</string>
 
     <!--  SearchActivity  -->
     <string name="searchActivity_register">등록</string>

@@ -1,20 +1,18 @@
 package com.project.locarm.ui.main
 
-import android.Manifest
 import android.app.ActivityManager
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.project.locarm.R
+import com.project.locarm.common.permission.LocarmPermission
 import com.project.locarm.data.model.SelectDestination
 import com.project.locarm.databinding.ActivityMainBinding
 import com.project.locarm.location.BackgroundLocationUpdateService
@@ -58,6 +56,7 @@ class MainActivity : AppCompatActivity() {
 
         override fun onServiceDisconnected(name: ComponentName?) {}
     }
+    private val locarmPermission = LocarmPermission(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,6 +71,7 @@ class MainActivity : AppCompatActivity() {
             searchDestinationResult.launch(intent)
         }
 
+        locarmPermission.requestAllPermission()
         searchDestination()
         destinationFragment()
         checkRunningService()
@@ -115,15 +115,17 @@ class MainActivity : AppCompatActivity() {
 
     private fun trackingButtonClick() {
         binding.alarmButton.setOnClickListener {
-            viewModel.onClickTrackingButton()
+            if (locarmPermission.checkLocationPermission(this)) {
+                viewModel.onClickTrackingButton()
+            } else {
+                locarmPermission.requestAllPermission()
+            }
         }
     }
 
     private fun trackingButtonClickAction() {
         lifecycleScope.launch {
             viewModel.trackingButtonClick.collect {
-                checkPermission()
-
                 if (viewModel.destination.value == null) {
                     showTopNotification(getString(R.string.mainActivity_input_destination_toast_message))
 
@@ -144,6 +146,8 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     is ServiceState.StopService -> {
+                        locarmPermission.requestAllPermission()
+
                         serviceState.onClick()
 
                         viewModel.setServiceState(
@@ -201,28 +205,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun showTopNotification(message: String) {
         TopStackingNotification.make(this, message).show()
-    }
-
-    private fun checkPermission() {
-        val permissionArray =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                arrayOf(
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.POST_NOTIFICATIONS,
-                )
-            } else {
-                arrayOf(
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                )
-            }
-
-        if (permissionArray.all
-            { ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED }
-        ) {
-            requestPermissions(permissionArray, 1000)
-        }
     }
 
     companion object {
