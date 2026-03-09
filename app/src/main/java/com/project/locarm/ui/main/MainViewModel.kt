@@ -1,6 +1,5 @@
 package com.project.locarm.ui.main
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -10,7 +9,9 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import com.project.locarm.common.PreferenceUtil
 import com.project.locarm.common.PreferenceUtil.Companion.DISTANCE
 import com.project.locarm.data.model.SelectDestination
+import com.project.locarm.data.repository.LocationRepository
 import com.project.locarm.di.PreferenceManager
+import com.project.locarm.di.RepositoryFactory
 import com.project.locarm.location.GeoCoder
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -18,14 +19,15 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 
 class MainViewModel(
     private val preference: PreferenceUtil,
+    private val locationRepository: LocationRepository,
 ) : ViewModel() {
 
     private val _serviceState = MutableLiveData<ServiceState>().apply { value = ServiceState.Idle }
@@ -71,6 +73,14 @@ class MainViewModel(
 
     val updateAlarmRangeDistance = { value: Float -> _changeAlarmDistance.value = value }
 
+    init {
+        locationRepository.distanceRemaining
+            .onEach {
+                _distanceRemaining.value = it
+            }
+            .launchIn(viewModelScope)
+    }
+
     fun onClickTrackingButton() {
         _trackingButtonClick.tryEmit(true)
     }
@@ -103,6 +113,7 @@ class MainViewModel(
             ): T {
                 return MainViewModel(
                     PreferenceManager.get(),
+                    RepositoryFactory.createLocationRepository(),
                 ) as T
             }
         }

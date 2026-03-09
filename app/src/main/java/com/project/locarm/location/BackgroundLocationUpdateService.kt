@@ -25,12 +25,10 @@ import com.project.locarm.data.model.Loc
 import com.project.locarm.data.model.SelectDestination
 import com.project.locarm.di.LocationFactory
 import com.project.locarm.di.PreferenceManager
+import com.project.locarm.di.RepositoryFactory
 import com.project.locarm.ui.main.MainActivity
 import com.project.locarm.ui.main.MainActivity.Companion.DISTANCE_REMAINING
 import com.project.locarm.ui.main.MainActivity.Companion.SELECT
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 
 class BackgroundLocationUpdateService : Service() {
     private val pref = PreferenceManager.get()
@@ -41,15 +39,12 @@ class BackgroundLocationUpdateService : Service() {
     private var startLocation: Loc? = null
     private var destination: SelectDestination? = null
     private val alarmDistance = pref.getAlarmDistance(DISTANCE)
-    private val _distanceRemaining = MutableStateFlow(0)
-    private val distanceRemaining = _distanceRemaining.asStateFlow()
+    private val locationRepository = RepositoryFactory.createLocationRepository()
 
     inner class LocationServiceBind : Binder() {
         fun getService() = this@BackgroundLocationUpdateService
 
         fun getDestination(): SelectDestination? = destination
-
-        fun getDistanceRemaining(): StateFlow<Int> = distanceRemaining
     }
 
     override fun onCreate() {
@@ -78,14 +73,16 @@ class BackgroundLocationUpdateService : Service() {
                     intent?.getParcelableExtra(SELECT)
                 }
 
-                _distanceRemaining.value = intent?.getIntExtra(DISTANCE_REMAINING, 0)!!
+                locationRepository.updateDistance(
+                    intent?.getIntExtra(DISTANCE_REMAINING, 0)!!
+                )
 
                 startForeground()
 
                 realTimeLocation.getLocation(
                     destination!!,
                     { distance ->
-                        _distanceRemaining.value = distance
+                        locationRepository.updateDistance(distance)
                         updateNotification(distance)
                     },
                     { distance ->

@@ -46,12 +46,6 @@ class MainActivity : AppCompatActivity() {
             if (viewModel.destination.value == null) {
                 viewModel.setDestination(binder.getDestination())
             }
-
-            lifecycleScope.launch {
-                binder.getDistanceRemaining().collect {
-                    viewModel.updateDistanceRemaining(it)
-                }
-            }
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {}
