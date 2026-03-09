@@ -16,15 +16,15 @@ class LocarmSnackBar(
     layoutLocation = layoutLocation
 ) {
     init {
-        _binding!!.snackBarContent.text = message
+        binding.snackBarContent.text = message
     }
 
     private var onDismissAction: (() -> Unit?)? = null
 
     fun setAction(text: String, onClick: () -> Unit): LocarmSnackBar {
-        _binding!!.positiveButton.isVisible = true
-        _binding!!.positiveButton.text = text
-        _binding!!.positiveButton.setOnClickListener {
+        binding.positiveButton.isVisible = true
+        binding.positiveButton.text = text
+        binding.positiveButton.setOnClickListener {
             onClick()
             dismiss()
         }
@@ -33,9 +33,9 @@ class LocarmSnackBar(
     }
 
     fun setNegativeAction(text: String, onClick: () -> Unit): LocarmSnackBar {
-        _binding!!.negativeButton.isVisible = true
-        _binding!!.negativeButton.text = text
-        _binding!!.negativeButton.setOnClickListener {
+        binding.negativeButton.isVisible = true
+        binding.negativeButton.text = text
+        binding.negativeButton.setOnClickListener {
             onClick()
             dismiss()
         }

@@ -16,7 +16,7 @@ abstract class LocarmAlarm<T : ViewBinding>(
     private val layoutLocation: LayoutLocation
 ) {
     protected val rootView: FrameLayout = activity.findViewById<FrameLayout>(android.R.id.content)
-    protected var _binding: T? = null
+    private var _binding: T? = null
     protected val binding get() = _binding!!
     protected val params: FrameLayout.LayoutParams
 
@@ -94,6 +94,10 @@ abstract class LocarmAlarm<T : ViewBinding>(
         }
     }
 
+    protected fun bindingIsNotNull(): Boolean {
+        return _binding != null
+    }
+
     protected fun delayDisMissAction(
         time: Long = DEFAULT_TIME,
         action: (() -> Unit)? = null,
@@ -101,7 +105,7 @@ abstract class LocarmAlarm<T : ViewBinding>(
         binding.root.postDelayed({
             if (action != null) action()
             // 아직 부모 뷰에 붙어있는지 확인 후 제거 (중복 제거 방지)
-            if (_binding != null) {
+            if (bindingIsNotNull()) {
                 dismissAnimation()
             }
         }, time)

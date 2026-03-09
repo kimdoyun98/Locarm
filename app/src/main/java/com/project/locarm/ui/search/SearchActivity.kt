@@ -179,14 +179,11 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun showSnackBar(selectDestination: SelectDestination) {
-        val snackBar =
-            LocarmSnackBar.make(
-                this,
-                getString(R.string.searchActivity_dialog_add_favorites_message),
-                LocarmSnackBar.SHORT
-            )
-
-        snackBar
+        LocarmSnackBar.make(
+            this,
+            getString(R.string.searchActivity_dialog_add_favorites_message),
+            LocarmSnackBar.SHORT
+        )
             .setAction(getString(R.string.searchActivity_dialog_post_button)) {
                 viewModel.insertFavorite(selectDestination)
                 finish()

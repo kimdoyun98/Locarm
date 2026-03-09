@@ -49,7 +49,7 @@ class TopStackingNotification(
         if (!notificationStack.contains(binding.root)) return
 
         super.dismissAnimation {
-            if (_binding != null) {
+            if (bindingIsNotNull()) {
                 notificationStack.remove(binding.root)
             }
 
