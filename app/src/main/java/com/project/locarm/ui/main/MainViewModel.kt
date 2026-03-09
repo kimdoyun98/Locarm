@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 
+@OptIn(FlowPreview::class)
 class MainViewModel(
     private val preference: PreferenceUtil,
     private val locationRepository: LocationRepository,
@@ -43,14 +44,9 @@ class MainViewModel(
             started = SharingStarted.WhileSubscribed(500L)
         )
 
-    @OptIn(FlowPreview::class)
     val alarmRangeDistance = _changeAlarmDistance
         .filterNotNull()
-        .debounce(300L)
         .map { it.toInt() }
-        .onEach {
-            preference.setAlarmDistance(DISTANCE, it)
-        }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(500L),
@@ -78,6 +74,13 @@ class MainViewModel(
         locationRepository.distanceRemaining
             .onEach {
                 _distanceRemaining.value = it
+            }
+            .launchIn(viewModelScope)
+
+        alarmRangeDistance
+            .debounce(300L)
+            .onEach {
+                preference.setAlarmDistance(DISTANCE, it)
             }
             .launchIn(viewModelScope)
     }
