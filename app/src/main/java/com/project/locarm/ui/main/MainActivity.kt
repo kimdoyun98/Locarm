@@ -109,7 +109,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun trackingButtonClick() {
         binding.alarmButton.setOnClickListener {
-            if (locarmPermission.checkLocationPermission(this)) {
+            if (locarmPermission.checkLocationPermission()) {
                 viewModel.onClickTrackingButton()
             } else {
                 locarmPermission.requestAllPermission()

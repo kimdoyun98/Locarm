@@ -65,10 +65,6 @@ class LocarmPermission(
             }
         }
     }
-    private val locationPermissions = arrayOf(
-        LOCATION_PERMISSION,
-        EXACT_LOCATION_PERMISSION
-    )
 
     private val permissionArray =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -77,11 +73,11 @@ class LocarmPermission(
             locationPermissions
         }
 
-    fun checkLocationPermission(activity: Activity): Boolean =
+    fun checkLocationPermission(): Boolean =
         checkPermission(activity, locationPermissions)
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    fun checkNotificationPermission(activity: Activity): Boolean =
+    fun checkNotificationPermission(): Boolean =
         checkPermission(activity, arrayOf(NOTIFICATION_PERMISSION))
 
 
@@ -96,15 +92,6 @@ class LocarmPermission(
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun requestNotificationPermission(activity: Activity) {
         permissionsLauncher.launch(arrayOf(NOTIFICATION_PERMISSION))
-    }
-
-    private fun checkPermission(context: Context, permissions: Array<String>): Boolean {
-        return permissions.all {
-            ContextCompat.checkSelfPermission(
-                context,
-                it
-            ) == PackageManager.PERMISSION_GRANTED
-        }
     }
 
     private fun moveSetting() {
@@ -129,5 +116,28 @@ class LocarmPermission(
         const val NOTIFICATION_PERMISSION = Manifest.permission.POST_NOTIFICATIONS
         const val LOCATION_PERMISSION = Manifest.permission.ACCESS_COARSE_LOCATION
         const val EXACT_LOCATION_PERMISSION = Manifest.permission.ACCESS_FINE_LOCATION
+        private val locationPermissions = arrayOf(
+            LOCATION_PERMISSION,
+            EXACT_LOCATION_PERMISSION
+        )
+
+        fun checkLocationPermission(context: Context): Boolean =
+            checkPermission(context, locationPermissions)
+
+        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+        fun checkNotificationPermission(context: Context): Boolean =
+            checkPermission(context, arrayOf(NOTIFICATION_PERMISSION))
+
+        fun checkTiramisuVersionHigher(): Boolean =
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+
+        private fun checkPermission(context: Context, permissions: Array<String>): Boolean {
+            return permissions.all {
+                ContextCompat.checkSelfPermission(
+                    context,
+                    it
+                ) == PackageManager.PERMISSION_GRANTED
+            }
+        }
     }
 }
