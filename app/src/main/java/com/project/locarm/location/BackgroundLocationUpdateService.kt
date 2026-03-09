@@ -113,6 +113,8 @@ class BackgroundLocationUpdateService : Service() {
         )
         val vibrator: Vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         vibrator.vibrate(1000)
+
+        locationRepository.emitDestinationNearbyAlarm()
     }
 
     private fun startForeground() {

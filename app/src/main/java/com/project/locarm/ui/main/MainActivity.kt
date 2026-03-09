@@ -71,6 +71,18 @@ class MainActivity : AppCompatActivity() {
         checkRunningService()
         trackingButtonClick()
         trackingButtonClickAction()
+        destinationNearByAlarm()
+    }
+
+    private fun destinationNearByAlarm() {
+        lifecycleScope.launch {
+            viewModel.destinationNearbyAlarm.collect {
+                TopStackingNotification.make(
+                    this@MainActivity,
+                    getString(R.string.backgroundLocationUpdate_destination_nearby)
+                ).show()
+            }
+        }
     }
 
     private fun destinationFragment() {

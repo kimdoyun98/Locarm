@@ -72,6 +72,7 @@ class MainViewModel(
         )
 
     val updateAlarmRangeDistance = { value: Float -> _changeAlarmDistance.value = value }
+    val destinationNearbyAlarm = locationRepository.destinationNearbyAlarm
 
     init {
         locationRepository.distanceRemaining
