@@ -103,6 +103,8 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // 지도에 직접 클릭하여 좌표 선택 시
         naverMap.setOnMapClickListener { point, coord ->
+            hideKeyBoard()
+            binding.searchView.clearFocus()
             viewModel.selectDestinationOnMap(latitude = coord.latitude, longitude = coord.longitude)
 
             marker.position = LatLng(coord.latitude, coord.longitude)
