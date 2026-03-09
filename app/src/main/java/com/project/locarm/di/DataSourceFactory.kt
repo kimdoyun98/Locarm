@@ -4,6 +4,7 @@ import com.project.locarm.data.datasource.FavoritesDataSource
 
 object DataSourceFactory {
     private val favoritesDao = DaoFactory.createFavoriteDao()
+    private val favoritesDataSource: FavoritesDataSource = FavoritesDataSource(favoritesDao)
 
-    fun createFavoritesDataSource(): FavoritesDataSource = FavoritesDataSource(favoritesDao)
+    fun createFavoritesDataSource(): FavoritesDataSource = favoritesDataSource
 }
