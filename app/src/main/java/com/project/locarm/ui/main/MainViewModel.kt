@@ -49,7 +49,7 @@ class MainViewModel(
         .debounce(300L)
         .map { it.toInt() }
         .onEach {
-            preference.setAlarmDistance(DISTANCE, it)
+            preference.setAlarmDistance(DISTANCE, it * 1000)
         }
         .stateIn(
             scope = viewModelScope,

@@ -9,18 +9,17 @@ import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.os.Vibrator
 import android.widget.RemoteViews
 import androidx.annotation.RequiresPermission
-import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import com.project.locarm.R
 import com.project.locarm.common.PreferenceUtil.Companion.DISTANCE
 import com.project.locarm.common.PushAlarm
+import com.project.locarm.common.permission.LocarmPermission
 import com.project.locarm.data.model.Loc
 import com.project.locarm.data.model.SelectDestination
 import com.project.locarm.di.LocationFactory
@@ -86,11 +85,9 @@ class BackgroundLocationUpdateService : Service() {
                         updateNotification(distance)
                     },
                     { distance ->
-                        if (ActivityCompat.checkSelfPermission(
-                                this,
-                                Manifest.permission.POST_NOTIFICATIONS
-                            ) != PackageManager.PERMISSION_GRANTED ||
-                            Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU
+                        if ((LocarmPermission.checkTiramisuVersionHigher() && LocarmPermission.checkNotificationPermission(
+                                this
+                            )) || !LocarmPermission.checkTiramisuVersionHigher()
                         ) {
                             vibrateWithAlarm(distance)
                         }
