@@ -7,13 +7,18 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.project.locarm.R
+import com.project.locarm.common.appContainer
 import com.project.locarm.databinding.ActivityFavoriteBinding
 import com.project.locarm.ui.favorite.adapter.FavoritesAdapter
 import com.project.locarm.ui.main.MainActivity.Companion.SELECT
 
 class FavoriteActivity : AppCompatActivity() {
     private lateinit var binding: ActivityFavoriteBinding
-    private val viewModel: FavoriteViewModel by viewModels { FavoriteViewModel.Factory }
+    private val viewModel: FavoriteViewModel by viewModels {
+        FavoriteViewModel.factory(
+            applicationContext.appContainer.favoritesRepository
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,7 +41,7 @@ class FavoriteActivity : AppCompatActivity() {
             lifecycleOwner = this,
             favoriteViewModel = viewModel,
         )
-        
+
         binding.favorites.adapter = adapter
         viewModel.favoriteList.observe(this) {
             adapter.setData(it)

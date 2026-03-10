@@ -12,6 +12,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.project.locarm.R
+import com.project.locarm.common.appContainer
 import com.project.locarm.common.permission.LocarmPermission
 import com.project.locarm.data.model.SelectDestination
 import com.project.locarm.databinding.ActivityMainBinding
@@ -25,7 +26,12 @@ import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    private val viewModel: MainViewModel by viewModels { MainViewModel.Factory }
+    private val viewModel: MainViewModel by viewModels {
+        MainViewModel.factory(
+            applicationContext.appContainer.preference,
+            applicationContext.appContainer.locationRepository
+        )
+    }
     private val searchDestinationResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {

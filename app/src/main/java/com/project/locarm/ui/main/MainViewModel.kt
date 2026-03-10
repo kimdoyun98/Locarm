@@ -10,8 +10,6 @@ import com.project.locarm.common.PreferenceUtil
 import com.project.locarm.common.PreferenceUtil.Companion.DISTANCE
 import com.project.locarm.data.model.SelectDestination
 import com.project.locarm.data.repository.LocationRepository
-import com.project.locarm.di.PreferenceManager
-import com.project.locarm.di.RepositoryFactory
 import com.project.locarm.location.GeoCoder
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -109,15 +107,18 @@ class MainViewModel(
     }
 
     companion object {
-        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+        fun factory(
+            preference: PreferenceUtil,
+            locationRepository: LocationRepository,
+        ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(
                 modelClass: Class<T>,
                 extras: CreationExtras
             ): T {
                 return MainViewModel(
-                    PreferenceManager.get(),
-                    RepositoryFactory.createLocationRepository(),
+                    preference,
+                    locationRepository,
                 ) as T
             }
         }

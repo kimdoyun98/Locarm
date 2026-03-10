@@ -17,28 +17,28 @@ import android.widget.RemoteViews
 import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
 import com.project.locarm.R
+import com.project.locarm.common.PreferenceUtil
 import com.project.locarm.common.PreferenceUtil.Companion.DISTANCE
 import com.project.locarm.common.PushAlarm
+import com.project.locarm.common.appContainer
 import com.project.locarm.common.permission.LocarmPermission
 import com.project.locarm.data.model.Loc
 import com.project.locarm.data.model.SelectDestination
-import com.project.locarm.di.LocationFactory
-import com.project.locarm.di.PreferenceManager
-import com.project.locarm.di.RepositoryFactory
+import com.project.locarm.data.repository.LocationRepository
 import com.project.locarm.ui.main.MainActivity
 import com.project.locarm.ui.main.MainActivity.Companion.DISTANCE_REMAINING
 import com.project.locarm.ui.main.MainActivity.Companion.SELECT
 
 class BackgroundLocationUpdateService : Service() {
-    private val pref = PreferenceManager.get()
+    private lateinit var pref: PreferenceUtil
     private val mBinder: IBinder = LocationServiceBind()
     private lateinit var context: Context
     private lateinit var realTimeLocation: RealTimeLocation
     private lateinit var notificationManager: NotificationManager
     private var startLocation: Loc? = null
     private var destination: SelectDestination? = null
-    private val alarmDistance = pref.getAlarmDistance(DISTANCE)
-    private val locationRepository = RepositoryFactory.createLocationRepository()
+    private val alarmDistance by lazy { pref.getAlarmDistance(DISTANCE) }
+    private lateinit var locationRepository: LocationRepository
 
     inner class LocationServiceBind : Binder() {
         fun getService() = this@BackgroundLocationUpdateService
@@ -49,7 +49,9 @@ class BackgroundLocationUpdateService : Service() {
     override fun onCreate() {
         super.onCreate()
         context = this
-        realTimeLocation = LocationFactory.createRealTimeLocation()
+        realTimeLocation = applicationContext.appContainer.realTimeLocation
+        pref = applicationContext.appContainer.preference
+        locationRepository = applicationContext.appContainer.locationRepository
 
         realTimeLocation.currentLocation()?.addOnSuccessListener {
             startLocation = Loc(

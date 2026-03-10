@@ -9,7 +9,6 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import com.project.locarm.data.model.SelectDestination
 import com.project.locarm.data.repository.FavoritesRepository
 import com.project.locarm.data.room.Favorite
-import com.project.locarm.di.RepositoryFactory
 import com.project.locarm.ui.favorite.util.FavoriteLongClickState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -100,14 +99,16 @@ class FavoriteViewModel(
     }
 
     companion object {
-        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+        fun factory(
+            favoritesRepository: FavoritesRepository,
+        ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(
                 modelClass: Class<T>,
                 extras: CreationExtras
             ): T {
                 return FavoriteViewModel(
-                    RepositoryFactory.createFavoritesRepository(),
+                    favoritesRepository,
                 ) as T
             }
         }

@@ -12,7 +12,6 @@ import com.project.locarm.data.repository.AddressRepository
 import com.project.locarm.data.repository.FavoritesRepository
 import com.project.locarm.data.room.Favorite
 import com.project.locarm.data.room.asEntity
-import com.project.locarm.di.RepositoryFactory
 import com.project.locarm.ui.search.util.SelectDestinationState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -61,15 +60,18 @@ class SearchViewModel(
     }
 
     companion object {
-        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+        fun factory(
+            favoritesRepository: FavoritesRepository,
+            addressRepository: AddressRepository,
+        ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(
                 modelClass: Class<T>,
                 extras: CreationExtras
             ): T {
                 return SearchViewModel(
-                    RepositoryFactory.createFavoritesRepository(),
-                    RepositoryFactory.createAddressRepository()
+                    favoritesRepository,
+                    addressRepository
                 ) as T
             }
         }

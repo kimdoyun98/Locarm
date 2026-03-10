@@ -22,6 +22,7 @@ import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.FusedLocationSource
 import com.project.locarm.R
+import com.project.locarm.common.appContainer
 import com.project.locarm.data.model.SelectDestination
 import com.project.locarm.databinding.ActivitySearchBinding
 import com.project.locarm.databinding.DestinationTitleInputLayoutBinding
@@ -36,7 +37,12 @@ import kotlinx.coroutines.launch
 
 class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var binding: ActivitySearchBinding
-    private val viewModel: SearchViewModel by viewModels { SearchViewModel.Factory }
+    private val viewModel: SearchViewModel by viewModels {
+        SearchViewModel.factory(
+            applicationContext.appContainer.favoritesRepository,
+            applicationContext.appContainer.addressRepository
+        )
+    }
     private val adapter = PagingAdapter()
     private lateinit var bottomSheetDialog: BottomSheetDialog
     private val fusedLocationSource = FusedLocationSource(this, 5000)
