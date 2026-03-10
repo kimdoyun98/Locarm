@@ -9,7 +9,7 @@ class TopStackingNotification(
     activity: Activity,
     layoutLocation: LayoutLocation,
     message: String,
-) : LocarmAlarm<TopStackingNotificationLayoutBinding>(
+) : LocarmNotification<TopStackingNotificationLayoutBinding>(
     inflate = TopStackingNotificationLayoutBinding::inflate,
     activity = activity,
     layoutLocation = layoutLocation

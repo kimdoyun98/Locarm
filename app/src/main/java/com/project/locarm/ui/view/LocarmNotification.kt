@@ -10,7 +10,7 @@ import androidx.viewbinding.ViewBinding
 
 typealias Inflate<T> = (LayoutInflater, ViewGroup?, Boolean) -> T
 
-abstract class LocarmAlarm<T : ViewBinding>(
+abstract class LocarmNotification<T : ViewBinding>(
     inflate: Inflate<T>,
     activity: Activity,
     private val layoutLocation: LayoutLocation

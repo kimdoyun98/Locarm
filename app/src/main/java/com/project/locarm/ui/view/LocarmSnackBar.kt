@@ -10,7 +10,7 @@ class LocarmSnackBar(
     layoutLocation: LayoutLocation,
     private val message: String,
     private val time: Long,
-) : LocarmAlarm<CustomSnackbarLayoutBinding>(
+) : LocarmNotification<CustomSnackbarLayoutBinding>(
     inflate = CustomSnackbarLayoutBinding::inflate,
     activity = activity,
     layoutLocation = layoutLocation
