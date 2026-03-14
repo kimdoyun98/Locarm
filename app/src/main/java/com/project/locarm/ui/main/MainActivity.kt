@@ -38,7 +38,6 @@ class MainActivity : AppCompatActivity() {
             applicationContext.appContainer.preference,
             applicationContext.appContainer.locationRepository,
             locationObserver,
-            applicationContext.appContainer.realTimeLocation
         )
     }
     private val searchDestinationResult =

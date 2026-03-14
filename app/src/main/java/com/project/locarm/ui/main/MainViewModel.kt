@@ -10,10 +10,9 @@ import com.project.locarm.common.PreferenceUtil
 import com.project.locarm.common.PreferenceUtil.Companion.DISTANCE
 import com.project.locarm.data.model.SelectDestination
 import com.project.locarm.data.repository.LocationRepository
-import com.project.locarm.location.util.GeoCoder
 import com.project.locarm.location.LocationObserver
+import com.project.locarm.location.util.GeoCoder
 import com.project.locarm.location.util.LocationState
-import com.project.locarm.location.RealTimeLocation
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,7 +32,6 @@ class MainViewModel(
     private val preference: PreferenceUtil,
     private val locationRepository: LocationRepository,
     private val locationObserver: LocationObserver,
-    private val realTimeLocation: RealTimeLocation
 ) : ViewModel() {
     val locationState = locationObserver.observe
         .stateIn(
@@ -151,7 +149,6 @@ class MainViewModel(
             preference: PreferenceUtil,
             locationRepository: LocationRepository,
             locationObserver: LocationObserver,
-            realTimeLocation: RealTimeLocation,
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(
@@ -162,7 +159,6 @@ class MainViewModel(
                     preference,
                     locationRepository,
                     locationObserver,
-                    realTimeLocation
                 ) as T
             }
         }
