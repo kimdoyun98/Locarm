@@ -61,7 +61,6 @@ class LocarmSnackBar(
         super.onDestroy()
         onDismissAction?.invoke()
         onDismissAction = null
-        Log.e("Test", "onDestroy")
     }
 
     companion object {
