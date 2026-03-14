@@ -10,6 +10,7 @@ import com.project.locarm.data.repository.AddressRepository
 import com.project.locarm.data.repository.FavoritesRepository
 import com.project.locarm.data.repository.LocationRepository
 import com.project.locarm.data.room.DataBase
+import com.project.locarm.location.LocationObserver
 import com.project.locarm.location.RealTimeLocation
 
 class AppContainer(context: Context) {
@@ -32,4 +33,5 @@ class AppContainer(context: Context) {
     val locationRepository by lazy { LocationRepository() }
     val realTimeLocation by lazy { RealTimeLocation(context) }
     val preference by lazy { PreferenceUtil(context) }
+    val locationObserver by lazy { LocationObserver(context) }
 }

@@ -85,4 +85,7 @@ dependencies {
 
     //paging
     implementation 'androidx.paging:paging-runtime:3.3.6'
+
+    //location
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
 }

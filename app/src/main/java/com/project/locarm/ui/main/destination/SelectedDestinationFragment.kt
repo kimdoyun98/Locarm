@@ -7,7 +7,10 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.project.locarm.common.MyApplication
+import com.project.locarm.common.fragmentLifecycleScope
+import com.project.locarm.common.permission.LocarmPermission
 import com.project.locarm.databinding.FragmentSelectedDestinationBinding
+import com.project.locarm.location.LocationState
 import com.project.locarm.ui.main.MainViewModel
 
 class SelectedDestinationFragment : Fragment() {
@@ -27,16 +30,22 @@ class SelectedDestinationFragment : Fragment() {
     }
 
     private fun setDistanceOfDestination() {
-        viewModel.destination.observe(viewLifecycleOwner) { destination ->
-            if (destination != null) {
-                realTimeLocation.currentLocation()?.addOnSuccessListener {
-                    viewModel.setDistanceRemaining(
-                        realTimeLocation.getDistance(
-                            it.latitude,
-                            it.longitude,
-                            destination
-                        )
-                    )
+        fragmentLifecycleScope {
+            viewModel.updateDistanceRemaining.collect { (destination, state) ->
+                if (destination == null) return@collect
+
+                if (state is LocationState.Ready) {
+                    if (LocarmPermission.checkLocationPermission(requireActivity())) {
+                        realTimeLocation.getCurrentLocation().addOnSuccessListener {
+                            viewModel.updateDistanceRemaining(
+                                realTimeLocation.getDistance(
+                                    it!!.latitude,
+                                    it.longitude,
+                                    destination
+                                )
+                            )
+                        }
+                    }
                 }
             }
         }

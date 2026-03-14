@@ -7,6 +7,7 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.databinding.BindingAdapter
 import com.project.locarm.R
 import com.project.locarm.common.MyApplication
+import com.project.locarm.common.permission.LocarmPermission
 import com.project.locarm.data.model.SelectDestination
 import com.project.locarm.data.room.Favorite
 import com.project.locarm.location.GeoCoder
@@ -27,9 +28,14 @@ object BindingAdapter {
     @JvmStatic
     @BindingAdapter("app:distance")
     fun calculateDistance(view: TextView, favorite: Favorite?) {
-        if (favorite == null) return
+        val appContainer = MyApplication.instance.container
+        if ((!LocarmPermission.checkLocationPermission(view.context) ||
+                    !appContainer.locationObserver.isLocationEnabled()) || favorite == null
+        ) {
+            return
+        }
 
-        val realTimeLocation = MyApplication.instance.container.realTimeLocation
+        val realTimeLocation = appContainer.realTimeLocation
 
         realTimeLocation.currentLocation()?.addOnSuccessListener {
             view.text = MyApplication.instance.getString(

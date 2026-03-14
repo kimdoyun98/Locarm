@@ -1,5 +1,6 @@
 package com.project.locarm.ui.main
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,10 +12,15 @@ import com.project.locarm.common.PreferenceUtil.Companion.DISTANCE
 import com.project.locarm.data.model.SelectDestination
 import com.project.locarm.data.repository.LocationRepository
 import com.project.locarm.location.GeoCoder
+import com.project.locarm.location.LocationObserver
+import com.project.locarm.location.LocationState
+import com.project.locarm.location.RealTimeLocation
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.launchIn
@@ -27,14 +33,20 @@ import kotlinx.coroutines.flow.stateIn
 class MainViewModel(
     private val preference: PreferenceUtil,
     private val locationRepository: LocationRepository,
+    private val locationObserver: LocationObserver,
+    private val realTimeLocation: RealTimeLocation
 ) : ViewModel() {
+    val locationState = locationObserver.observe
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000),
+            LocationState.Idle
+        )
 
     private val _serviceState = MutableLiveData<ServiceState>().apply { value = ServiceState.Idle }
     val serviceState: LiveData<ServiceState> = _serviceState
 
-    private val _changeAlarmDistance = MutableStateFlow<Float?>(null)
-
-    private val _trackingButtonClick = MutableSharedFlow<Boolean>(extraBufferCapacity = 1)
+    private val _trackingButtonClick = MutableSharedFlow<Int>(extraBufferCapacity = 1)
     val trackingButtonClick = _trackingButtonClick
         .debounce(200L)
         .shareIn(
@@ -42,6 +54,7 @@ class MainViewModel(
             started = SharingStarted.WhileSubscribed(500L)
         )
 
+    private val _changeAlarmDistance = MutableStateFlow<Float?>(null)
     val alarmRangeDistance = _changeAlarmDistance
         .filterNotNull()
         .map { it.toInt() }
@@ -51,8 +64,8 @@ class MainViewModel(
             initialValue = preference.getAlarmDistance(DISTANCE)
         )
 
-    private val _destination = MutableLiveData<SelectDestination?>().apply { value = null }
-    val destination: LiveData<SelectDestination?> = _destination
+    private val _destination = MutableStateFlow<SelectDestination?>(null)
+    val destination = _destination.asStateFlow()
 
     private val _distanceRemaining = MutableStateFlow<Int>(0)
     val distanceRemaining = _distanceRemaining
@@ -64,6 +77,17 @@ class MainViewModel(
             started = SharingStarted.WhileSubscribed(500L),
             initialValue = "0"
         )
+    val updateDistanceRemaining = destination
+        .filterNotNull()
+        .combine(locationState) { destination, state ->
+            destination to state
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(500L),
+            initialValue = null to LocationState.Idle
+        )
+
 
     val updateAlarmRangeDistance = { value: Float -> _changeAlarmDistance.value = value }
     val destinationNearbyAlarm = locationRepository.destinationNearbyAlarm
@@ -84,7 +108,25 @@ class MainViewModel(
     }
 
     fun onClickTrackingButton() {
-        _trackingButtonClick.tryEmit(true)
+        when (locationState.value) {
+            LocationState.Idle -> Unit
+
+            LocationState.PermissionDenied -> {
+                _trackingButtonClick.tryEmit(LOCATION_PERMISSION_DENIED)
+            }
+
+            LocationState.LocationDisabled -> {
+                _trackingButtonClick.tryEmit(LOCATION_DISABLED)
+            }
+
+            LocationState.Ready -> {
+                _trackingButtonClick.tryEmit(SERVICE_READY)
+            }
+        }
+    }
+
+    fun isGrantedLocationPermission(state: LocationState) {
+        locationObserver.locationPermissionUpdate(state)
     }
 
     fun getDistanceRemainingInteger() = _distanceRemaining.value
@@ -97,19 +139,20 @@ class MainViewModel(
         _serviceState.value = serviceState
     }
 
-    fun setDistanceRemaining(distance: Int) {
-        _distanceRemaining.value = distance
-    }
-
     fun updateDistanceRemaining(distance: Int) {
-
         _distanceRemaining.value = distance
     }
 
     companion object {
+        const val LOCATION_PERMISSION_DENIED = 0
+        const val LOCATION_DISABLED = 1
+        const val SERVICE_READY = 2
+
         fun factory(
             preference: PreferenceUtil,
             locationRepository: LocationRepository,
+            locationObserver: LocationObserver,
+            realTimeLocation: RealTimeLocation,
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(
@@ -119,6 +162,8 @@ class MainViewModel(
                 return MainViewModel(
                     preference,
                     locationRepository,
+                    locationObserver,
+                    realTimeLocation
                 ) as T
             }
         }

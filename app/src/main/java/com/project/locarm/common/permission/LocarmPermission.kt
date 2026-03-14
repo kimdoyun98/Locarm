@@ -1,7 +1,6 @@
 package com.project.locarm.common.permission
 
 import android.Manifest
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -13,58 +12,66 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import com.project.locarm.R
+import com.project.locarm.location.LocationState
 import com.project.locarm.ui.view.LocarmSnackBar
 
 class LocarmPermission(
     private val activity: ComponentActivity,
+    isGrantedAction: (LocationState) -> Unit,
 ) {
-    private val permissionsLauncher = activity.registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        val deniedList = permissions.entries
-            .filter { (permission, isGranted) -> !isGranted }
-            .map { (permission, isGranted) ->
-                permission
-            }
+    private val permissionsLauncher =
+        activity.registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { permissions ->
+            val deniedList = permissions.entries
+                .filter { (permission, isGranted) ->
+                    if (permission == LOCATION_PERMISSION && isGranted) {
+                        isGrantedAction(LocationState.Ready)
+                    }
+                    !isGranted
+                }
+                .map { (permission, isGranted) ->
+                    permission
+                }
 
-        if (deniedList.isEmpty()) return@registerForActivityResult
+            if (deniedList.isEmpty()) return@registerForActivityResult
 
-        if (deniedList.size == 3) {
-            showSnackBar(
-                message = activity.getString(R.string.all_permission_denied),
-                actionText = activity.getString(R.string.permission_request),
-                action = { requestAllPermission() }
-            )
-        } else if (deniedList.contains(NOTIFICATION_PERMISSION)) {
-            if (!activity.shouldShowRequestPermissionRationale(NOTIFICATION_PERMISSION)) {
+            if (deniedList.size == 3) {
                 showSnackBar(
-                    message = activity.getString(R.string.never_notification_permission_granted),
-                    actionText = activity.getString(R.string.setting),
-                    action = { moveSetting() }
-                )
-            } else {
-                showSnackBar(
-                    message = activity.getString(R.string.notification_permission_denied),
+                    message = activity.getString(R.string.all_permission_denied),
                     actionText = activity.getString(R.string.permission_request),
                     action = { requestAllPermission() }
                 )
-            }
-        } else {
-            if (!activity.shouldShowRequestPermissionRationale(LOCATION_PERMISSION)) {
-                showSnackBar(
-                    message = activity.getString(R.string.never_location_permission_granted),
-                    actionText = activity.getString(R.string.setting),
-                    action = { moveSetting() }
-                )
+            } else if (deniedList.contains(NOTIFICATION_PERMISSION)) {
+                if (!activity.shouldShowRequestPermissionRationale(NOTIFICATION_PERMISSION)) {
+                    showSnackBar(
+                        message = activity.getString(R.string.never_notification_permission_granted),
+                        actionText = activity.getString(R.string.setting),
+                        action = { moveSetting() }
+                    )
+                } else {
+                    showSnackBar(
+                        message = activity.getString(R.string.notification_permission_denied),
+                        actionText = activity.getString(R.string.permission_request),
+                        action = { requestAllPermission() }
+                    )
+                }
             } else {
-                showSnackBar(
-                    message = activity.getString(R.string.location_permission_denied),
-                    actionText = activity.getString(R.string.permission_request),
-                    action = { requestAllPermission() }
-                )
+                if (!activity.shouldShowRequestPermissionRationale(LOCATION_PERMISSION)) {
+                    showSnackBar(
+                        message = activity.getString(R.string.never_location_permission_granted),
+                        actionText = activity.getString(R.string.setting),
+                        action = { moveSetting() }
+                    )
+                } else {
+                    showSnackBar(
+                        message = activity.getString(R.string.location_permission_denied),
+                        actionText = activity.getString(R.string.permission_request),
+                        action = { requestAllPermission() }
+                    )
+                }
             }
         }
-    }
 
     private val permissionArray =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -85,12 +92,12 @@ class LocarmPermission(
         permissionsLauncher.launch(permissionArray)
     }
 
-    fun requestLocationPermission(activity: Activity) {
+    fun requestLocationPermission() {
         permissionsLauncher.launch(locationPermissions)
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    fun requestNotificationPermission(activity: Activity) {
+    fun requestNotificationPermission() {
         permissionsLauncher.launch(arrayOf(NOTIFICATION_PERMISSION))
     }
 

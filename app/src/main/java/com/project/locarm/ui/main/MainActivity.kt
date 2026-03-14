@@ -10,26 +10,35 @@ import android.os.IBinder
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.Lifecycle
 import com.project.locarm.R
+import com.project.locarm.common.activityLifecycleScope
 import com.project.locarm.common.appContainer
 import com.project.locarm.common.permission.LocarmPermission
 import com.project.locarm.data.model.SelectDestination
 import com.project.locarm.databinding.ActivityMainBinding
+import com.project.locarm.di.PermissionFactory
 import com.project.locarm.location.BackgroundLocationUpdateService
+import com.project.locarm.location.LocationSettings
+import com.project.locarm.location.LocationState
 import com.project.locarm.ui.favorite.FavoriteActivity
+import com.project.locarm.ui.main.MainViewModel.Companion.LOCATION_DISABLED
+import com.project.locarm.ui.main.MainViewModel.Companion.LOCATION_PERMISSION_DENIED
+import com.project.locarm.ui.main.MainViewModel.Companion.SERVICE_READY
 import com.project.locarm.ui.main.destination.SelectedDestinationFragment
 import com.project.locarm.ui.main.destination.UnSelectedDestinationFragment
 import com.project.locarm.ui.search.SearchActivity
 import com.project.locarm.ui.view.TopStackingNotification
-import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+    private val locationObserver by lazy { applicationContext.appContainer.locationObserver }
     private val viewModel: MainViewModel by viewModels {
         MainViewModel.factory(
             applicationContext.appContainer.preference,
-            applicationContext.appContainer.locationRepository
+            applicationContext.appContainer.locationRepository,
+            locationObserver,
+            applicationContext.appContainer.realTimeLocation
         )
     }
     private val searchDestinationResult =
@@ -56,7 +65,12 @@ class MainActivity : AppCompatActivity() {
 
         override fun onServiceDisconnected(name: ComponentName?) {}
     }
-    private val locarmPermission = LocarmPermission(this)
+    private val locarmPermission by lazy {
+        PermissionFactory.createLocarmPermission(
+            this,
+            viewModel::isGrantedLocationPermission,
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,7 +85,7 @@ class MainActivity : AppCompatActivity() {
             searchDestinationResult.launch(intent)
         }
 
-        locarmPermission.requestAllPermission()
+        locationState()
         searchDestination()
         destinationFragment()
         checkRunningService()
@@ -80,8 +94,26 @@ class MainActivity : AppCompatActivity() {
         destinationNearByAlarm()
     }
 
+    private fun locationState() {
+        activityLifecycleScope(Lifecycle.State.CREATED) {
+            viewModel.locationState.collect { state ->
+                when (state) {
+                    LocationState.PermissionDenied -> {
+                        locarmPermission.requestAllPermission()
+                    }
+
+                    LocationState.LocationDisabled -> {
+                        LocationSettings.checkLocationSettings(this@MainActivity)
+                    }
+
+                    else -> Unit
+                }
+            }
+        }
+    }
+
     private fun destinationNearByAlarm() {
-        lifecycleScope.launch {
+        activityLifecycleScope {
             viewModel.destinationNearbyAlarm.collect {
                 TopStackingNotification.make(
                     this@MainActivity,
@@ -95,18 +127,23 @@ class MainActivity : AppCompatActivity() {
         val unSelectedDestinationFragment = UnSelectedDestinationFragment()
         val selectedDestinationFragment = SelectedDestinationFragment()
 
-        viewModel.destination.observe(this) {
-            val transaction = supportFragmentManager.beginTransaction()
-            when (it) {
-                null -> {
-                    transaction.replace(R.id.destination_fragment, unSelectedDestinationFragment)
-                }
+        activityLifecycleScope {
+            viewModel.destination.collect {
+                val transaction = supportFragmentManager.beginTransaction()
+                when (it) {
+                    null -> {
+                        transaction.replace(
+                            R.id.destination_fragment,
+                            unSelectedDestinationFragment
+                        )
+                    }
 
-                else -> {
-                    transaction.replace(R.id.destination_fragment, selectedDestinationFragment)
+                    else -> {
+                        transaction.replace(R.id.destination_fragment, selectedDestinationFragment)
+                    }
                 }
+                transaction.commit()
             }
-            transaction.commit()
         }
     }
 
@@ -127,46 +164,63 @@ class MainActivity : AppCompatActivity() {
 
     private fun trackingButtonClick() {
         binding.alarmButton.setOnClickListener {
-            if (locarmPermission.checkLocationPermission()) {
-                viewModel.onClickTrackingButton()
-            } else {
-                locarmPermission.requestAllPermission()
+            if (viewModel.destination.value == null) {
+                showTopNotification(getString(R.string.mainActivity_input_destination_toast_message))
+                return@setOnClickListener
             }
+
+            viewModel.onClickTrackingButton()
         }
     }
 
     private fun trackingButtonClickAction() {
-        lifecycleScope.launch {
+        activityLifecycleScope {
             viewModel.trackingButtonClick.collect {
-                if (viewModel.destination.value == null) {
-                    showTopNotification(getString(R.string.mainActivity_input_destination_toast_message))
-
-                    return@collect
-                }
-
-                when (val serviceState = viewModel.serviceState.value!!) {
-                    is ServiceState.Idle -> {
-                        checkRunService()
+                when (it) {
+                    LOCATION_PERMISSION_DENIED -> {
+                        if (LocarmPermission.checkTiramisuVersionHigher() && !locarmPermission.checkNotificationPermission()) {
+                            locarmPermission.requestAllPermission()
+                        } else {
+                            locarmPermission.requestLocationPermission()
+                        }
                     }
 
-                    is ServiceState.RunService -> {
-                        serviceState.onClick()
-
-                        viewModel.setServiceState(
-                            getServiceState(false)
-                        )
+                    LOCATION_DISABLED -> {
+                        LocationSettings.checkLocationSettings(this@MainActivity)
                     }
 
-                    is ServiceState.StopService -> {
-                        locarmPermission.requestAllPermission()
-
-                        serviceState.onClick()
-
-                        viewModel.setServiceState(
-                            getServiceState(true)
-                        )
+                    SERVICE_READY -> {
+                        runServiceAction()
                     }
                 }
+            }
+        }
+    }
+
+    private fun runServiceAction() {
+        when (val serviceState = viewModel.serviceState.value!!) {
+            is ServiceState.Idle -> {
+                checkRunService()
+            }
+
+            is ServiceState.RunService -> {
+                serviceState.onClick()
+
+                viewModel.setServiceState(
+                    getServiceState(false)
+                )
+            }
+
+            is ServiceState.StopService -> {
+                if (LocarmPermission.checkTiramisuVersionHigher() && !locarmPermission.checkNotificationPermission()) {
+                    locarmPermission.requestNotificationPermission()
+                }
+
+                serviceState.onClick()
+
+                viewModel.setServiceState(
+                    getServiceState(true)
+                )
             }
         }
     }
