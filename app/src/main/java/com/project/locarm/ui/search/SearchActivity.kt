@@ -22,6 +22,7 @@ import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.FusedLocationSource
 import com.project.locarm.R
+import com.project.locarm.common.activityLifecycleScope
 import com.project.locarm.common.appContainer
 import com.project.locarm.data.model.SelectDestination
 import com.project.locarm.databinding.ActivitySearchBinding
@@ -66,10 +67,8 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun searchDestination() {
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                lifecycleScope.launch {
-                    repeatOnLifecycle(Lifecycle.State.STARTED) {
-                        viewModel.searchAddress(query!!).collectLatest(adapter::submitData)
-                    }
+                activityLifecycleScope {
+                    viewModel.searchAddress(query!!).collectLatest(adapter::submitData)
                 }
 
                 bottomSheetDialog.show()
@@ -118,7 +117,7 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         // 목적지 검색 시 해당 위치 지도 표시
-        lifecycleScope.launch {
+        activityLifecycleScope {
             viewModel.selectDestinationState.collect { state ->
                 if (state is SelectDestinationState.SelectSearchResult) {
                     val latitude = state.result.latitude
