@@ -13,7 +13,7 @@ class PreferenceUtil(context: Context) {
     }
 
     fun getAlarmDistance(key: String): Int {
-        return prefs.getInt(key, 1)
+        return prefs.getInt(key, 1000)
     }
 
     fun setAlarmDistance(key: String, value: Int) {
