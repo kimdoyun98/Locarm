@@ -25,6 +25,7 @@ import com.project.locarm.common.permission.LocarmPermission
 import com.project.locarm.data.model.Loc
 import com.project.locarm.data.model.SelectDestination
 import com.project.locarm.data.repository.LocationRepository
+import com.project.locarm.location.util.GeoCoder
 import com.project.locarm.ui.main.MainActivity
 import com.project.locarm.ui.main.MainActivity.Companion.DISTANCE_REMAINING
 import com.project.locarm.ui.main.MainActivity.Companion.SELECT

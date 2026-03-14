@@ -10,9 +10,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.graphics.drawable.toDrawable
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraUpdate
@@ -28,13 +25,12 @@ import com.project.locarm.data.model.SelectDestination
 import com.project.locarm.databinding.ActivitySearchBinding
 import com.project.locarm.databinding.DestinationTitleInputLayoutBinding
 import com.project.locarm.databinding.SearchResultLayoutBinding
-import com.project.locarm.location.GeoCoder
+import com.project.locarm.location.util.GeoCoder
 import com.project.locarm.ui.main.MainActivity.Companion.SELECT
 import com.project.locarm.ui.search.adapter.PagingAdapter
 import com.project.locarm.ui.search.util.SelectDestinationState
 import com.project.locarm.ui.view.LocarmSnackBar
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 
 class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var binding: ActivitySearchBinding

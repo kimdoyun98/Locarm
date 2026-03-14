@@ -1,4 +1,4 @@
-package com.project.locarm.location
+package com.project.locarm.location.util
 
 import android.content.Context
 import android.location.Geocoder

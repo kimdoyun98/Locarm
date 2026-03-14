@@ -1,4 +1,4 @@
-package com.project.locarm.location
+package com.project.locarm.location.util
 
 sealed interface LocationState {
     object Idle: LocationState

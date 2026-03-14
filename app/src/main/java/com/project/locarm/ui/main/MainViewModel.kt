@@ -1,6 +1,5 @@
 package com.project.locarm.ui.main
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,9 +10,9 @@ import com.project.locarm.common.PreferenceUtil
 import com.project.locarm.common.PreferenceUtil.Companion.DISTANCE
 import com.project.locarm.data.model.SelectDestination
 import com.project.locarm.data.repository.LocationRepository
-import com.project.locarm.location.GeoCoder
+import com.project.locarm.location.util.GeoCoder
 import com.project.locarm.location.LocationObserver
-import com.project.locarm.location.LocationState
+import com.project.locarm.location.util.LocationState
 import com.project.locarm.location.RealTimeLocation
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow

@@ -10,7 +10,7 @@ import com.project.locarm.common.MyApplication
 import com.project.locarm.common.fragmentLifecycleScope
 import com.project.locarm.common.permission.LocarmPermission
 import com.project.locarm.databinding.FragmentSelectedDestinationBinding
-import com.project.locarm.location.LocationState
+import com.project.locarm.location.util.LocationState
 import com.project.locarm.ui.main.MainViewModel
 
 class SelectedDestinationFragment : Fragment() {

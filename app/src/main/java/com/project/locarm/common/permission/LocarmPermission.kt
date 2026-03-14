@@ -12,7 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import com.project.locarm.R
-import com.project.locarm.location.LocationState
+import com.project.locarm.location.util.LocationState
 import com.project.locarm.ui.view.LocarmSnackBar
 
 class LocarmPermission(

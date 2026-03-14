@@ -20,7 +20,7 @@ import com.project.locarm.databinding.ActivityMainBinding
 import com.project.locarm.di.PermissionFactory
 import com.project.locarm.location.BackgroundLocationUpdateService
 import com.project.locarm.location.LocationSettings
-import com.project.locarm.location.LocationState
+import com.project.locarm.location.util.LocationState
 import com.project.locarm.ui.favorite.FavoriteActivity
 import com.project.locarm.ui.main.MainViewModel.Companion.LOCATION_DISABLED
 import com.project.locarm.ui.main.MainViewModel.Companion.LOCATION_PERMISSION_DENIED

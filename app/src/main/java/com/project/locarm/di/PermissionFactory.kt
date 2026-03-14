@@ -2,7 +2,7 @@ package com.project.locarm.di
 
 import androidx.activity.ComponentActivity
 import com.project.locarm.common.permission.LocarmPermission
-import com.project.locarm.location.LocationState
+import com.project.locarm.location.util.LocationState
 
 object PermissionFactory {
 
