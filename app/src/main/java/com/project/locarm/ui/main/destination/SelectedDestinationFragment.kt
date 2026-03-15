@@ -6,18 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.project.locarm.common.MyApplication
-import com.project.locarm.common.fragmentLifecycleScope
-import com.project.locarm.common.permission.LocarmPermission
 import com.project.locarm.databinding.FragmentSelectedDestinationBinding
-import com.project.locarm.location.util.LocationState
 import com.project.locarm.ui.main.MainViewModel
 
 class SelectedDestinationFragment : Fragment() {
     private var _binding: FragmentSelectedDestinationBinding? = null
     private val binding get() = _binding!!
     private val viewModel: MainViewModel by activityViewModels()
-    private val realTimeLocation = MyApplication.instance.container.realTimeLocation
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -26,29 +21,6 @@ class SelectedDestinationFragment : Fragment() {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
 
-        setDistanceOfDestination()
-    }
-
-    private fun setDistanceOfDestination() {
-        fragmentLifecycleScope {
-            viewModel.updateDistanceRemaining.collect { (destination, state) ->
-                if (destination == null) return@collect
-
-                if (state is LocationState.Ready) {
-                    if (LocarmPermission.checkLocationPermission(requireActivity())) {
-                        realTimeLocation.getCurrentLocation().addOnSuccessListener {
-                            viewModel.updateDistanceRemaining(
-                                realTimeLocation.getDistance(
-                                    it!!.latitude,
-                                    it.longitude,
-                                    destination
-                                )
-                            )
-                        }
-                    }
-                }
-            }
-        }
     }
 
     override fun onCreateView(
@@ -63,6 +35,5 @@ class SelectedDestinationFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        realTimeLocation.onDestroy()
     }
 }

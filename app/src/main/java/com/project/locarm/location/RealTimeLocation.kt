@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.location.Location
 import android.os.Looper
+import android.util.Log
 import androidx.annotation.RequiresPermission
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -14,6 +15,10 @@ import com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY
 import com.google.android.gms.tasks.Task
 import com.project.locarm.common.permission.LocarmPermission
 import com.project.locarm.data.model.SelectDestination
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
 import kotlin.math.asin
 import kotlin.math.cos
 import kotlin.math.pow
@@ -32,14 +37,33 @@ class RealTimeLocation(
             setMinUpdateIntervalMillis(5_000L)
         }.build()
 
+    val currentLocation: Flow<Location?> = callbackFlow {
+        launch {
+            currentLocation()?.addOnSuccessListener { location ->
+                trySend(location)
+            }
+        }
+
+        launch {
+            getCurrentLocation()?.addOnSuccessListener { location ->
+                trySend(location)
+            }
+        }
+
+        awaitClose()
+    }
+
     fun currentLocation(): Task<Location>? {
         return if (checkPermission()) mFusedLocationClient.lastLocation
         else null
     }
 
-    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
-    fun getCurrentLocation(): Task<Location?> {
-        return mFusedLocationClient.getCurrentLocation(PRIORITY_HIGH_ACCURACY, null)
+    fun getCurrentLocation(): Task<Location?>? {
+        return if (checkPermission()) mFusedLocationClient.getCurrentLocation(
+            PRIORITY_HIGH_ACCURACY,
+            null
+        )
+        else null
     }
 
     fun getLocation(

@@ -11,6 +11,7 @@ import com.project.locarm.common.PreferenceUtil.Companion.DISTANCE
 import com.project.locarm.data.model.SelectDestination
 import com.project.locarm.data.repository.LocationRepository
 import com.project.locarm.location.LocationObserver
+import com.project.locarm.location.RealTimeLocation
 import com.project.locarm.location.util.GeoCoder
 import com.project.locarm.location.util.LocationState
 import kotlinx.coroutines.FlowPreview
@@ -20,7 +21,9 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -32,6 +35,7 @@ class MainViewModel(
     private val preference: PreferenceUtil,
     private val locationRepository: LocationRepository,
     private val locationObserver: LocationObserver,
+    private val realTimeLocation: RealTimeLocation
 ) : ViewModel() {
     val locationState = locationObserver.observe
         .stateIn(
@@ -74,17 +78,6 @@ class MainViewModel(
             started = SharingStarted.WhileSubscribed(500L),
             initialValue = "0"
         )
-    val updateDistanceRemaining = destination
-        .filterNotNull()
-        .combine(locationState) { destination, state ->
-            destination to state
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(500L),
-            initialValue = null to LocationState.Idle
-        )
-
 
     val updateAlarmRangeDistance = { value: Float -> _changeAlarmDistance.value = value }
     val destinationNearbyAlarm = locationRepository.destinationNearbyAlarm
@@ -100,6 +93,28 @@ class MainViewModel(
             .debounce(300L)
             .onEach {
                 preference.setAlarmDistance(DISTANCE, it)
+            }
+            .launchIn(viewModelScope)
+
+        destination
+            .filterNotNull()
+            .onEach { _distanceRemaining.value = 0 }
+            .combine(locationState) { destination, state ->
+                (state is LocationState.Ready) to destination
+            }
+            .filter { (isReady, destination) -> isReady }
+            .map { (isReady, destination) -> destination }
+            .flatMapLatest { destination ->
+                realTimeLocation.currentLocation
+                    .filterNotNull()
+                    .onEach { location ->
+                        _distanceRemaining.value =
+                            realTimeLocation.getDistance(
+                                location.latitude,
+                                location.longitude,
+                                destination
+                            )
+                    }
             }
             .launchIn(viewModelScope)
     }
@@ -136,10 +151,6 @@ class MainViewModel(
         _serviceState.value = serviceState
     }
 
-    fun updateDistanceRemaining(distance: Int) {
-        _distanceRemaining.value = distance
-    }
-
     companion object {
         const val LOCATION_PERMISSION_DENIED = 0
         const val LOCATION_DISABLED = 1
@@ -149,6 +160,7 @@ class MainViewModel(
             preference: PreferenceUtil,
             locationRepository: LocationRepository,
             locationObserver: LocationObserver,
+            realTimeLocation: RealTimeLocation,
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(
@@ -159,6 +171,7 @@ class MainViewModel(
                     preference,
                     locationRepository,
                     locationObserver,
+                    realTimeLocation,
                 ) as T
             }
         }
