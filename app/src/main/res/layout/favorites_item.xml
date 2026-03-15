@@ -11,7 +11,7 @@
 
         <variable
             name="favorite"
-            type="com.project.locarm.data.room.Favorite" />
+            type="com.project.locarm.data.room.entitiy.Favorite" />
 
         <variable
             name="index"

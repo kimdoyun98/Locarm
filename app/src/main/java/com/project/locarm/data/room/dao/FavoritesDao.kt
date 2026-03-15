@@ -1,9 +1,10 @@
-package com.project.locarm.data.room
+package com.project.locarm.data.room.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import com.project.locarm.data.room.entitiy.Favorite
 
 @Dao
 interface FavoritesDao {

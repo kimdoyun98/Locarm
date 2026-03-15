@@ -1,8 +1,8 @@
 package com.project.locarm.data.datasource
 
 import androidx.lifecycle.LiveData
-import com.project.locarm.data.room.Favorite
-import com.project.locarm.data.room.FavoritesDao
+import com.project.locarm.data.room.entitiy.Favorite
+import com.project.locarm.data.room.dao.FavoritesDao
 
 class FavoritesDataSource(
     private val dao: FavoritesDao

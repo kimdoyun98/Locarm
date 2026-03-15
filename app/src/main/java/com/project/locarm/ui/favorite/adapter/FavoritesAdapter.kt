@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
-import com.project.locarm.data.room.Favorite
+import com.project.locarm.data.room.entitiy.Favorite
 import com.project.locarm.databinding.FavoritesItemBinding
 import com.project.locarm.ui.favorite.FavoriteViewModel
 

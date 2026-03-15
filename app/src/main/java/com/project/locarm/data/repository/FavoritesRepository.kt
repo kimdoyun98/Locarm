@@ -2,7 +2,7 @@ package com.project.locarm.data.repository
 
 import androidx.lifecycle.LiveData
 import com.project.locarm.data.datasource.FavoritesDataSource
-import com.project.locarm.data.room.Favorite
+import com.project.locarm.data.room.entitiy.Favorite
 
 class FavoritesRepository(
     private val favoritesDataSource: FavoritesDataSource

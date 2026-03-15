@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.project.locarm.data.model.SelectDestination
 import com.project.locarm.data.repository.FavoritesRepository
-import com.project.locarm.data.room.Favorite
+import com.project.locarm.data.room.entitiy.Favorite
 import com.project.locarm.ui.favorite.util.FavoriteLongClickState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

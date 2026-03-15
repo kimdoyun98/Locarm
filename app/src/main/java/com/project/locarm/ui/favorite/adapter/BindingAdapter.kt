@@ -9,7 +9,7 @@ import com.project.locarm.R
 import com.project.locarm.common.MyApplication
 import com.project.locarm.common.permission.LocarmPermission
 import com.project.locarm.data.model.SelectDestination
-import com.project.locarm.data.room.Favorite
+import com.project.locarm.data.room.entitiy.Favorite
 import com.project.locarm.location.util.GeoCoder
 import com.project.locarm.ui.favorite.util.FavoriteLongClickState
 

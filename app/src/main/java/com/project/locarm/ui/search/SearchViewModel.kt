@@ -10,8 +10,8 @@ import com.project.locarm.data.model.Loc
 import com.project.locarm.data.model.SelectDestination
 import com.project.locarm.data.repository.AddressRepository
 import com.project.locarm.data.repository.FavoritesRepository
-import com.project.locarm.data.room.Favorite
-import com.project.locarm.data.room.asEntity
+import com.project.locarm.data.room.entitiy.Favorite
+import com.project.locarm.data.room.entitiy.asEntity
 import com.project.locarm.ui.search.util.SelectDestinationState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
