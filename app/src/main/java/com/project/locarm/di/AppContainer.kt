@@ -26,9 +26,18 @@ class AppContainer(context: Context) {
     }
 
     private val favoritesDao by lazy { database.favoriteDao() }
+    private val addressEntityDao by lazy { database.addressEntityDao() }
+    private val addressRemoteKeyDao by lazy { database.addressRemoteKeyDao() }
     private val favoritesDataSource by lazy { FavoritesDataSource(favoritesDao) }
 
-    val addressRepository by lazy { AddressRepository(retrofitManager.create(ApiService::class.java)) }
+    val addressRepository by lazy {
+        AddressRepository(
+            service = retrofitManager.create(ApiService::class.java),
+            database = database,
+            addressEntityDao = addressEntityDao,
+            addressRemoteKeyDao = addressRemoteKeyDao
+        )
+    }
     val favoritesRepository by lazy { FavoritesRepository(favoritesDataSource) }
     val locationRepository by lazy { LocationRepository() }
     val realTimeLocation by lazy { RealTimeLocation(context) }
