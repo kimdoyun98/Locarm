@@ -10,6 +10,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.graphics.drawable.toDrawable
+import androidx.paging.LoadState
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraUpdate
@@ -30,6 +31,7 @@ import com.project.locarm.ui.main.MainActivity.Companion.SELECT
 import com.project.locarm.ui.search.adapter.PagingAdapter
 import com.project.locarm.ui.search.util.SelectDestinationState
 import com.project.locarm.ui.view.LocarmSnackBar
+import com.project.locarm.ui.view.TopStackingNotification
 import kotlinx.coroutines.flow.collectLatest
 
 class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -61,12 +63,21 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun searchDestination() {
+        adapter.addLoadStateListener { loadState ->
+            val error = loadState.mediator?.refresh as? LoadState.Error
+                ?: loadState.mediator?.append as? LoadState.Error
+
+            error?.let {
+                TopStackingNotification.make(this, it.error.message ?: "Error").show()
+                bottomSheetDialog.dismiss()
+            }
+        }
+
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 activityLifecycleScope {
                     viewModel.searchAddress(query!!).collectLatest(adapter::submitData)
                 }
-
                 bottomSheetDialog.show()
                 hideKeyBoard()
                 binding.searchView.clearFocus()

@@ -5,6 +5,7 @@ import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
+import com.project.locarm.data.model.Common
 import com.project.locarm.data.model.Juso
 import com.project.locarm.data.room.DataBase
 import com.project.locarm.data.room.dao.AddressEntityDao
@@ -48,7 +49,11 @@ class AddressRemoteMediator(
             }
 
             val response = networkService.getAddress(keyword = query, page = page)
-            val juso = response.body()?.result?.juso ?: emptyList()
+            val result = response.body()?.result
+            val common = result?.common
+            val juso = result?.juso ?: emptyList()
+
+            resultCodeCheck(common)
 
             val endOfPaginationReached = juso.size < state.config.pageSize
 
@@ -83,6 +88,8 @@ class AddressRemoteMediator(
             MediatorResult.Error(e)
         } catch (e: HttpException) {
             MediatorResult.Error(e)
+        } catch (e: AddressException) {
+            MediatorResult.Error(e)
         }
     }
 
@@ -96,7 +103,14 @@ class AddressRemoteMediator(
         }
     }
 
+    private fun resultCodeCheck(common: Common?) {
+        if (common == null || common.errorCode == SUCCESS_CODE) return
+
+        throw AddressException(common.errorMessage)
+    }
+
     companion object {
         private const val ADDRESS_STARTING_PAGE = 1
+        private const val SUCCESS_CODE = "0"
     }
 }

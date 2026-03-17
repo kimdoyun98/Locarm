@@ -11,8 +11,20 @@ data class AddressDTO(
 
 @Serializable
 data class Result(
+    @SerialName("common")
+    val common: Common,
+
     @SerialName("juso")
-    val juso: List<Juso>,
+    val juso: List<Juso>?,
+)
+
+@Serializable
+data class Common(
+    @SerialName("errorMessage")
+    val errorMessage: String,
+
+    @SerialName("errorCode")
+    val errorCode: String,
 )
 
 @Serializable
