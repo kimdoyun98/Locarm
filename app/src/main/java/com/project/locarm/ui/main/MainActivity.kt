@@ -106,7 +106,7 @@ class MainActivity : AppCompatActivity() {
                         LocationSettings.checkLocationSettings(this@MainActivity)
                     }
 
-                    else -> Unit
+                    else -> locarmPermission
                 }
             }
         }
