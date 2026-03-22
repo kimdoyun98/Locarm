@@ -50,8 +50,6 @@ abstract class LocarmNotification<T : ViewBinding>(
     protected open fun dismiss() {
         rootView.removeView(binding.root)
 
-        showAnimation()
-
         onDestroy()
     }
 
@@ -60,7 +58,7 @@ abstract class LocarmNotification<T : ViewBinding>(
     ) {
         binding.root.animate()
             .alpha(0f) // 투명하게
-            .translationY(layoutLocation.value) // 아래로 200px 이동
+            .translationY(layoutLocation.value)
             .setDuration(300) // 0.3초 동안
             .withEndAction { // 애니메이션이 완전히 끝난 후 실행
                 dismiss()
@@ -69,7 +67,7 @@ abstract class LocarmNotification<T : ViewBinding>(
             .start()
     }
 
-    private fun showAnimation() {
+    protected fun showAnimation() {
         when (layoutLocation) {
             LayoutLocation.TOP -> {
                 ViewCompat.setZ(binding.root, 100f)

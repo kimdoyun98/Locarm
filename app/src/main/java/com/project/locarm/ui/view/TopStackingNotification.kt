@@ -31,14 +31,7 @@ class TopStackingNotification(
 
         ViewCompat.setZ(binding.root, 100f)
 
-        // 3. 새 알림 등장 애니메이션 (위에서 아래로)
-        binding.root.translationY = -300f
-        binding.root.alpha = 0f
-        binding.root.animate()
-            .translationY(0f)
-            .alpha(1f)
-            .setDuration(600)
-            .start()
+        showAnimation()
 
         delayDisMissAction {
             if (!notificationStack.contains(binding.root)) return@delayDisMissAction

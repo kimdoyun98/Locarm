@@ -1,7 +1,6 @@
 package com.project.locarm.ui.view
 
 import android.app.Activity
-import android.util.Log
 import androidx.core.view.isVisible
 import com.project.locarm.databinding.CustomSnackbarLayoutBinding
 
@@ -51,6 +50,8 @@ class LocarmSnackBar(
 
     override fun show() {
         super.show()
+
+        showAnimation()
 
         if (time != INDEFINITE) {
             delayDisMissAction(time = time)
