@@ -15,9 +15,9 @@
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@drawable/locarm_icon"
+        android:icon="@drawable/locarm_icon_png"
         android:label="@string/app_name"
-        android:roundIcon="@drawable/locarm_icon"
+        android:roundIcon="@drawable/locarm_icon_png"
         android:supportsRtl="true"
         android:theme="@style/Theme.Locarm"
         tools:targetApi="31">

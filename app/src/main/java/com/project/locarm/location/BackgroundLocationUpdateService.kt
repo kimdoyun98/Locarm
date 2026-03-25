@@ -191,7 +191,7 @@ class BackgroundLocationUpdateService : Service() {
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setOngoing(true)
-            .setSmallIcon(R.drawable.locarm_icon)
+            .setSmallIcon(R.drawable.locarm_icon_png)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
 
         return builder.build()
