@@ -19,3 +19,30 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# ===== 핵심 =====
+-keepattributes Signature, InnerClasses, EnclosingMethod
+-keepattributes *Annotation*
+
+# Retrofit
+-keep class retrofit2.** { *; }
+-keep interface retrofit2.** { *; }
+
+-keep interface  com.project.locarm.data.remote.ApiService
+
+# Kotlinx Serialization
+-keep class kotlinx.serialization.** { *; }
+-keep @kotlinx.serialization.Serializable class * { *; }
+-keepclassmembers class **$$serializer { *; }
+
+# DTO
+-keep class com.project.locarm.data.model.AddressDTO { *; }
+-keep class com.project.locarm.data.model.Result { *; }
+-keep class com.project.locarm.data.model.Common { *; }
+-keep class com.project.locarm.data.model.Juso { *; }
+
+# suspend 안정화
+-keep class kotlin.coroutines.Continuation
+-keepclassmembers class * {
+    kotlin.coroutines.Continuation *;
+}

@@ -34,13 +34,24 @@ android {
         dataBinding true
     }
 
+    signingConfigs {
+        release {
+            storeFile file('C:\\Users\\KDOY\\Desktop\\Locarm key\\locarm_key')
+            storePassword properties["storePassword"]
+            keyAlias properties["key_alias"]
+            keyPassword properties["keyPassword"]
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
