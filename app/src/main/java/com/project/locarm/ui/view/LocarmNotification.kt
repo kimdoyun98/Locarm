@@ -6,6 +6,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.doOnAttach
 import androidx.viewbinding.ViewBinding
 
 typealias Inflate<T> = (LayoutInflater, ViewGroup?, Boolean) -> T
@@ -45,11 +47,35 @@ abstract class LocarmNotification<T : ViewBinding>(
 
     open fun show() {
         rootView.addView(binding.root, params)
+        applyWindowInsets()
+    }
+
+    private fun applyWindowInsets() {
+        binding.root.doOnAttach { view ->
+            val insets = ViewCompat.getRootWindowInsets(view) ?: return@doOnAttach
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+
+            val updatedParams = (view.layoutParams as FrameLayout.LayoutParams)
+
+            updatedParams.setMargins(
+                DEFAULT_PADDING,
+                when (layoutLocation) {
+                    LayoutLocation.TOP -> TOP_PADDING + systemBars.top
+                    LayoutLocation.BOTTOM -> DEFAULT_PADDING
+                },
+                DEFAULT_PADDING,
+                when (layoutLocation) {
+                    LayoutLocation.TOP -> DEFAULT_PADDING
+                    LayoutLocation.BOTTOM -> DEFAULT_PADDING + systemBars.bottom
+                }
+            )
+
+            view.layoutParams = updatedParams
+        }
     }
 
     protected open fun dismiss() {
         rootView.removeView(binding.root)
-
         onDestroy()
     }
 
