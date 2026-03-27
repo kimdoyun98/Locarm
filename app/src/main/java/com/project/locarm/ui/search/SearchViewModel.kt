@@ -12,9 +12,14 @@ import com.project.locarm.data.repository.AddressRepository
 import com.project.locarm.data.repository.FavoritesRepository
 import com.project.locarm.data.room.entitiy.Favorite
 import com.project.locarm.data.room.entitiy.asEntity
+import com.project.locarm.ui.search.util.AddressResultState
 import com.project.locarm.ui.search.util.SelectDestinationState
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 
 class SearchViewModel(
@@ -24,6 +29,20 @@ class SearchViewModel(
     private val _selectDestinationState: MutableStateFlow<SelectDestinationState> =
         MutableStateFlow(SelectDestinationState.Idle)
     val selectDestinationState = _selectDestinationState.asStateFlow()
+
+    private val _addressResultState = MutableSharedFlow<AddressResultState>()
+    val addressResultState = _addressResultState
+        .debounce(200L)
+        .shareIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5000)
+        )
+
+    fun updateAddressResultState(state: AddressResultState) {
+        viewModelScope.launch {
+            _addressResultState.emit(state)
+        }
+    }
 
     fun selectDestinationOnMap(latitude: Double, longitude: Double) {
         _selectDestinationState.value = SelectDestinationState.SelectOnMap(

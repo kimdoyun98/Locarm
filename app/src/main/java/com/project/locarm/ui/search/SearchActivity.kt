@@ -25,6 +25,7 @@ import com.naver.maps.map.util.FusedLocationSource
 import com.project.locarm.R
 import com.project.locarm.common.activityLifecycleScope
 import com.project.locarm.common.appContainer
+import com.project.locarm.data.model.Juso
 import com.project.locarm.data.model.SelectDestination
 import com.project.locarm.databinding.ActivitySearchBinding
 import com.project.locarm.databinding.DestinationTitleInputLayoutBinding
@@ -32,6 +33,7 @@ import com.project.locarm.databinding.SearchResultLayoutBinding
 import com.project.locarm.location.util.GeoCoder
 import com.project.locarm.ui.main.MainActivity.Companion.SELECT
 import com.project.locarm.ui.search.adapter.PagingAdapter
+import com.project.locarm.ui.search.util.AddressResultState
 import com.project.locarm.ui.search.util.SelectDestinationState
 import com.project.locarm.ui.view.LocarmSnackBar
 import com.project.locarm.ui.view.TopStackingNotification
@@ -45,7 +47,8 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
             applicationContext.appContainer.addressRepository
         )
     }
-    private val adapter = PagingAdapter()
+    private val adapter = PagingAdapter { juso -> selectAddress(juso) }
+
     private lateinit var bottomSheetDialog: BottomSheetDialog
     private val fusedLocationSource = FusedLocationSource(this, 5000)
 
@@ -62,9 +65,29 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
         initToolbarNavigationButton()
         initBottomSheetDialog()
         searchDestination()
-        selectAddress()
+        searchResult()
         selectDestinationButton()
         initNaverMap()
+    }
+
+    private fun searchResult() {
+        activityLifecycleScope {
+            viewModel.addressResultState.collect {
+                when (it) {
+                    is AddressResultState.Idle -> Unit
+
+                    is AddressResultState.Success -> {
+                        bottomSheetDialog.show()
+                        hideKeyBoard()
+                        binding.searchView.clearFocus()
+                    }
+
+                    is AddressResultState.Error -> {
+                        TopStackingNotification.make(this@SearchActivity, it.message).show()
+                    }
+                }
+            }
+        }
     }
 
     private fun searchDestination() {
@@ -72,9 +95,14 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
             val error = loadState.mediator?.refresh as? LoadState.Error
                 ?: loadState.mediator?.append as? LoadState.Error
 
+            if (adapter.itemCount != 0) {
+                viewModel.updateAddressResultState(AddressResultState.Success)
+            }
+
             error?.let {
-                TopStackingNotification.make(this, it.error.message ?: "Error").show()
-                bottomSheetDialog.dismiss()
+                viewModel.updateAddressResultState(
+                    AddressResultState.Error(it.error.message ?: "Error")
+                )
             }
         }
 
@@ -83,9 +111,6 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
                 activityLifecycleScope {
                     viewModel.searchAddress(query!!).collectLatest(adapter::submitData)
                 }
-                bottomSheetDialog.show()
-                hideKeyBoard()
-                binding.searchView.clearFocus()
 
                 return true
             }
@@ -94,15 +119,13 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
         })
     }
 
-    private fun selectAddress() {
-        adapter.setOnItemClickListener { juso ->
-            if (juso == null) return@setOnItemClickListener
+    private fun selectAddress(juso: Juso?) {
+        if (juso == null) return
 
-            val geo = GeoCoder.getXY(this@SearchActivity, juso.jibunAddr)
-            viewModel.selectSearchResult(juso, geo)
+        val geo = GeoCoder.getXY(this@SearchActivity, juso.jibunAddr)
+        viewModel.selectSearchResult(juso, geo)
 
-            bottomSheetDialog.dismiss()
-        }
+        bottomSheetDialog.dismiss()
     }
 
     private fun initNaverMap() {
@@ -227,6 +250,10 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
         bsBinding.searchAddressRv.adapter = adapter
 
         bottomSheetDialog.setContentView(bsBinding.root)
+
+        bottomSheetDialog.setOnDismissListener {
+            viewModel.updateAddressResultState(AddressResultState.Idle)
+        }
     }
 
     private fun hideKeyBoard() {

@@ -8,17 +8,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.project.locarm.data.model.Juso
 import com.project.locarm.databinding.AddressSearchItemBinding
 
-class PagingAdapter : PagingDataAdapter<Juso, PagingAdapter.ViewHolder>(addressDiffUtil) {
-
-    fun interface OnAddressSelectListener {
-        fun onItemClicked(juso: Juso?)
-    }
-
-    private var itemClickListener: OnAddressSelectListener? = null
-
-    fun setOnItemClickListener(listener: OnAddressSelectListener?) {
-        itemClickListener = listener
-    }
+class PagingAdapter(
+    private val onItemClick: (Juso?) -> Unit
+) : PagingDataAdapter<Juso, PagingAdapter.ViewHolder>(addressDiffUtil) {
 
     inner class ViewHolder(
         private val binding: AddressSearchItemBinding
@@ -26,7 +18,7 @@ class PagingAdapter : PagingDataAdapter<Juso, PagingAdapter.ViewHolder>(addressD
 
         init {
             itemView.setOnClickListener {
-                itemClickListener?.onItemClicked(getItem(absoluteAdapterPosition))
+                onItemClick(getItem(absoluteAdapterPosition))
             }
         }
 
