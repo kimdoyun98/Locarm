@@ -38,7 +38,7 @@ android {
         release {
             storeFile file(properties["storeFile"])
             storePassword properties["storePassword"]
-            keyAlias properties["key_alias"]
+            keyAlias properties["keyAlias"]
             keyPassword properties["keyPassword"]
         }
     }
