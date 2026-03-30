@@ -22,11 +22,11 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         //주소 검색 공공 API 키
-        buildConfigField "String", "Address_Key", properties['address_key']
+        buildConfigField "String", "Address_Key", "\"${properties['address_key']}\""
 
         //Naver API ID & Key
-        buildConfigField "String", "Client_ID", properties['Client_ID']
-        buildConfigField "String", "Client_Secret", properties['Client_Secret']
+        buildConfigField "String", "Client_ID", "\"${properties['Client_ID']}\""
+        buildConfigField "String", "Client_Secret", "\"${properties['Client_Secret']}\""
     }
 
     buildFeatures{
