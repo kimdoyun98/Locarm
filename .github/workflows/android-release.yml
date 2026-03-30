@@ -25,7 +25,7 @@ jobs:
       # 🔐 Keystore 복원
       - name: Decode Keystore
         run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > keystore.jks
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > app/keystore.jks
 
       # 🔐 local.properties 생성 (서명 정보)
       - name: Create local.properties
