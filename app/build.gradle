@@ -36,7 +36,7 @@ android {
 
     signingConfigs {
         release {
-            storeFile file('C:\\Users\\KDOY\\Desktop\\Locarm key\\locarm_key')
+            storeFile file(properties["storeFile"])
             storePassword properties["storePassword"]
             keyAlias properties["key_alias"]
             keyPassword properties["keyPassword"]
