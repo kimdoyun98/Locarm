@@ -34,6 +34,9 @@ jobs:
           echo "storePassword=${{ secrets.STORE_PASSWORD }}" >> local.properties
           echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> local.properties
           echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> local.properties
+          echo "address_key=${{ secrets.KEY_ADDRESS }}" >> local.properties
+          echo "Client_ID=${{ secrets.Client_ID }}" >> local.properties
+          echo "Client_Secret=${{ secrets.Client_Secret }}" >> local.properties
 
       - name: Build AAB
         run: ./gradlew bundleRelease
