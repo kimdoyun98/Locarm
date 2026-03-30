@@ -46,3 +46,31 @@ jobs:
         with:
           name: app-release.aab
           path: app/build/outputs/bundle/release/app-release.aab
+
+      # 🔽 bundletool 다운로드
+      - name: Download bundletool
+        run: |
+          wget https://github.com/google/bundletool/releases/download/1.15.6/bundletool-all-1.15.6.jar -O bundletool.jar
+
+      # 🔽 AAB → APK 변환
+      - name: Convert AAB to APK
+        run: |
+          java -jar bundletool.jar build-apks \
+            --bundle=app/build/outputs/bundle/release/app-release.aab \
+            --output=app.apks \
+            --mode=universal \
+            --ks=app/keystore.jks \
+            --ks-key-alias=${{ secrets.KEY_ALIAS }} \
+            --ks-pass=pass:${{ secrets.STORE_PASSWORD }} \
+            --key-pass=pass:${{ secrets.KEY_PASSWORD }}
+
+      # 🔽 APK 추출
+      - name: Extract APK
+        run: unzip app.apks -d apks
+
+      # 🔽 APK 업로드
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release.apk
+          path: apks/universal.apk
