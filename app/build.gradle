@@ -8,6 +8,9 @@ plugins {
 
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
+def addressKey = properties['address_key']
+def clientId = properties['Client_ID']
+def clientSecret = properties['Client_Secret']
 
 android {
     compileSdk 36
@@ -21,12 +24,16 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
+        if (!addressKey || !clientId || !clientSecret) {
+            throw new GradleException("❌ API keys are missing in local.properties")
+        }
+
         //주소 검색 공공 API 키
-        buildConfigField "String", "Address_Key", "\"${properties['address_key']}\""
+        buildConfigField "String", "Address_Key", "\"${addressKey}\""
 
         //Naver API ID & Key
-        buildConfigField "String", "Client_ID", "\"${properties['Client_ID']}\""
-        buildConfigField "String", "Client_Secret", "\"${properties['Client_Secret']}\""
+        buildConfigField "String", "Client_ID", "\"${clientId}\""
+        buildConfigField "String", "Client_Secret", "\"${clientSecret}\""
     }
 
     buildFeatures{
