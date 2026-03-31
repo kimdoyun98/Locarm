@@ -15,7 +15,7 @@ data class Result(
     val common: Common,
 
     @SerialName("juso")
-    val juso: List<Juso>?,
+    val juso: List<Juso> = emptyList(),
 )
 
 @Serializable

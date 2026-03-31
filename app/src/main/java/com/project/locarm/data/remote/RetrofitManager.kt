@@ -8,7 +8,10 @@ import retrofit2.Retrofit
 object RetrofitManager {
     private val contentType = "application/json".toMediaType()
     private const val URL = "https://business.juso.go.kr/addrlink/"
-    private val json = Json { ignoreUnknownKeys = true }
+    private val json = Json {
+        ignoreUnknownKeys = true
+        coerceInputValues = true
+    }
 
     fun getRetrofitInstance(): Retrofit {
         return Retrofit.Builder()
