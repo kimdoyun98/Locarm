@@ -49,9 +49,9 @@ class AddressRemoteMediator(
             }
 
             val response = networkService.getAddress(keyword = query, page = page)
-            val result = response.body()?.result
-            val common = result?.common
-            val juso = result?.juso ?: emptyList()
+            val result = response.body()?.result ?: return MediatorResult.Success(endOfPaginationReached = true)
+            val common = result.common
+            val juso = result.juso
 
             resultCodeCheck(common)
 
