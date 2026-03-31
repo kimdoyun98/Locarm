@@ -25,8 +25,24 @@
 
 
 ## Tech Stack
-`Kotlin` `MVVM` `Databinding` `ViewModel` `LiveData` `Flow` `Room` `Retrofit2` `Kotlinx-Serialization` `Paging3` `Coroutine` `Naver Map`
+`Kotlin` `MVVM` `Databinding` `ViewModel` `LiveData` `Flow` `Room` `Retrofit2` `Kotlinx-Serialization` `Paging3` `Coroutine` `Naver Map` `GithubActions`
 <br>    
+
+* Gson → Kotlinx-Serialization
+  * Gson의 경우 값이 Null로 올 경우를 대비해 Nullable 처리
+  * Kotlinx-Serialization의 경우 Default Value를 통해 Null이 아닌 값을 전달하여 NPE 위험 감소
+  * 리플렉션을 사용하는 Gson과 달리 Kotlinx-Serialization는 리플렉션을 사용하지 않아 성능을 향상
+ 
+* LiveData → Flow
+  * LiveData의 경우 생명주기를 자동으로 관리해주기 때문에 간편함
+  * Repository의 데이터를 Activity 뿐만 아니라 Service에서도 사용
+  * 상태 데이터를 조합하여 사용하는 경우에 LiveData는 제한적인 경우가 많음
+  * 따라서 여러 컴포넌트에서 유동적으로 사용할 수 있고, 여러 데이터를 조합 및 추가적인 연산을 수행하기 적합한 Flow로 리팩토링
+ 
+* NaverMap
+  * 월 무료 이용 횟수가 가장 많다.(월 1억회, 카카오는 일 300,000회)
+  * 한국에서 사용하는 앱으로 사용자에게 있어 가장 친화적인 Map UI
+
 <br>    
 
 ## 개발 기간
@@ -90,6 +106,13 @@ View에서 제공하는 기존 SnackBar의 경우 Action 버튼 하나만 제공
 <img width="250"  alt="Image" src="https://github.com/user-attachments/assets/5abe0f25-13de-45ac-ad1d-cf72897dd841" />
 <br>    
 
+## Github Actions로 release 업데이트 시 자동 AAB 파일 및 APK 파일 생성
+```
+git tag v1.0.3
+git push origin v1.0.3
+```
+* main branch에 v로 시작하는 tag가 오면 WorkFlow 실행
+* 앱의 마지막 Google Play 배포 시점에 적용하여 통합, 테스트와 관련된 자동화는 생략하고 배포 파일만 생성
 
 ## Learn
 * [Service를 이용한 백그라운드 작업](https://snaildeveloper.tistory.com/121)
