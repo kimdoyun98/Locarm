@@ -98,7 +98,6 @@ class MainActivity : AppCompatActivity() {
         checkRunningService()
         trackingButtonClick()
         trackingButtonClickAction()
-        destinationNearByAlarm()
     }
 
     private fun locationState() {
@@ -115,17 +114,6 @@ class MainActivity : AppCompatActivity() {
 
                     else -> locarmPermission
                 }
-            }
-        }
-    }
-
-    private fun destinationNearByAlarm() {
-        activityLifecycleScope {
-            viewModel.destinationNearbyAlarm.collect {
-                TopStackingNotification.make(
-                    this@MainActivity,
-                    getString(R.string.backgroundLocationUpdate_destination_nearby)
-                ).show()
             }
         }
     }

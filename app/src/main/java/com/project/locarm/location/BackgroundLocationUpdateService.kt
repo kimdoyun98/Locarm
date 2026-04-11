@@ -12,14 +12,12 @@ import android.content.Intent
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
-import android.os.Vibrator
 import android.widget.RemoteViews
 import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
 import com.project.locarm.R
 import com.project.locarm.common.PreferenceUtil
 import com.project.locarm.common.PreferenceUtil.Companion.DISTANCE
-import com.project.locarm.common.PushAlarm
 import com.project.locarm.common.appContainer
 import com.project.locarm.common.permission.LocarmPermission
 import com.project.locarm.data.model.Loc
@@ -105,24 +103,20 @@ class BackgroundLocationUpdateService : Service() {
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     private fun vibrateWithAlarm(distance: Int) {
         if (distance > alarmDistance) return
-        PushAlarm.build(
-            context,
-            getString(R.string.backgroundLocationUpdate_destination_nearby),
-            getString(
-                R.string.backgroundLocationUpdate_pushAlarm_content,
-                GeoCoder.getDistanceKmToString(distance)
-            ),
-            destination!!.name
-        )
-        val vibrator: Vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        vibrator.vibrate(1000)
 
-        locationRepository.emitDestinationNearbyAlarm()
+        val builder = NotificationCompat.Builder(this, CLOSE_TO_DESTINATION_CHANNEL_ID)
+            .setSmallIcon(R.drawable.locarm_icon_png)
+            .setContentTitle(getString(R.string.backgroundLocationUpdate_destination_nearby))
+            .setContentText("${destination!!.name} 남은 거리: ${GeoCoder.getDistanceKmToString(distance)}")
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .build()
+
+        notificationManager.notify(FOREGROUND_NOTIFICATION_ID, builder)
     }
 
     private fun startForeground() {
         createNotificationChannel()
-        startForeground(101, getNotification())
+        startForeground(FOREGROUND_NOTIFICATION_ID, getNotification())
     }
 
     private fun createNotificationChannel() {
@@ -137,11 +131,20 @@ class BackgroundLocationUpdateService : Service() {
             enableVibration(false)
         }
 
-        notificationManager.createNotificationChannel(channel)
+        val closeDestinationChannel = NotificationChannel(
+            CLOSE_TO_DESTINATION_CHANNEL_ID,
+            CLOSE_TO_DESTINATION_CHANNEL_NAME,
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            enableVibration(true)
+            vibrationPattern = longArrayOf(0, 300, 200, 300)
+        }
+
+        notificationManager.createNotificationChannels(listOf(channel, closeDestinationChannel))
     }
 
     private fun updateNotification(distance: Int) {
-        notificationManager.notify(101, getNotification(distance))
+        notificationManager.notify(FOREGROUND_NOTIFICATION_ID, getNotification(distance))
     }
 
     private fun getNotification(
@@ -238,6 +241,11 @@ class BackgroundLocationUpdateService : Service() {
         private const val CHANNEL_NAME = "BackgroundLocationUpdateService"
         private const val TAG = "BackgroundLocationUpdateService"
 
+        private const val CLOSE_TO_DESTINATION_CHANNEL_ID = "CloseToDestination"
+        private const val CLOSE_TO_DESTINATION_CHANNEL_NAME = "목적지 인접"
+
+        private const val FOREGROUND_NOTIFICATION_ID = 101
+        private const val CLOSE_DESTINATION_NOTIFICATION_ID = 102
         private const val DELETE = "delete"
     }
 }
