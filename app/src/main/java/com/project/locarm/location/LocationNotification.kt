@@ -59,6 +59,8 @@ class LocationNotification(
                 .setContentTitle(title)
                 .setContentText(content)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setContentIntent(notificationClickPendingIntent())
+                .setDeleteIntent(notificationDeletePendingIntent())
                 .build()
 
         notificationManager.notify(foregroundNotificationId, builder)
