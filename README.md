@@ -1,6 +1,8 @@
 # Locarm
 
-<img width="758" height="451" alt="Image" src="https://github.com/user-attachments/assets/583044a2-2df6-4c3d-83a7-4dfa9ae5ea8f" />
+<img width="758" height="451" alt="Image" src="https://github.com/user-attachments/assets/583044a2-2df6-4c3d-83a7-4dfa9ae5ea8f" />    
+
+[![Google Play](https://img.shields.io/badge/Google_Play-Download-green?logo=google-play)](https://play.google.com/store/apps/details?id=com.kimdoyun.locarm)
 
 ## 프로젝트 소개
  대중교통을 이용하여 목적지로 이동할 때 자거나, 음악을 듣다 보면 목적지를 지나쳐버리는 경우가 있습니다.
