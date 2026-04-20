@@ -49,7 +49,14 @@ class LocarmPermission(
             if (deniedList.isEmpty()) return@registerForActivityResult
 
             if (deniedList.size == 3) {
-                requestPermissionShowSnackBar(deniedAllPermissionMessage)
+
+                if (isLimitRequestAllPermission()) needPermissionSettingShowSnackBar(
+                    limitRequestAllPermissionMessage
+                )
+                else {
+                    requestPermissionShowSnackBar(deniedAllPermissionMessage)
+                }
+
             } else if (deniedList.contains(NOTIFICATION_PERMISSION)) {
 
                 if (isLimitRequestPermission(NOTIFICATION_PERMISSION)) {
