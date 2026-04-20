@@ -6,8 +6,11 @@ on:
       - 'v*'   # v1.0.0 같은 태그에서만 실행
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
+
+    environment:
+       name: production
 
     steps:
       - name: Checkout
@@ -38,6 +41,7 @@ jobs:
           echo "Client_ID=${{ secrets.Client_ID }}" >> local.properties
           echo "Client_Secret=${{ secrets.Client_Secret }}" >> local.properties
 
+      # CD
       - name: Build AAB
         run: ./gradlew bundleRelease
 
@@ -74,3 +78,13 @@ jobs:
         with:
           name: app-release.apk
           path: apks/universal.apk
+
+      # 🔽 Play Store 배포
+      - name: Deploy to Play Store
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: com.kimdoyun.locarm
+          releaseFiles: app/build/outputs/bundle/release/app-release.aab
+          track: internal
+          status: completed
