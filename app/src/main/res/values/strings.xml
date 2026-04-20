@@ -39,6 +39,7 @@
     <string name="never_location_permission_granted">위치 권한이 없습니다. (설정 > 앱 > 권한)</string>
     <string name="notification_permission_denied">알림 권한이 없으면 알림 기능이 제한됩니다</string>
     <string name="never_notification_permission_granted">알림 기능이 제한됩니다 (설정 > 앱 > 권한)</string>
+    <string name="limit_location_notification_permissions">위치와 알림 권한이 없습니다</string>
 
     <!--  SearchActivity  -->
     <string name="searchActivity_register">등록</string>

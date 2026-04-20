@@ -19,6 +19,18 @@ class LocarmPermission(
     private val activity: ComponentActivity,
     isGrantedAction: (LocationState) -> Unit,
 ) {
+    private val limitRequestAllPermissionMessage =
+        activity.getString(R.string.limit_location_notification_permissions)
+    private val deniedAllPermissionMessage = activity.getString(R.string.all_permission_denied)
+    private val limitRequestLocationPermissionMessage =
+        activity.getString(R.string.never_location_permission_granted)
+    private val deniedLocationPermissionMessage =
+        activity.getString(R.string.location_permission_denied)
+    private val limitRequestNotificationPermissionMessage =
+        activity.getString(R.string.never_notification_permission_granted)
+    private val deniedNotificationPermissionMessage =
+        activity.getString(R.string.notification_permission_denied)
+
     private val permissionsLauncher =
         activity.registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
@@ -37,39 +49,23 @@ class LocarmPermission(
             if (deniedList.isEmpty()) return@registerForActivityResult
 
             if (deniedList.size == 3) {
-                showSnackBar(
-                    message = activity.getString(R.string.all_permission_denied),
-                    actionText = activity.getString(R.string.permission_request),
-                    action = { requestAllPermission() }
-                )
+                requestPermissionShowSnackBar(deniedAllPermissionMessage)
             } else if (deniedList.contains(NOTIFICATION_PERMISSION)) {
-                if (!activity.shouldShowRequestPermissionRationale(NOTIFICATION_PERMISSION)) {
-                    showSnackBar(
-                        message = activity.getString(R.string.never_notification_permission_granted),
-                        actionText = activity.getString(R.string.setting),
-                        action = { moveSetting() }
-                    )
+
+                if (isLimitRequestPermission(NOTIFICATION_PERMISSION)) {
+                    needPermissionSettingShowSnackBar(limitRequestNotificationPermissionMessage)
                 } else {
-                    showSnackBar(
-                        message = activity.getString(R.string.notification_permission_denied),
-                        actionText = activity.getString(R.string.permission_request),
-                        action = { requestAllPermission() }
-                    )
+                    requestPermissionShowSnackBar(deniedNotificationPermissionMessage)
                 }
+
             } else {
-                if (!activity.shouldShowRequestPermissionRationale(LOCATION_PERMISSION)) {
-                    showSnackBar(
-                        message = activity.getString(R.string.never_location_permission_granted),
-                        actionText = activity.getString(R.string.setting),
-                        action = { moveSetting() }
-                    )
+
+                if (isLimitRequestPermission(LOCATION_PERMISSION)) {
+                    needPermissionSettingShowSnackBar(limitRequestLocationPermissionMessage)
                 } else {
-                    showSnackBar(
-                        message = activity.getString(R.string.location_permission_denied),
-                        actionText = activity.getString(R.string.permission_request),
-                        action = { requestAllPermission() }
-                    )
+                    requestPermissionShowSnackBar(deniedLocationPermissionMessage)
                 }
+
             }
         }
 
@@ -116,6 +112,35 @@ class LocarmPermission(
                 onClick = action
             )
             .show()
+    }
+
+    private fun requestPermissionShowSnackBar(message: String) {
+        showSnackBar(
+            message = message,
+            actionText = activity.getString(R.string.permission_request),
+            action = { requestAllPermission() }
+        )
+    }
+
+    private fun needPermissionSettingShowSnackBar(message: String) {
+        showSnackBar(
+            message = message,
+            actionText = activity.getString(R.string.setting),
+            action = { moveSetting() }
+        )
+    }
+
+    private fun isLimitRequestPermission(permission: String): Boolean {
+        return !activity.shouldShowRequestPermissionRationale(permission)
+    }
+
+    private fun isLimitRequestAllPermission(): Boolean {
+        return if (checkTiramisuVersionHigher()) {
+            !activity.shouldShowRequestPermissionRationale(LOCATION_PERMISSION) &&
+                    !activity.shouldShowRequestPermissionRationale(NOTIFICATION_PERMISSION)
+        } else {
+            !activity.shouldShowRequestPermissionRationale(LOCATION_PERMISSION)
+        }
     }
 
     companion object {
