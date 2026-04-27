@@ -108,13 +108,10 @@ View에서 제공하는 기존 SnackBar의 경우 Action 버튼 하나만 제공
 <img width="250"  alt="Image" src="https://github.com/user-attachments/assets/5abe0f25-13de-45ac-ad1d-cf72897dd841" />
 <br>    
 
-## Github Actions로 release 업데이트 시 자동 AAB 파일 및 APK 파일 생성
-```
-git tag v1.0.3
-git push origin v1.0.3
-```
-* main branch에 v로 시작하는 tag가 오면 WorkFlow 실행
-* 앱의 마지막 Google Play 배포 시점에 적용하여 통합, 테스트와 관련된 자동화는 생략하고 배포 파일만 생성
+## CI/CD
+* Github Actions로 release 업데이트 시 빌드 후 성공 시 자동 Google Play Console에 자동 배포
+* 보통 브랜치 PR 단위로 작업을 수행하지만 프로젝트 완성 후 배포 이후 CI/CD를 구현
+* 따라서 main branch에 v로 시작하는 tag(v.1.0.4)가 오면 WorkFlow 실행
 
 ## Learn
 * [Service를 이용한 백그라운드 작업](https://snaildeveloper.tistory.com/121)
