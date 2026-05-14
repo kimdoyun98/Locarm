@@ -82,27 +82,32 @@ UI 변경 및 리팩토링 (2026.03.06 ~ 2026.03.17)
 
 <br>    
 
-## 🔧 API 호출, 페이징 및 Room DB 캐싱
+## 🔧 주소 검색 시 페이지 별로 데이터를 호출하고, 불필요한 API 호출 빈도를 줄이기 위해 Paging3와 함께 Room 캐싱을 사용
 - 문제
-    - 주소를 검색하면 결과 값이 몇 개든 모두 불러옴
-    - 동일한 쿼리에 대한 검색도 매번 API 호출
+    - 주소 검색 시 전체 결과를 한 번에 호출하여 데이터 양 증가에 따른 성능 저하 우려
+    - 동일한 검색어 요청에도 반복적으로 API를 호출하는 비효율 발생
 - 해결
-    - Paging3 라이브러리를 통해 페이지 별로 10개씩 데이터 호출
-    - RemoteMediator를 통해 호출 한 데이터는 Room DB에 저장
+    - Paging3를 도입하여 검색 결과를 페이지 단위로 로드
+    - RemoteMediator 기반으로 서버 데이터를 Room DB에 캐싱하고, 캐시 데이터를 우선 조회하도록 구현
+    - 검색어 및 페이지별 데이터를 캐싱하여 동일 요청에 대한 중복 네트워크 호출 방지
 - 결과
-    - 검색한 주소는 10개씩 페이지 별로 호출
-    - 동일한 주소 쿼리 및 페이지에 대해서 Room DB에 저장 된 데이터 호출로 API 호출 최소화
+    - 검색 결과를 10개 단위로 호출하여 대량 데이터 조회 시 성능 저하 방지
+    - 동일 검색어 및 페이지 요청 시 Room 캐시를 재사용하여 API 호출 최소화
+    - 불필요한 네트워크 요청 감소로 검색 응답 속도 개선
 <br>    
 
 ## ⚙ In- App Notification 구현 [(코드)](https://github.com/kimdoyun98/Locarm/blob/main/app/src/main/java/com/project/locarm/ui/view/LocarmNotification.kt)
-View에서 제공하는 기존 SnackBar의 경우 Action 버튼 하나만 제공하여 두 개의 버튼을 사용하고자 할 때 제한되는 경우가 있다. 이에 따라 사용자 알림 View인 LocarmNotification을 구현하여 사용하도록 하였다.
+View에서 제공하는 기존 SnackBar의 경우 Action 버튼 하나만 제공하여 두 개의 버튼을 사용하고자 할 때 제한되는 문제로 인해 사용자 알림 View인 LocarmNotification을 구현하여 사용
 
-**과정**
-- 추상 클래스(LocarmNotification)를 만들어 공통 로직을 구현
-    - ViewBinding 객체
-    - show(), dismiss() 함수 구현
-    - show, dismiss에 관한 Animation
-- LocarmSnackBar와 TopStackingNotification 클래스에서 추상 클래스를 상속받아 각각의 Notification에 맞는 기능 구현
+- 추상 클래스 `LocarmNotification` 구현
+    - Notification의 공통 동작 관리
+    - ViewBinding 처리
+    - show(), dismiss() 로직 통합
+    - 등장 / 종료 Animation 공통화
+- Notification 유형별 클래스 분리
+    - `LocarmSnackBar`
+    - `TopStackingNotification`
+- 각 Notification은 추상 클래스를 상속받아 위치, UI, 동작 방식 등 필요한 기능만 개별 구현
 <img width="250" alt="Image" src="https://github.com/user-attachments/assets/d336de4d-3c65-4f9b-8071-e824997476b2" />
 <img width="250" alt="Image" src="https://github.com/user-attachments/assets/a209a56c-5665-4739-bed1-28d44dbe3d8d" />
 <img width="250"  alt="Image" src="https://github.com/user-attachments/assets/5abe0f25-13de-45ac-ad1d-cf72897dd841" />
