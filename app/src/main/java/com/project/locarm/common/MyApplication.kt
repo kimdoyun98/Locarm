@@ -5,6 +5,9 @@ import android.content.Context
 import com.naver.maps.map.NaverMapSdk
 import com.project.locarm.BuildConfig
 import com.project.locarm.di.AppContainer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MyApplication : Application() {
     val container by lazy { AppContainer(this) }
@@ -20,6 +23,10 @@ class MyApplication : Application() {
 
         NaverMapSdk.getInstance(this).client =
             NaverMapSdk.NaverCloudPlatformClient(BuildConfig.Client_ID)
+
+        CoroutineScope(Dispatchers.IO).launch {
+            container.addressRepository.deleteOldAddressCache()
+        }
     }
 }
 

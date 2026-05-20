@@ -6,7 +6,8 @@ import androidx.room.PrimaryKey
 @Entity
 data class AddressRemoteKey(
     @PrimaryKey val query: String,
-    val nextKey: Int?
+    val nextKey: Int?,
+    val updateAt: Long,
 )
 
 @Entity

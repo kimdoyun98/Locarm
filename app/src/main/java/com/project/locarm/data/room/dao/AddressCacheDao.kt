@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import com.project.locarm.data.model.Juso
 import com.project.locarm.data.room.entitiy.AddressEntity
 import com.project.locarm.data.room.entitiy.AddressRemoteKey
@@ -37,4 +38,14 @@ interface AddressRemoteKeyDao {
 
     @Query("DELETE FROM AddressRemoteKey WHERE `query` = :query")
     suspend fun clearKey(query: String)
+
+    @Query("""
+    SELECT `query`
+    FROM AddressRemoteKey
+    WHERE updateAt < :expireTime
+""")
+    suspend fun getExpiredQueries(expireTime: Long): List<String>
+
+    @Query(" DELETE FROM AddressRemoteKey WHERE updateAt < :expireTime")
+    suspend fun deleteOldRemoteKeys(expireTime: Long)
 }

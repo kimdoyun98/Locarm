@@ -11,7 +11,7 @@ import com.project.locarm.data.room.entitiy.Favorite
 
 @Database(
     entities = [Favorite::class, AddressRemoteKey::class, AddressEntity::class],
-    version = 3
+    version = 4
 )
 abstract class DataBase : RoomDatabase() {
     abstract fun favoriteDao(): FavoritesDao

@@ -10,6 +10,7 @@ import com.project.locarm.data.repository.AddressRepository
 import com.project.locarm.data.repository.FavoritesRepository
 import com.project.locarm.data.repository.LocationRepository
 import com.project.locarm.data.room.DataBase
+import com.project.locarm.data.room.DatabaseMigrations
 import com.project.locarm.location.LocationObserver
 import com.project.locarm.location.RealTimeLocation
 
@@ -21,6 +22,7 @@ class AppContainer(context: Context) {
             DataBase::class.java,
             "db"
         )
+            .addMigrations(DatabaseMigrations.MIGRATION_3_4)
             .fallbackToDestructiveMigration(false)
             .build()
     }

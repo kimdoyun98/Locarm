@@ -63,13 +63,13 @@ class AddressRemoteMediator(
                     addressEntityDao.clearByQuery(query)
                     remoteKeyDao.clearKey(query)
                 }
-
+                val currentTime = System.currentTimeMillis()
                 val entities = juso.map {
                     AddressEntity(
                         query = query,
                         jibunAddr = it.jibunAddr,
                         roadAddr = it.roadAddr,
-                        name = it.name
+                        name = it.name,
                     )
                 }
 
@@ -78,7 +78,8 @@ class AddressRemoteMediator(
                 remoteKeyDao.insertKey(
                     AddressRemoteKey(
                         query = query,
-                        nextKey = if (endOfPaginationReached) null else page + 1
+                        nextKey = if (endOfPaginationReached) null else page + 1,
+                        updateAt = currentTime
                     )
                 )
             }
