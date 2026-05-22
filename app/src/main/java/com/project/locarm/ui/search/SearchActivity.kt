@@ -170,37 +170,33 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun selectDestinationButton() {
         binding.selectDestinationBt.setOnClickListener {
-            when (val state = viewModel.selectDestinationState.value) {
-                is SelectDestinationState.Idle -> Unit
+            val state = viewModel.selectDestinationState.value as SelectDestinationState.SelectOnMap
+            val dialogBinding =
+                DestinationTitleInputLayoutBinding.inflate(LayoutInflater.from(this))
 
-                is SelectDestinationState.SelectOnMap -> {
-                    val dialogBinding =
-                        DestinationTitleInputLayoutBinding.inflate(LayoutInflater.from(this))
+            val dialog = AlertDialog.Builder(this)
+                .setView(dialogBinding.root)
+                .create()
 
-                    val dialog = AlertDialog.Builder(this)
-                        .setView(dialogBinding.root)
-                        .create()
+            dialogBinding.editButton.setOnClickListener {
+                notifyFavorite(
+                    SelectDestination(
+                        name = dialogBinding.destinationEditText.text.toString(),
+                        latitude = state.location.latitude,
+                        longitude = state.location.longitude
+                    )
+                )
 
-                    dialogBinding.editButton.setOnClickListener {
-                        notifyFavorite(
-                            SelectDestination(
-                                name = dialogBinding.destinationEditText.text.toString(),
-                                latitude = state.location.latitude,
-                                longitude = state.location.longitude
-                            )
-                        )
-
-                        dialog.dismiss()
-                    }
-
-                    dialog.window?.setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
-                    dialog.show()
-                }
-
-                is SelectDestinationState.SelectSearchResult -> {
-                    notifyFavorite(state.result)
-                }
+                dialog.dismiss()
             }
+
+            dialog.window?.setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
+            dialog.show()
+        }
+
+        binding.selectDestinationLayout.root.setOnClickListener {
+            val state = viewModel.selectDestinationState.value as SelectDestinationState.SelectSearchResult
+            notifyFavorite(state.result)
         }
     }
 
