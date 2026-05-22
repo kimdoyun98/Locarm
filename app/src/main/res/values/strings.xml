@@ -57,6 +57,7 @@
     <string name="searchActivity_dialog_km">Km</string>
     <string name="searchActivity_dialog_cancel">취소</string>
     <string name="searchActivity_snack_bar_add">추가</string>
+    <string name="pass">건너뛰기</string>
     <string name="edit">등록</string>
 
     <!--  Favorite  -->

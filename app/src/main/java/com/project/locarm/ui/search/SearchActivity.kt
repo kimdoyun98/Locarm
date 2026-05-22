@@ -29,13 +29,13 @@ import com.project.locarm.data.model.Juso
 import com.project.locarm.data.model.SelectDestination
 import com.project.locarm.databinding.ActivitySearchBinding
 import com.project.locarm.databinding.DestinationTitleInputLayoutBinding
+import com.project.locarm.databinding.FavoriteDialogLayooutBinding
 import com.project.locarm.databinding.SearchResultLayoutBinding
 import com.project.locarm.location.util.GeoCoder
 import com.project.locarm.ui.main.MainActivity.Companion.SELECT
 import com.project.locarm.ui.search.adapter.PagingAdapter
 import com.project.locarm.ui.search.util.AddressResultState
 import com.project.locarm.ui.search.util.SelectDestinationState
-import com.project.locarm.ui.view.LocarmSnackBar
 import com.project.locarm.ui.view.TopStackingNotification
 import kotlinx.coroutines.flow.collectLatest
 
@@ -195,7 +195,8 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
         binding.selectDestinationLayout.root.setOnClickListener {
-            val state = viewModel.selectDestinationState.value as SelectDestinationState.SelectSearchResult
+            val state =
+                viewModel.selectDestinationState.value as SelectDestinationState.SelectSearchResult
             notifyFavorite(state.result)
         }
     }
@@ -213,24 +214,25 @@ class SearchActivity : AppCompatActivity(), OnMapReadyCallback {
             return
         }
 
-        showSnackBar(selectDestination)
-    }
+        val dialogBinding =
+            FavoriteDialogLayooutBinding.inflate(LayoutInflater.from(this))
 
-    private fun showSnackBar(selectDestination: SelectDestination) {
-        LocarmSnackBar.make(
-            this,
-            getString(R.string.searchActivity_dialog_add_favorites_message),
-            LocarmSnackBar.SHORT
-        )
-            .setAction(getString(R.string.searchActivity_dialog_post_button)) {
-                viewModel.insertFavorite(selectDestination)
-                finish()
-            }
-            .setNegativeAction(getString(R.string.searchActivity_dialog_negative_button)) {
-                finish()
-            }
-            .setDisMissAction { finish() }
-            .show()
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogBinding.root)
+            .create()
+
+        dialogBinding.favoriteEditButton.setOnClickListener {
+            viewModel.insertFavorite(selectDestination)
+            finish()
+        }
+
+        dialogBinding.favoriteCancelButton.setOnClickListener {
+            finish()
+        }
+
+
+        dialog.window?.setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
+        dialog.show()
     }
 
     private fun initToolbarNavigationButton() {
