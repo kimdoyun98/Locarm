@@ -36,7 +36,7 @@ class MainViewModel(
     private val locationObserver: LocationObserver,
     private val realTimeLocation: RealTimeLocation
 ) : ViewModel() {
-    private val _unknownDestination = MutableSharedFlow<Boolean>()
+    private val _unknownDestination = MutableSharedFlow<Boolean>(extraBufferCapacity = 1)
     val unknownDestination = _unknownDestination.asSharedFlow()
 
     val locationPermissionState = locationObserver.observe
