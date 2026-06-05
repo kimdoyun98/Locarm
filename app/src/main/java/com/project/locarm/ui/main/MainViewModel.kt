@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import com.project.locarm.common.PreferenceUtil
 import com.project.locarm.common.PreferenceUtil.Companion.DISTANCE
 import com.project.locarm.data.model.SelectDestination
+import com.project.locarm.data.repository.AdsRepository
 import com.project.locarm.data.repository.LocationRepository
 import com.project.locarm.location.LocationObserver
 import com.project.locarm.location.RealTimeLocation
@@ -34,7 +35,8 @@ class MainViewModel(
     private val preference: PreferenceUtil,
     private val locationRepository: LocationRepository,
     private val locationObserver: LocationObserver,
-    private val realTimeLocation: RealTimeLocation
+    private val realTimeLocation: RealTimeLocation,
+    private val adsRepository: AdsRepository,
 ) : ViewModel() {
     private val _unknownDestination = MutableSharedFlow<Boolean>(extraBufferCapacity = 1)
     val unknownDestination = _unknownDestination.asSharedFlow()
@@ -157,6 +159,14 @@ class MainViewModel(
         _serviceState.value = serviceState
     }
 
+    suspend fun shouldShowAd(): Boolean {
+        return adsRepository.shouldShowAd()
+    }
+
+    suspend fun updateAdsLastTime() {
+        adsRepository.updateAdsLastTime()
+    }
+
     companion object {
         const val LOCATION_PERMISSION_DENIED = 0
         const val LOCATION_DISABLED = 1
@@ -167,6 +177,7 @@ class MainViewModel(
             locationRepository: LocationRepository,
             locationObserver: LocationObserver,
             realTimeLocation: RealTimeLocation,
+            adsRepository: AdsRepository,
         ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(
@@ -178,6 +189,7 @@ class MainViewModel(
                     locationRepository,
                     locationObserver,
                     realTimeLocation,
+                    adsRepository,
                 ) as T
             }
         }

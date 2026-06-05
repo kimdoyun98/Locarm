@@ -42,7 +42,8 @@ class MainActivity : AppCompatActivity() {
             applicationContext.appContainer.preference,
             applicationContext.appContainer.locationRepository,
             locationObserver,
-            applicationContext.appContainer.realTimeLocation
+            applicationContext.appContainer.realTimeLocation,
+            appContainer.adsRepository,
         )
     }
     private val serviceIntent = Intent(this, BackgroundLocationUpdateService::class.java)
@@ -77,6 +78,8 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+    private val adManager by lazy { appContainer.interstitialAdManager }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -87,6 +90,8 @@ class MainActivity : AppCompatActivity() {
 
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
+
+        adManager.load(this)
 
         initFavoriteContent()
         locationPermissionState()
@@ -207,9 +212,19 @@ class MainActivity : AppCompatActivity() {
                     locarmPermission.requestNotificationPermission()
                 }
 
-                runTrackingService()
+                activityLifecycleScope {
+                    if(viewModel.shouldShowAd()){
+                        viewModel.updateAdsLastTime()
 
-                viewModel.setServiceState(ServiceState.RunService)
+                        adManager.show(this@MainActivity){
+                            runTrackingService()
+                            viewModel.setServiceState(ServiceState.RunService)
+                        }
+                    } else {
+                        runTrackingService()
+                        viewModel.setServiceState(ServiceState.RunService)
+                    }
+                }
             }
         }
     }

@@ -11,6 +11,7 @@ properties.load(project.rootProject.file('local.properties').newDataInputStream(
 def addressKey = properties['address_key']
 def clientId = properties['Client_ID']
 def clientSecret = properties['Client_Secret']
+def adsInterstitialId = properties['ADS_INTERSTITIAL_ID']
 
 android {
     compileSdk 36
@@ -34,6 +35,11 @@ android {
         //Naver API ID & Key
         buildConfigField "String", "Client_ID", "\"${clientId}\""
         buildConfigField "String", "Client_Secret", "\"${clientSecret}\""
+        buildConfigField "String", "ADS_INTERSTITIAL_ID", "\"${adsInterstitialId}\""
+
+        manifestPlaceholders = [
+                ADS_APP_ID: properties.getProperty("ADS_APP_ID")
+        ]
     }
 
     buildFeatures{
@@ -108,4 +114,8 @@ dependencies {
 
     //location
     implementation 'com.google.android.gms:play-services-location:21.0.1'
+
+    implementation 'com.google.android.gms:play-services-ads:24.3.0'
+
+    implementation 'androidx.datastore:datastore-preferences:1.2.1'
 }
