@@ -45,6 +45,7 @@ class MainActivity : AppCompatActivity() {
             applicationContext.appContainer.realTimeLocation
         )
     }
+    private val serviceIntent = Intent(this, BackgroundLocationUpdateService::class.java)
     private val searchDestinationResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
@@ -87,22 +88,24 @@ class MainActivity : AppCompatActivity() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
 
+        initFavoriteContent()
+        locationPermissionState()
+        searchDestination()
+        destinationFragment()
+        checkRunningService()
+        trackingButtonClickAction()
+        unknownDestinationNotification()
+    }
+
+    private fun initFavoriteContent(){
         binding.favoriteLayout.root.setOnClickListener {
             val intent = Intent(this, FavoriteActivity::class.java)
             searchDestinationResult.launch(intent)
         }
-
-        locationState()
-        searchDestination()
-        destinationFragment()
-        checkRunningService()
-        trackingButtonClick()
-        trackingButtonClickAction()
     }
-
-    private fun locationState() {
+    private fun locationPermissionState() {
         activityLifecycleScope(Lifecycle.State.CREATED) {
-            viewModel.locationState.collect { state ->
+            viewModel.locationPermissionState.collect { state ->
                 when (state) {
                     LocationState.PermissionDenied -> {
                         locarmPermission.requestAllPermission()
@@ -149,22 +152,19 @@ class MainActivity : AppCompatActivity() {
                     val serviceIntent = Intent(this, BackgroundLocationUpdateService::class.java)
                     bindService(serviceIntent, serviceConnection, BIND_AUTO_CREATE)
 
-                    getServiceState(true)
+                    ServiceState.RunService
                 } else {
-                    getServiceState(false)
+                    ServiceState.StopService
                 }
             )
         }
     }
 
-    private fun trackingButtonClick() {
-        binding.alarmButton.setOnClickListener {
-            if (viewModel.destination.value == null) {
+    private fun unknownDestinationNotification() {
+        activityLifecycleScope {
+            viewModel.unknownDestination.collect {
                 showTopNotification(getString(R.string.mainActivity_input_destination_toast_message))
-                return@setOnClickListener
             }
-
-            viewModel.onClickTrackingButton()
         }
     }
 
@@ -193,17 +193,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun runServiceAction() {
-        when (val serviceState = viewModel.serviceState.value!!) {
-            is ServiceState.Idle -> {
-                checkRunService()
-            }
+        when (viewModel.serviceState.value) {
+            is ServiceState.Idle -> Unit
 
             is ServiceState.RunService -> {
-                serviceState.onClick()
+                stopTrackingService()
 
-                viewModel.setServiceState(
-                    getServiceState(false)
-                )
+                viewModel.setServiceState(ServiceState.StopService)
             }
 
             is ServiceState.StopService -> {
@@ -211,36 +207,25 @@ class MainActivity : AppCompatActivity() {
                     locarmPermission.requestNotificationPermission()
                 }
 
-                serviceState.onClick()
+                runTrackingService()
 
-                viewModel.setServiceState(
-                    getServiceState(true)
-                )
+                viewModel.setServiceState(ServiceState.RunService)
             }
         }
     }
 
-    private fun getServiceState(run: Boolean): ServiceState {
-        val serviceIntent = Intent(this, BackgroundLocationUpdateService::class.java)
-        return if (run) {
-            ServiceState.RunService(
-                onClick = {
-                    stopService(serviceIntent)
-                    unbindService(serviceConnection)
-                }
-            )
-        } else {
-            ServiceState.StopService(
-                onClick = {
-                    serviceIntent.apply {
-                        putExtra(SELECT, viewModel.destination.value)
-                        putExtra(DISTANCE_REMAINING, viewModel.getDistanceRemainingInteger())
-                    }
-                    startService(serviceIntent)
-                    bindService(serviceIntent, serviceConnection, BIND_AUTO_CREATE)
-                }
-            )
+    private fun runTrackingService() {
+        serviceIntent.apply {
+            putExtra(SELECT, viewModel.destination.value)
+            putExtra(DISTANCE_REMAINING, viewModel.getDistanceRemainingInteger())
         }
+        startService(serviceIntent)
+        bindService(serviceIntent, serviceConnection, BIND_AUTO_CREATE)
+    }
+
+    private fun stopTrackingService() {
+        stopService(serviceIntent)
+        unbindService(serviceConnection)
     }
 
     private fun checkRunService(): Boolean {

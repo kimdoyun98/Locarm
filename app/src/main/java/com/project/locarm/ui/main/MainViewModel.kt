@@ -1,7 +1,5 @@
 package com.project.locarm.ui.main
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -18,6 +16,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
@@ -37,15 +36,18 @@ class MainViewModel(
     private val locationObserver: LocationObserver,
     private val realTimeLocation: RealTimeLocation
 ) : ViewModel() {
-    val locationState = locationObserver.observe
+    private val _unknownDestination = MutableSharedFlow<Boolean>()
+    val unknownDestination = _unknownDestination.asSharedFlow()
+
+    val locationPermissionState = locationObserver.observe
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),
             LocationState.Idle
         )
 
-    private val _serviceState = MutableLiveData<ServiceState>().apply { value = ServiceState.Idle }
-    val serviceState: LiveData<ServiceState> = _serviceState
+    private val _serviceState = MutableStateFlow<ServiceState>(ServiceState.Idle)
+    val serviceState = _serviceState.asStateFlow()
 
     private val _trackingButtonClick = MutableSharedFlow<Int>(extraBufferCapacity = 1)
     val trackingButtonClick = _trackingButtonClick
@@ -98,7 +100,7 @@ class MainViewModel(
         destination
             .filterNotNull()
             .onEach { _distanceRemaining.value = 0 }
-            .combine(locationState) { destination, state ->
+            .combine(locationPermissionState) { destination, state ->
                 (state is LocationState.Ready) to destination
             }
             .filter { (isReady, destination) -> isReady }
@@ -119,7 +121,12 @@ class MainViewModel(
     }
 
     fun onClickTrackingButton() {
-        when (locationState.value) {
+        if (destination.value == null) {
+            _unknownDestination.tryEmit(true)
+            return
+        }
+
+        when (locationPermissionState.value) {
             LocationState.Idle -> Unit
 
             LocationState.PermissionDenied -> {

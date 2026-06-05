@@ -68,6 +68,7 @@
             android:layout_margin="16dp"
             android:textColor="@color/white"
             android:textSize="30sp"
+            android:onClick="@{()-> viewModel.onClickTrackingButton()}"
             app:backgroundTint="@null"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
