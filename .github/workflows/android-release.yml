@@ -40,6 +40,8 @@ jobs:
           echo "address_key=${{ secrets.KEY_ADDRESS }}" >> local.properties
           echo "Client_ID=${{ secrets.Client_ID }}" >> local.properties
           echo "Client_Secret=${{ secrets.Client_Secret }}" >> local.properties
+          echo "ADS_INTERSTITIAL_ID=${{ secrets.ADS_INTERSTITIAL_ID }}" >> local.properties
+          echo "ADS_APP_ID=${{ secrets.ADS_APP_ID }}" >> local.properties
 
       # CD
       - name: Build AAB
