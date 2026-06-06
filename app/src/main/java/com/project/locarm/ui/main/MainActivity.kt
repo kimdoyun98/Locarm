@@ -46,7 +46,8 @@ class MainActivity : AppCompatActivity() {
             appContainer.adsRepository,
         )
     }
-    private val serviceIntent = Intent(this, BackgroundLocationUpdateService::class.java)
+
+    //private val serviceIntent = Intent(this, BackgroundLocationUpdateService::class.java)
     private val searchDestinationResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
@@ -102,12 +103,13 @@ class MainActivity : AppCompatActivity() {
         unknownDestinationNotification()
     }
 
-    private fun initFavoriteContent(){
+    private fun initFavoriteContent() {
         binding.favoriteLayout.root.setOnClickListener {
             val intent = Intent(this, FavoriteActivity::class.java)
             searchDestinationResult.launch(intent)
         }
     }
+
     private fun locationPermissionState() {
         activityLifecycleScope(Lifecycle.State.CREATED) {
             viewModel.locationPermissionState.collect { state ->
@@ -198,11 +200,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun runServiceAction() {
+        val serviceIntent = Intent(this, BackgroundLocationUpdateService::class.java)
         when (viewModel.serviceState.value) {
             is ServiceState.Idle -> Unit
 
             is ServiceState.RunService -> {
-                stopTrackingService()
+                stopTrackingService(serviceIntent)
 
                 viewModel.setServiceState(ServiceState.StopService)
             }
@@ -213,15 +216,15 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 activityLifecycleScope {
-                    if(viewModel.shouldShowAd()){
+                    if (viewModel.shouldShowAd()) {
                         viewModel.updateAdsLastTime()
 
-                        adManager.show(this@MainActivity){
-                            runTrackingService()
+                        adManager.show(this@MainActivity) {
+                            runTrackingService(serviceIntent)
                             viewModel.setServiceState(ServiceState.RunService)
                         }
                     } else {
-                        runTrackingService()
+                        runTrackingService(serviceIntent)
                         viewModel.setServiceState(ServiceState.RunService)
                     }
                 }
@@ -229,7 +232,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun runTrackingService() {
+    private fun runTrackingService(serviceIntent: Intent) {
         serviceIntent.apply {
             putExtra(SELECT, viewModel.destination.value)
             putExtra(DISTANCE_REMAINING, viewModel.getDistanceRemainingInteger())
@@ -238,7 +241,7 @@ class MainActivity : AppCompatActivity() {
         bindService(serviceIntent, serviceConnection, BIND_AUTO_CREATE)
     }
 
-    private fun stopTrackingService() {
+    private fun stopTrackingService(serviceIntent: Intent) {
         stopService(serviceIntent)
         unbindService(serviceConnection)
     }
