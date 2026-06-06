@@ -4,6 +4,7 @@ plugins {
     id 'kotlin-kapt'
     id 'kotlin-parcelize'
     id 'kotlinx-serialization'
+    id 'com.google.devtools.ksp'
 }
 
 Properties properties = new Properties()
@@ -98,11 +99,11 @@ dependencies {
     implementation "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0"
 
     //room
-    implementation 'androidx.room:room-ktx:2.7.1'
-    implementation 'androidx.room:room-runtime:2.7.1'
-    implementation 'androidx.room:room-paging:2.7.1'
-    annotationProcessor 'androidx.room:room-compiler:2.7.1'
-    kapt 'androidx.room:room-compiler:2.7.1'
+    implementation 'androidx.room:room-ktx:2.8.4'
+    implementation 'androidx.room:room-runtime:2.8.4'
+    implementation 'androidx.room:room-paging:2.8.4'
+    annotationProcessor 'androidx.room:room-compiler:2.8.4'
+    ksp 'androidx.room:room-compiler:2.8.4'
 
     //naver map
     implementation 'com.naver.maps:map-sdk:3.21.0'
@@ -115,7 +116,7 @@ dependencies {
     //location
     implementation 'com.google.android.gms:play-services-location:21.0.1'
 
-    implementation 'com.google.android.gms:play-services-ads:24.3.0'
+    implementation 'com.google.android.gms:play-services-ads:24.5.0'
 
     implementation 'androidx.datastore:datastore-preferences:1.2.1'
 }
